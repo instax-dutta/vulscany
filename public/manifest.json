@@ -1,7 +1,7 @@
 {
-    "name": "VulnScany - Privacy-First React Security Scanner",
-    "short_name": "VulnScany",
-    "description": "Scan your GitHub React projects for security vulnerabilities. Your code is never stored.",
+    "name": "VullScanny - Privacy-First React Security Scanner",
+    "short_name": "VullScanny",
+    "description": "Scan GitHub React projects for vulnerabilities with VulkanorAI. Privacy-first, zero storage.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#0a0a0f",

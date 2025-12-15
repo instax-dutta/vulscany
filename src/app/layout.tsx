@@ -24,28 +24,35 @@ export const metadata: Metadata = {
     default: `${siteName} - Privacy-First React Security Scanner`,
     template: `%s | ${siteName}`
   },
-  description: 'Privacy-first React security scanner powered by VulkanorAI. Scan your React projects for XSS, injection vulnerabilities, and dangerous patterns. Your code is never stored.',
+  description: 'VullScanny is a privacy-first React security scanner powered by VulkanorAI. Automate XSS detection, prevent injection attacks, and audit your GitHub repositories instantly. A premium tool from the SDAD.pro ecosystem.',
   keywords: [
-    'react security',
-    'vulnerability scanner',
-    'VulkanorAI',
-    'AI security',
-    'github security',
-    'react vulnerabilities',
-    'xss detection',
-    'code security',
-    'privacy-first',
-    'react2shell',
-    'security audit',
-    'static analysis',
+    // Core Functionality
     'react security scanner',
-    'github app',
-    'developer tools',
-    'security tools',
-    'code analysis'
+    'automated vulnerability detection',
+    'fix react xss',
+    'javascript static analysis',
+    'github security audit',
+
+    // Brand & Tech
+    'VulkanorAI',
+    'VullScanny',
+    'sdad.pro',
+    'SDAD security',
+
+    // Specific Threats
+    'react injection vulnerabilities',
+    'identifying dangerous code patterns',
+    'next.js security best practices',
+    'unsafe dependencies check',
+
+    // Developer Intent
+    'audit github repo',
+    'secure code review automation',
+    'developer cyber security tools',
+    'privacy-first code analysis'
   ],
   generator: 'VulkanorAI Engine',
-  authors: [{ name: 'VullScanny Team' }],
+  authors: [{ name: 'Sai Dutta Abhishek Dash', url: 'https://sdad.pro' }],
   creator: 'VullScanny',
   publisher: 'VullScanny',
   formatDetection: {
@@ -88,22 +95,7 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  icons: {
-    icon: [
-      { url: '/favicon.png', sizes: '64x64', type: 'image/png' },
-      { url: '/logo.png', sizes: '512x512', type: 'image/png' },
-    ],
-    shortcut: '/favicon.png',
-    apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
-    ],
-    other: [
-      {
-        rel: 'apple-touch-icon-precomposed',
-        url: '/apple-touch-icon.png',
-      },
-    ],
-  },
+
   manifest: '/manifest.json',
   alternates: {
     canonical: siteUrl,
@@ -163,7 +155,18 @@ export default function RootLayout({
               image: `${siteUrl}/og-image.png`,
               author: {
                 '@type': 'Organization',
-                name: 'VulnScany',
+                name: 'SDAD.pro',
+                url: 'https://sdad.pro',
+                logo: 'https://sdad.pro/logo.png', // Assuming standard logo path or can use the app icon
+                sameAs: [
+                  'https://github.com/saiduttaabhishekdash',
+                  'https://twitter.com/saiduttaabhishekdash'
+                ]
+              },
+              publisher: {
+                '@type': 'Organization',
+                name: 'VullScanny powered by VulkanorAI',
+                url: siteUrl
               },
               aggregateRating: {
                 '@type': 'AggregateRating',

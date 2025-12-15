@@ -1,5 +1,5 @@
 export default function sitemap() {
-    const baseUrl = 'https://vlsn.sdad.pro';
+    const baseUrl = 'https://vullscanny.sdad.pro';
 
     return [
         {
