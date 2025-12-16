@@ -64,6 +64,28 @@ export async function POST(request: NextRequest) {
         // Scan the repository
         const scanResult = await scanRepository(token, owner, repo, reactInfo);
 
+        // Enhance with threat intelligence
+        try {
+            const { analyzeRepositoryThreats } = await import('@/lib/threat-intel');
+            const dependencies = reactInfo.dependencies || {};
+
+            if (Object.keys(dependencies).length > 0) {
+                const threatIntel = await analyzeRepositoryThreats(dependencies);
+
+                scanResult.threatIntelligence = {
+                    riskScore: threatIntel.riskScore,
+                    riskLevel: threatIntel.riskLevel,
+                    cveCount: threatIntel.cveMatches.length,
+                    advisoryCount: threatIntel.advisoryMatches.length,
+                    criticalThreats: threatIntel.cveMatches.filter(c => c.severity === 'CRITICAL').length,
+                    recommendations: threatIntel.recommendations,
+                };
+            }
+        } catch (error) {
+            console.error('[API] Threat intelligence failed:', error);
+            // Continue without threat intel if it fails
+        }
+
         return NextResponse.json({ scanResult });
 
     } catch (error: any) {

@@ -19,6 +19,14 @@ interface ScanResult {
     vulnerabilities: Vulnerability[];
     status: 'safe' | 'needs-attention' | 'high-risk';
     summary: string;
+    threatIntelligence?: {
+        riskScore: number;
+        riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+        cveCount: number;
+        advisoryCount: number;
+        criticalThreats: number;
+        recommendations: string[];
+    };
 }
 
 interface Repository {
@@ -435,6 +443,141 @@ export default function Dashboard() {
                                     ))}
                                 </div>
                             </div>
+
+                            {/* Threat Intelligence Panel */}
+                            {currentResult.threatIntelligence && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    style={{
+                                        background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.05), rgba(0, 204, 255, 0.05))',
+                                        border: '2px solid rgba(0, 255, 136, 0.3)',
+                                        borderRadius: '1rem',
+                                        padding: '1.5rem',
+                                        marginBottom: '1.5rem'
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                            <div style={{ fontSize: '1.5rem' }}>🛡️</div>
+                                            <h3 style={{ fontSize: '1rem', fontWeight: '900', color: '#00ff88', fontFamily: 'monospace' }}>
+                                                THREAT INTELLIGENCE
+                                            </h3>
+                                        </div>
+                                        <div style={{
+                                            background: currentResult.threatIntelligence.riskLevel === 'CRITICAL' ? 'rgba(255, 0, 85, 0.2)' :
+                                                currentResult.threatIntelligence.riskLevel === 'HIGH' ? 'rgba(255, 170, 0, 0.2)' :
+                                                    currentResult.threatIntelligence.riskLevel === 'MEDIUM' ? 'rgba(255, 200, 0, 0.2)' :
+                                                        'rgba(0, 255, 136, 0.2)',
+                                            border: `2px solid ${currentResult.threatIntelligence.riskLevel === 'CRITICAL' ? '#ff0055' :
+                                                currentResult.threatIntelligence.riskLevel === 'HIGH' ? '#ffaa00' :
+                                                    currentResult.threatIntelligence.riskLevel === 'MEDIUM' ? '#ffc800' :
+                                                        '#00ff88'}`,
+                                            borderRadius: '0.5rem',
+                                            padding: '0.5rem 1rem',
+                                            fontFamily: 'monospace',
+                                            fontWeight: '900',
+                                            fontSize: '0.75rem',
+                                            color: currentResult.threatIntelligence.riskLevel === 'CRITICAL' ? '#ff0055' :
+                                                currentResult.threatIntelligence.riskLevel === 'HIGH' ? '#ffaa00' :
+                                                    currentResult.threatIntelligence.riskLevel === 'MEDIUM' ? '#ffc800' :
+                                                        '#00ff88'
+                                        }}>
+                                            {currentResult.threatIntelligence.riskLevel} RISK
+                                        </div>
+                                    </div>
+
+                                    {/* Risk Score Visualization */}
+                                    <div style={{ marginBottom: '1.5rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                            <span style={{ fontSize: '0.75rem', color: '#666', fontFamily: 'monospace' }}>RISK SCORE</span>
+                                            <span style={{ fontSize: '1.25rem', fontWeight: '900', color: '#00ff88', fontFamily: 'monospace' }}>
+                                                {currentResult.threatIntelligence.riskScore}/100
+                                            </span>
+                                        </div>
+                                        <div style={{
+                                            width: '100%',
+                                            height: '8px',
+                                            background: 'rgba(0, 0, 0, 0.3)',
+                                            borderRadius: '4px',
+                                            overflow: 'hidden'
+                                        }}>
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${currentResult.threatIntelligence.riskScore}%` }}
+                                                transition={{ duration: 1, ease: 'easeOut' }}
+                                                style={{
+                                                    height: '100%',
+                                                    background: currentResult.threatIntelligence.riskScore >= 75 ? 'linear-gradient(90deg, #ff0055, #ff5500)' :
+                                                        currentResult.threatIntelligence.riskScore >= 50 ? 'linear-gradient(90deg, #ffaa00, #ffc800)' :
+                                                            currentResult.threatIntelligence.riskScore >= 25 ? 'linear-gradient(90deg, #ffc800, #00ff88)' :
+                                                                'linear-gradient(90deg, #00ff88, #00ccff)'
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Threat Stats */}
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                                        <div style={{
+                                            background: 'rgba(0, 0, 0, 0.3)',
+                                            borderRadius: '0.5rem',
+                                            padding: '0.75rem',
+                                            textAlign: 'center'
+                                        }}>
+                                            <div style={{ fontSize: '0.625rem', color: '#666', marginBottom: '0.25rem', fontFamily: 'monospace' }}>CVEs</div>
+                                            <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#00ccff', fontFamily: 'monospace' }}>
+                                                {currentResult.threatIntelligence.cveCount}
+                                            </div>
+                                        </div>
+                                        <div style={{
+                                            background: 'rgba(0, 0, 0, 0.3)',
+                                            borderRadius: '0.5rem',
+                                            padding: '0.75rem',
+                                            textAlign: 'center'
+                                        }}>
+                                            <div style={{ fontSize: '0.625rem', color: '#666', marginBottom: '0.25rem', fontFamily: 'monospace' }}>ADVISORIES</div>
+                                            <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#00ccff', fontFamily: 'monospace' }}>
+                                                {currentResult.threatIntelligence.advisoryCount}
+                                            </div>
+                                        </div>
+                                        <div style={{
+                                            background: 'rgba(0, 0, 0, 0.3)',
+                                            borderRadius: '0.5rem',
+                                            padding: '0.75rem',
+                                            textAlign: 'center'
+                                        }}>
+                                            <div style={{ fontSize: '0.625rem', color: '#666', marginBottom: '0.25rem', fontFamily: 'monospace' }}>CRITICAL</div>
+                                            <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#ff0055', fontFamily: 'monospace' }}>
+                                                {currentResult.threatIntelligence.criticalThreats}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Recommendations */}
+                                    {currentResult.threatIntelligence.recommendations.length > 0 && (
+                                        <div>
+                                            <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#00ff88', marginBottom: '0.5rem', fontFamily: 'monospace' }}>
+                                                SECURITY RECOMMENDATIONS
+                                            </div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                                {currentResult.threatIntelligence.recommendations.map((rec, i) => (
+                                                    <div key={i} style={{
+                                                        fontSize: '0.8125rem',
+                                                        color: '#cbd5e1',
+                                                        padding: '0.5rem',
+                                                        background: 'rgba(0, 0, 0, 0.2)',
+                                                        borderRadius: '0.375rem',
+                                                        borderLeft: '3px solid #00ff88'
+                                                    }}>
+                                                        {rec}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            )}
 
                             {/* Vulnerabilities */}
                             {currentResult.vulnerabilities.length > 0 ? (

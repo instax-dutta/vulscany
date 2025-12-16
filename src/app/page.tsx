@@ -80,6 +80,54 @@ export default function Home() {
         </div>
       </header>
 
+      {/* Announcement Banner */}
+      <motion.div
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.5, type: 'spring' }}
+        style={{
+          background: 'linear-gradient(90deg, rgba(0, 255, 136, 0.15), rgba(0, 204, 255, 0.15))',
+          borderBottom: '2px solid rgba(0, 255, 136, 0.3)',
+          padding: '1rem 2rem',
+          position: 'relative',
+          zIndex: 99
+        }}
+      >
+        <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <motion.div
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            style={{ fontSize: '1.5rem' }}
+          >
+            🚀
+          </motion.div>
+          <div style={{ flex: 1, minWidth: '300px', textAlign: 'center' }}>
+            <span style={{ fontWeight: '900', color: '#00ff88', fontFamily: 'monospace', fontSize: '0.875rem' }}>
+              NEW:
+            </span>
+            <span style={{ color: '#cbd5e1', marginLeft: '0.5rem', fontSize: '0.875rem' }}>
+              Advanced Threat Intelligence • Real-time CVE Tracking • Zero-Day Detection
+            </span>
+          </div>
+          <Link
+            href="/dashboard"
+            style={{
+              background: 'linear-gradient(135deg, #00ff88, #00ccff)',
+              color: '#0a0a0f',
+              padding: '0.5rem 1.5rem',
+              borderRadius: '0.5rem',
+              fontSize: '0.75rem',
+              fontWeight: '700',
+              textDecoration: 'none',
+              fontFamily: 'monospace',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            TRY NOW →
+          </Link>
+        </div>
+      </motion.div>
+
       {/* Hero Section */}
       <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '4rem 2rem', position: 'relative' }}>
 

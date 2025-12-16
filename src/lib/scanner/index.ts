@@ -27,6 +27,14 @@ export interface ScanResult {
     vulnerabilities: Vulnerability[];
     status: 'safe' | 'needs-attention' | 'high-risk';
     summary: string;
+    threatIntelligence?: {
+        riskScore: number;
+        riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+        cveCount: number;
+        advisoryCount: number;
+        criticalThreats: number;
+        recommendations: string[];
+    };
 }
 
 /**

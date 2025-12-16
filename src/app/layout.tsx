@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     default: `${siteName} - Privacy-First React Security Scanner`,
     template: `%s | ${siteName}`
   },
-  description: 'VullScanny is a privacy-first React security scanner powered by VulkanorAI. Automate XSS detection, prevent injection attacks, and audit your GitHub repositories instantly. A premium tool from the SDAD.pro ecosystem.',
+  description: '🚀 NEW: VullScanny now features advanced threat intelligence with real-time CVE tracking and zero-day detection! Privacy-first React security scanner powered by VulkanorAI. Automate XSS detection, prevent injection attacks, and audit your GitHub repositories instantly with comprehensive risk analysis.',
   keywords: [
     // Core Functionality
     'react security scanner',
