@@ -109,8 +109,10 @@ export default function Home() {
               Advanced Threat Intelligence • Real-time CVE Tracking • Zero-Day Detection
             </span>
           </div>
-          <Link
-            href="/dashboard"
+          <motion.button
+            onClick={handleGitHubLogin}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             style={{
               background: 'linear-gradient(135deg, #00ff88, #00ccff)',
               color: '#0a0a0f',
@@ -118,18 +120,19 @@ export default function Home() {
               borderRadius: '0.5rem',
               fontSize: '0.75rem',
               fontWeight: '700',
-              textDecoration: 'none',
+              border: 'none',
+              cursor: 'pointer',
               fontFamily: 'monospace',
               whiteSpace: 'nowrap'
             }}
           >
             TRY NOW →
-          </Link>
+          </motion.button>
         </div>
       </motion.div>
 
       {/* Hero Section */}
-      <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '4rem 2rem', position: 'relative' }}>
+      <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem 2rem 4rem', position: 'relative' }}>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -137,12 +140,13 @@ export default function Home() {
           transition={{ duration: 0.8 }}
           style={{
             textAlign: 'center',
-            marginBottom: '10rem', // Significantly increased spacing
-            minHeight: '80vh', // Ensure hero takes up most of the viewport
+            marginBottom: '6rem',
+            minHeight: 'calc(100vh - 200px)', // Account for header + announcement banner
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+            paddingTop: '2rem'
           }}
         >
           <motion.div
@@ -156,9 +160,9 @@ export default function Home() {
               background: 'rgba(0, 255, 136, 0.1)',
               border: '1px solid rgba(0, 255, 136, 0.3)',
               borderRadius: '9999px',
-              padding: '0.5rem 1.25rem', // Slightly larger padding
-              marginBottom: '3rem', // More space below badge
-              fontSize: '0.875rem', // Slightly larger text
+              padding: '0.5rem 1.25rem',
+              marginBottom: '2rem',
+              fontSize: '0.875rem',
               fontWeight: '600',
               color: '#00ff88'
             }}
@@ -167,9 +171,9 @@ export default function Home() {
           </motion.div>
 
           <h1 style={{
-            fontSize: 'clamp(3rem, 7vw, 5.5rem)', // Larger maximum size
+            fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
             fontWeight: '900',
-            marginBottom: '2rem',
+            marginBottom: '1.5rem',
             lineHeight: 1.1,
             letterSpacing: '-0.02em'
           }}>
@@ -180,11 +184,11 @@ export default function Home() {
           </h1>
 
           <p style={{
-            fontSize: 'clamp(1.125rem, 2vw, 1.5rem)', // Larger readable text
+            fontSize: 'clamp(1rem, 2vw, 1.25rem)',
             color: '#cbd5e1',
-            marginBottom: '3rem',
-            maxWidth: '700px', // Wider text block
-            margin: '0 auto 3.5rem',
+            marginBottom: '2.5rem',
+            maxWidth: '700px',
+            margin: '0 auto 2.5rem',
             lineHeight: 1.6
           }}>
             <span style={{ color: '#00ff88', fontWeight: 'bold' }}>VulkanorAI</span>-powered vulnerability detection for your React projects. Your code is never stored, scans happen in real-time.
@@ -198,8 +202,8 @@ export default function Home() {
               background: 'linear-gradient(135deg, #00ff88, #00ccff)',
               border: 'none',
               color: '#0a0a0f',
-              padding: '1.25rem 3rem', // Larger, chunkier button
-              borderRadius: '1rem', // Softer corners
+              padding: '1rem 2.5rem',
+              borderRadius: '0.75rem',
               fontSize: '1.125rem',
               fontWeight: '800',
               cursor: 'pointer',

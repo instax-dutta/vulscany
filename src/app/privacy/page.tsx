@@ -157,10 +157,20 @@ export default function PrivacyPolicy() {
                                 <p style={{ marginBottom: '1rem' }}>
                                     <strong style={{ color: '#e4e4e7' }}>During Scans:</strong>
                                 </p>
-                                <ul style={{ marginLeft: '1.5rem' }}>
+                                <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
                                     <li>package.json contents (to detect React)</li>
                                     <li>Source file contents (analyzed in memory)</li>
                                     <li>Scan results (temporarily, for display)</li>
+                                </ul>
+                                <p style={{ marginBottom: '1rem' }}>
+                                    <strong style={{ color: '#e4e4e7' }}>Cached Data (Performance Optimization):</strong>
+                                </p>
+                                <ul style={{ marginLeft: '1.5rem' }}>
+                                    <li>Scan metadata (vulnerability counts, types, severity)</li>
+                                    <li>Repository metadata (name, owner, React version)</li>
+                                    <li>Threat intelligence data (public CVE information)</li>
+                                    <li>⚠️ <strong>Never cached:</strong> Source code, file contents, or GitHub tokens</li>
+                                    <li>🕐 Cache duration: 1 hour maximum</li>
                                 </ul>
                             </div>
                         </div>

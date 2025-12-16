@@ -99,12 +99,24 @@ export default function Dashboard() {
             });
             const data = await res.json();
 
-            setScanResults(prev => ({ ...prev, [key]: data.scanResult }));
+            // Store scan result with cache metadata
+            const scanResultWithMeta = {
+                ...data.scanResult,
+                _cached: data.cached || false,
+                _cacheTimestamp: data.cacheTimestamp
+            };
+
+            setScanResults(prev => ({ ...prev, [key]: scanResultWithMeta }));
             setCurrentRepoKey(key);
 
             const status = data.scanResult.vulnerabilities.length === 0 ? 'safe' :
                 data.scanResult.status === 'high-risk' ? 'critical' : 'issues';
             updateRepoStatus(repo.id, status, data.scanResult.vulnerabilities.length);
+
+            // Show cache notification if applicable
+            if (data.cached) {
+                console.log(`[Dashboard] Loaded cached scan from ${data.cacheTimestamp}`);
+            }
         } catch (err) {
             updateRepoStatus(repo.id, 'pending');
         } finally {
@@ -418,8 +430,21 @@ export default function Dashboard() {
                                 padding: '1.5rem',
                                 marginBottom: '1.5rem'
                             }}>
-                                <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: '#00ff88', fontFamily: 'monospace', marginBottom: '0.5rem' }}>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: '#00ff88', fontFamily: 'monospace', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                     {currentResult.repoName}
+                                    {(currentResult as any)._cached && (
+                                        <span style={{
+                                            fontSize: '0.625rem',
+                                            background: 'rgba(0, 204, 255, 0.2)',
+                                            border: '1px solid #00ccff',
+                                            color: '#00ccff',
+                                            padding: '0.25rem 0.5rem',
+                                            borderRadius: '0.25rem',
+                                            fontWeight: '700'
+                                        }}>
+                                            ⚡ CACHED
+                                        </span>
+                                    )}
                                 </h2>
                                 <p style={{ fontSize: '0.875rem', color: '#cbd5e1', marginBottom: '1rem' }}>
                                     {currentResult.summary}

@@ -51,6 +51,19 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Missing owner or repo' }, { status: 400 });
         }
 
+        // Check cache first (privacy-compliant - no source code cached)
+        const { getCachedScanResult, cacheScanResult } = await import('@/lib/cache/scan-cache');
+        const cachedResult = await getCachedScanResult(owner, repo);
+
+        if (cachedResult) {
+            console.log(`[API] Returning cached scan for ${owner}/${repo}`);
+            return NextResponse.json({
+                scanResult: cachedResult,
+                cached: true,
+                cacheTimestamp: cachedResult.scanTimestamp
+            });
+        }
+
         // Detect if it's a React project
         const reactInfo = await detectReactProject(token, owner, repo);
 
@@ -86,7 +99,18 @@ export async function POST(request: NextRequest) {
             // Continue without threat intel if it fails
         }
 
-        return NextResponse.json({ scanResult });
+        // Cache the result (sanitized - no source code)
+        try {
+            await cacheScanResult(owner, repo, scanResult);
+        } catch (error) {
+            console.error('[API] Failed to cache scan result:', error);
+            // Continue even if caching fails
+        }
+
+        return NextResponse.json({
+            scanResult,
+            cached: false
+        });
 
     } catch (error: any) {
         console.error('[API] Scan failed:', error);
