@@ -17,11 +17,18 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const { fileName, codeSnippet, issueType, vulnerableCode } = await request.json();
+        const { fileName, codeSnippet, issueType, vulnerableCode, techStack } = await request.json();
 
         if (!fileName || !issueType) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
+
+        // Generate the high-quality vibe prompt
+        const { generateSingleFixPrompt } = await import('@/lib/ai/prompts');
+        const vibePrompt = generateSingleFixPrompt(
+            { title: issueType, file: fileName, snippet: codeSnippet, description: '', recommendation: '' },
+            techStack || { hasNext: false, hasTypeScript: false }
+        );
 
         // Try Ollama first
         let explanation = await OllamaAI.explainVulnerability(fileName, codeSnippet, issueType);
@@ -59,7 +66,8 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             explanation,
-            fixSuggestion
+            fixSuggestion,
+            vibePrompt
         });
 
     } catch (error: any) {

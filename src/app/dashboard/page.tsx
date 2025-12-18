@@ -154,6 +154,7 @@ export default function Dashboard() {
     const getAiFix = async (vuln: Vulnerability, repoKey: string) => {
         const vulnId = `${repoKey}-${vuln.id}`;
         setLoadingAnalysis(prev => ({ ...prev, [vulnId]: true }));
+        const currentRepo = scanResults[repoKey];
 
         try {
             const res = await fetch('/api/ai/explain', {
@@ -163,7 +164,12 @@ export default function Dashboard() {
                     fileName: vuln.file,
                     codeSnippet: vuln.snippet || '',
                     issueType: vuln.title,
-                    vulnerableCode: vuln.snippet
+                    vulnerableCode: vuln.snippet,
+                    techStack: {
+                        hasNext: currentRepo.reactInfo.hasNext,
+                        reactVersion: currentRepo.reactInfo.reactVersion,
+                        hasTypeScript: currentRepo.reactInfo.hasTypeScript
+                    }
                 })
             });
             const data = await res.json();
@@ -182,6 +188,33 @@ export default function Dashboard() {
             console.error(err);
         } finally {
             setLoadingAnalysis(prev => ({ ...prev, [vulnId]: false }));
+        }
+    };
+
+    const [masterPrompt, setMasterPrompt] = useState<string | null>(null);
+    const [generatingMaster, setGeneratingMaster] = useState(false);
+
+    const generateMasterFix = async (repoKey: string) => {
+        const repo = scanResults[repoKey];
+        if (!repo) return;
+
+        setGeneratingMaster(true);
+        try {
+            const res = await fetch('/api/ai/batch-fix', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    repoName: repo.repoName,
+                    vulnerabilities: repo.vulnerabilities,
+                    techStack: repo.reactInfo
+                })
+            });
+            const data = await res.json();
+            setMasterPrompt(data.prompt);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setGeneratingMaster(false);
         }
     };
 
@@ -467,7 +500,117 @@ export default function Dashboard() {
                                         </div>
                                     ))}
                                 </div>
+
+                                {/* Master Fix Action */}
+                                {currentResult.vulnerabilities.length > 0 && (
+                                    <div style={{ marginTop: '1.5rem' }}>
+                                        <button
+                                            onClick={() => generateMasterFix(currentRepoKey!)}
+                                            disabled={generatingMaster}
+                                            style={{
+                                                width: '100%',
+                                                background: 'linear-gradient(90deg, #ff0055, #ff5500)',
+                                                border: 'none',
+                                                color: '#fff',
+                                                padding: '0.75rem',
+                                                borderRadius: '0.5rem',
+                                                fontSize: '0.875rem',
+                                                fontWeight: '900',
+                                                cursor: generatingMaster ? 'not-allowed' : 'pointer',
+                                                fontFamily: 'monospace',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '0.5rem',
+                                                boxShadow: '0 4px 15px rgba(255, 0, 85, 0.3)'
+                                            }}
+                                        >
+                                            {generatingMaster ? '🛠️ GENERATING MASTER PROMPT...' : '🚀 GENERATE MASTER FIX PROMPT'}
+                                        </button>
+                                        <p style={{ fontSize: '0.7rem', color: '#666', textAlign: 'center', marginTop: '0.5rem', fontFamily: 'monospace' }}>
+                                            ONE-SHOT PROMPT FOR CURSOR / WINDSURF / COPILOT
+                                        </p>
+                                    </div>
+                                )}
                             </div>
+
+                            {/* Master Prompt Display */}
+                            <AnimatePresence>
+                                {masterPrompt && (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        style={{
+                                            background: 'rgba(10, 10, 15, 0.95)',
+                                            border: '2px solid #ff0055',
+                                            borderRadius: '1rem',
+                                            padding: '1.5rem',
+                                            marginBottom: '1.5rem',
+                                            position: 'relative',
+                                            boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                            <h3 style={{ fontSize: '1rem', fontWeight: '900', color: '#ff0055', fontFamily: 'monospace' }}>
+                                                🔥 MASTER ONE-SHOT PROMPT
+                                            </h3>
+                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                <button
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(masterPrompt);
+                                                        const btn = document.getElementById('copy-master');
+                                                        if (btn) btn.innerText = 'COPIED!';
+                                                        setTimeout(() => { if (btn) btn.innerText = 'COPY PROMPT'; }, 2000);
+                                                    }}
+                                                    id="copy-master"
+                                                    style={{
+                                                        background: '#ff0055',
+                                                        border: 'none',
+                                                        color: '#fff',
+                                                        padding: '0.5rem 1rem',
+                                                        borderRadius: '0.4rem',
+                                                        fontSize: '0.7rem',
+                                                        fontWeight: '800',
+                                                        cursor: 'pointer',
+                                                        fontFamily: 'monospace'
+                                                    }}
+                                                >
+                                                    COPY PROMPT
+                                                </button>
+                                                <button
+                                                    onClick={() => setMasterPrompt(null)}
+                                                    style={{
+                                                        background: 'rgba(255, 255, 255, 0.1)',
+                                                        border: 'none',
+                                                        color: '#fff',
+                                                        padding: '0.5rem 1rem',
+                                                        borderRadius: '0.4rem',
+                                                        fontSize: '0.7rem',
+                                                        fontWeight: '800',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    CLOSE
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <pre style={{
+                                            background: 'rgba(0,0,0,0.4)',
+                                            padding: '1rem',
+                                            borderRadius: '0.5rem',
+                                            fontSize: '0.8125rem',
+                                            color: '#cbd5e1',
+                                            whiteSpace: 'pre-wrap',
+                                            maxHeight: '400px',
+                                            overflow: 'auto',
+                                            fontFamily: 'monospace'
+                                        }}>
+                                            {masterPrompt}
+                                        </pre>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
 
                             {/* Threat Intelligence Panel */}
                             {currentResult.threatIntelligence && (
@@ -733,9 +876,52 @@ export default function Dashboard() {
                                                         padding: '1rem',
                                                         marginTop: '1rem'
                                                     }}>
-                                                        <div style={{ fontSize: '0.875rem', fontWeight: '700', color: '#00ff88', marginBottom: '0.5rem' }}>
-                                                            AI ANALYSIS
+                                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                                            <div style={{ fontSize: '0.875rem', fontWeight: '700', color: '#00ff88' }}>
+                                                                AI ANALYSIS & VIBE PROMPT
+                                                            </div>
+                                                            {vuln.aiAnalysis.vibePrompt && (
+                                                                <button
+                                                                    onClick={() => {
+                                                                        navigator.clipboard.writeText(vuln.aiAnalysis.vibePrompt);
+                                                                        const btn = document.getElementById(`copy-${vulnKey}`);
+                                                                        if (btn) btn.innerText = 'COPIED!';
+                                                                        setTimeout(() => { if (btn) btn.innerText = 'COPY FIX PROMPT'; }, 2000);
+                                                                    }}
+                                                                    id={`copy-${vulnKey}`}
+                                                                    style={{
+                                                                        background: 'rgba(0, 255, 136, 0.2)',
+                                                                        border: '1px solid #00ff88',
+                                                                        color: '#00ff88',
+                                                                        padding: '0.25rem 0.5rem',
+                                                                        borderRadius: '0.3rem',
+                                                                        fontSize: '0.625rem',
+                                                                        fontWeight: '800',
+                                                                        cursor: 'pointer',
+                                                                        fontFamily: 'monospace'
+                                                                    }}
+                                                                >
+                                                                    COPY FIX PROMPT
+                                                                </button>
+                                                            )}
                                                         </div>
+
+                                                        {/* Vibe Prompt Box */}
+                                                        {vuln.aiAnalysis.vibePrompt && (
+                                                            <div style={{
+                                                                background: 'rgba(0,0,0,0.3)',
+                                                                padding: '0.75rem',
+                                                                borderRadius: '0.4rem',
+                                                                marginBottom: '1rem',
+                                                                borderLeft: '3px solid #00ff88'
+                                                            }}>
+                                                                <div style={{ fontSize: '0.625rem', color: '#666', marginBottom: '0.25rem', fontFamily: 'monospace' }}>TARGETED AI FIX PROMPT:</div>
+                                                                <div style={{ fontSize: '0.75rem', color: '#00ff88', fontFamily: 'monospace', whiteSpace: 'pre-wrap', maxHeight: '150px', overflow: 'auto' }}>
+                                                                    {vuln.aiAnalysis.vibePrompt}
+                                                                </div>
+                                                            </div>
+                                                        )}
+
                                                         <div style={{ fontSize: '0.8125rem', color: '#cbd5e1', lineHeight: 1.6, fontFamily: 'monospace' }}>
                                                             <ReactMarkdown
                                                                 components={{

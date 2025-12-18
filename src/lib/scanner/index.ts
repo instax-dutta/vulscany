@@ -164,71 +164,108 @@ function scanFileContent(
 ): Vulnerability[] {
     const vulnerabilities: Vulnerability[] = [];
     const lines = content.split('\n');
+    let inBlockComment = false;
 
     for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
+        let line = lines[i].trim();
         const lineNum = i + 1;
 
-        // 1. Check for dangerouslySetInnerHTML
-        if (line.includes('dangerouslySetInnerHTML')) {
-            const snippet = extractSnippet(lines, i);
+        // Skip empty lines
+        if (!line) continue;
 
-            vulnerabilities.push({
-                id: `${filePath}-${lineNum}-dangerous-html`,
-                type: 'dangerous-api',
-                severity: 'high',
-                title: 'Unsafe HTML Rendering',
-                description: 'Using dangerouslySetInnerHTML can expose your app to XSS attacks if the content is not properly sanitized',
-                file: filePath,
-                line: lineNum,
-                snippet,
-                recommendation: 'Use DOMPurify to sanitize HTML content, or avoid dangerouslySetInnerHTML entirely'
-            });
+        // Handle block comments
+        if (line.includes('/*')) inBlockComment = true;
+
+        let lineWithoutComments = line;
+        if (inBlockComment) {
+            if (line.includes('*/')) {
+                inBlockComment = false;
+                lineWithoutComments = line.split('*/').pop() || '';
+            } else {
+                continue; // Inside block comment
+            }
         }
 
-        // 2. Check for potential SSR injection (Next.js specific)
-        if (reactInfo.hasNext && line.match(/getServerSideProps|getStaticProps/)) {
-            // Check if there's unsanitized user input
-            const contextLines = lines.slice(Math.max(0, i - 5), Math.min(lines.length, i + 20));
-            const hasUserInput = contextLines.some(l =>
-                l.includes('params') || l.includes('query') || l.includes('req.')
-            );
-            const hasSanitization = contextLines.some(l =>
-                l.includes('sanitize') || l.includes('escape') || l.includes('DOMPurify')
-            );
+        // Handle single line comments
+        lineWithoutComments = lineWithoutComments.split('//')[0].split('#')[0].trim();
+        if (!lineWithoutComments) continue;
 
-            if (hasUserInput && !hasSanitization) {
+        // 1. Check for dangerouslySetInnerHTML
+        if (lineWithoutComments.includes('dangerouslySetInnerHTML')) {
+            // Check if it's likely a prop or usage, not just a string
+            const isUsage = /dangerouslySetInnerHTML\s*[:=]/.test(lineWithoutComments);
+            if (isUsage) {
+                const snippet = extractSnippet(lines, i);
                 vulnerabilities.push({
-                    id: `${filePath}-${lineNum}-ssr-injection`,
-                    type: 'ssr-injection',
-                    severity: 'critical',
-                    title: 'Potential SSR Injection Risk',
-                    description: 'Server-side rendering with unsanitized user input can lead to injection vulnerabilities',
+                    id: `${filePath}-${lineNum}-dangerous-html`,
+                    type: 'dangerous-api',
+                    severity: 'high',
+                    title: 'Unsafe HTML Rendering',
+                    description: 'Using dangerouslySetInnerHTML can expose your app to XSS attacks if the content is not properly sanitized',
                     file: filePath,
                     line: lineNum,
-                    snippet: extractSnippet(lines, i),
-                    recommendation: 'Always sanitize user input before passing to props. Validate and escape all query parameters and URL params'
+                    snippet,
+                    recommendation: 'Use DOMPurify to sanitize HTML content, or avoid dangerouslySetInnerHTML entirely'
                 });
             }
         }
 
-        // 3. Check for markdown rendering without sanitization
-        if (line.match(/react-markdown|marked|markdown-it/) && !content.includes('sanitize')) {
-            vulnerabilities.push({
-                id: `${filePath}-${lineNum}-markdown-xss`,
-                type: 'markdown-xss',
-                severity: 'high',
-                title: 'Unsafe Markdown Rendering',
-                description: 'Rendering markdown without sanitization can lead to XSS vulnerabilities',
-                file: filePath,
-                line: lineNum,
-                snippet: extractSnippet(lines, i),
-                recommendation: 'Use rehype-sanitize or similar plugins to sanitize markdown content'
+        // 2. Check for potential SSR injection (Next.js specific)
+        if (reactInfo.hasNext && (lineWithoutComments.includes('getServerSideProps') || lineWithoutComments.includes('getStaticProps'))) {
+            // Check if there's unsanitized user input in the surrounding scope
+            const contextLines = lines.slice(Math.max(0, i - 2), Math.min(lines.length, i + 30));
+            const hasUserInput = contextLines.some(l => {
+                const clean = l.split('//')[0];
+                return clean.includes('params') || clean.includes('query') || clean.includes('req.');
             });
+            const hasSanitization = contextLines.some(l => {
+                const clean = l.split('//')[0];
+                return clean.includes('sanitize') || clean.includes('escape') || clean.includes('DOMPurify') || clean.includes('encodeURI');
+            });
+
+            if (hasUserInput && !hasSanitization) {
+                // Verify it's actually an exported function or constant, not a mention
+                const isDefinition = /export\s+(async\s+)?(function|const)\s+(getServerSideProps|getStaticProps)/.test(lineWithoutComments) ||
+                    /getServerSideProps|getStaticProps/.test(lineWithoutComments);
+
+                if (isDefinition) {
+                    vulnerabilities.push({
+                        id: `${filePath}-${lineNum}-ssr-injection`,
+                        type: 'ssr-injection',
+                        severity: 'critical',
+                        title: 'Potential SSR Injection Risk',
+                        description: 'Server-side rendering with unsanitized user input can lead to injection vulnerabilities',
+                        file: filePath,
+                        line: lineNum,
+                        snippet: extractSnippet(lines, i),
+                        recommendation: 'Always sanitize user input before passing to props. Validate and escape all query parameters and URL params'
+                    });
+                }
+            }
+        }
+
+        // 3. Check for markdown rendering without sanitization
+        if (lineWithoutComments.match(/react-markdown|marked|markdown-it/)) {
+            // Only flag if it looks like an import or initialization and sanitization is not mentioned in the whole file
+            const hasSanitizeInFile = content.includes('sanitize') || content.includes('DOMPurify') || content.includes('rehype-sanitize');
+            if (!hasSanitizeInFile) {
+                vulnerabilities.push({
+                    id: `${filePath}-${lineNum}-markdown-xss`,
+                    type: 'markdown-xss',
+                    severity: 'high',
+                    title: 'Unsafe Markdown Rendering',
+                    description: 'Rendering markdown without sanitization can lead to XSS vulnerabilities',
+                    file: filePath,
+                    line: lineNum,
+                    snippet: extractSnippet(lines, i),
+                    recommendation: 'Use rehype-sanitize or similar plugins to sanitize markdown content'
+                });
+            }
         }
 
         // 4. Check for eval or Function constructor (red flag)
-        if (line.match(/\beval\(|new Function\(/)) {
+        if (lineWithoutComments.match(/\beval\(|new Function\(/)) {
+            // Ensure matches are actual calls, not just strings or words in comments (already handled by split('//'))
             vulnerabilities.push({
                 id: `${filePath}-${lineNum}-eval`,
                 type: 'dangerous-api',
