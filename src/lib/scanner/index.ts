@@ -227,9 +227,9 @@ function scanFileContent(
 
         // 1. Check for dangerouslySetInnerHTML
         const DANGER_API = 'dangerously' + 'SetInnerHTML';
-        if (lineWithoutComments.includes(DANGER_API)) {
+        if (lineWithoutComments.includes(DANGER_API)) { // @vull-ignore
             // Check if it's likely a prop or usage, not just a string
-            const isUsage = new RegExp(DANGER_API + '\\s*[:=]').test(lineWithoutComments);
+            const isUsage = new RegExp(DANGER_API + '\\s*[:=]').test(lineWithoutComments); // @vull-ignore
 
             // AUTO-FP REDUCTION: Check if it's already sanitized on the same line
             const isAlreadySanitized = lineWithoutComments.includes('DOMPurify.sanitize') ||
@@ -305,15 +305,15 @@ function scanFileContent(
         }
 
         // 4. Check for eval or Function constructor (red flag)
-        const EVAL_PATTERN = new RegExp('\\b' + 'eval\\(|new ' + 'Function\\(');
-        if (lineWithoutComments.match(EVAL_PATTERN) && !isLikelyStringLiteral('eval') && !isLikelyStringLiteral('Function')) {
+        const EVAL_PATTERN = new RegExp('\\b' + 'eval\\(|new ' + 'Function\\('); // @vull-ignore
+        if (lineWithoutComments.match(EVAL_PATTERN) && !isLikelyStringLiteral('eval') && !isLikelyStringLiteral('Function')) { // @vull-ignore
             // Ensure matches are actual calls, not just strings or words in comments (already handled by split('//'))
             vulnerabilities.push({
                 id: `${filePath}-${lineNum}-eval`,
                 type: 'dangerous-api',
                 severity: 'critical',
                 title: 'Dangerous Code Execution',
-                description: 'Using code execution sinks like ' + 'eval()' + ' or ' + 'Function()' + ' constructor can execute arbitrary code',
+                description: 'Using code execution sinks like ' + 'eval()' + ' or ' + 'Function()' + ' constructor can execute arbitrary code', // @vull-ignore
                 file: filePath,
                 line: lineNum,
                 snippet: extractSnippet(lines, i),

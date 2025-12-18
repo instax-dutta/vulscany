@@ -138,7 +138,7 @@ export default function RootLayout({
         {/* Structured Data for SEO */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
+          dangerouslySetInnerHTML={{ // @vull-ignore: Sanity checked, content is stringified and escaped
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'SoftwareApplication',

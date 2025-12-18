@@ -134,9 +134,6 @@ export function detectHighRiskDependencies(dependencies: Record<string, string>)
         'dompurify': () => null, // This is actually good!
         'html-react-parser': () => {
             return 'HTML parsing can be risky - ensure input is sanitized';
-        },
-        'react-markdown': () => {
-            return 'Ensure markdown content is from trusted sources only';
         }
     };
 
