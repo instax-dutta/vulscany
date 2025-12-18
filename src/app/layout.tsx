@@ -182,7 +182,7 @@ export default function RootLayout({
                 'XSS Detection',
                 'Injection Risk Analysis'
               ]
-            })
+            }).replace(/</g, '\\u003c')
           }}
         />
       </head>

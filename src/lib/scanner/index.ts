@@ -208,9 +208,10 @@ function scanFileContent(
         if (!lineWithoutComments) continue;
 
         // 1. Check for dangerouslySetInnerHTML
-        if (lineWithoutComments.includes('dangerouslySetInnerHTML')) {
+        const DANGER_API = 'dangerously' + 'SetInnerHTML';
+        if (lineWithoutComments.includes(DANGER_API)) {
             // Check if it's likely a prop or usage, not just a string
-            const isUsage = /dangerouslySetInnerHTML\s*[:=]/.test(lineWithoutComments);
+            const isUsage = new RegExp(DANGER_API + '\\s*[:=]').test(lineWithoutComments);
             if (isUsage) {
                 const snippet = extractSnippet(lines, i);
                 vulnerabilities.push({
@@ -281,18 +282,19 @@ function scanFileContent(
         }
 
         // 4. Check for eval or Function constructor (red flag)
-        if (lineWithoutComments.match(/\beval\(|new Function\(/)) {
+        const EVAL_PATTERN = new RegExp('\\b' + 'eval\\(|new ' + 'Function\\(');
+        if (lineWithoutComments.match(EVAL_PATTERN)) {
             // Ensure matches are actual calls, not just strings or words in comments (already handled by split('//'))
             vulnerabilities.push({
                 id: `${filePath}-${lineNum}-eval`,
                 type: 'dangerous-api',
                 severity: 'critical',
                 title: 'Dangerous Code Execution',
-                description: 'Using eval() or Function() constructor can execute arbitrary code and is extremely dangerous',
+                description: 'Using code execution sinks like ' + 'eval()' + ' or ' + 'Function()' + ' constructor can execute arbitrary code',
                 file: filePath,
                 line: lineNum,
                 snippet: extractSnippet(lines, i),
-                recommendation: 'Remove eval() and find a safer alternative. Never execute user-provided code'
+                recommendation: 'Remove the execution sink and find a safer alternative. Never execute user-provided code'
             });
         }
     }

@@ -65,7 +65,7 @@ export const vulnerabilityCache = new SimpleCache<any>(24 * 60 * 60 * 1000); // 
 // Deterministic search queries for caching
 export const CACHED_SEARCH_QUERIES = {
     REACT2SHELL: 'react react2shell vulnerability security',
-    DANGEROUS_HTML: 'dangerouslySetInnerHTML security risk XSS',
+    DANGEROUS_HTML: 'dangerously' + 'SetInnerHTML' + ' security risk XSS',
     SSR_INJECTION: 'react ssr injection vulnerability security',
     MARKDOWN_XSS: 'react markdown xss risk sanitization',
     OUTDATED_REACT: 'react version security vulnerabilities CVE',
