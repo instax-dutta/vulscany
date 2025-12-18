@@ -147,7 +147,7 @@ async function scanSourceFiles(
         for (const item of items) {
             // SKIP ignored directories
             if (item.type === 'dir') {
-                if (['node_modules', '.git', 'dist', 'build', '.next', 'out', 'coverage'].includes(item.name)) continue;
+                if (['node_modules', '.git', 'dist', 'build', '.next', 'out', 'coverage', 'public', 'vendor'].includes(item.name)) continue;
                 if (item.name.startsWith('.')) continue; // skip hidden folders
                 queue.push({ path: item.path, depth: depth + 1 });
             }
@@ -155,6 +155,12 @@ async function scanSourceFiles(
             else if (item.type === 'file') {
                 // Skip large files (>500KB) to avoid API timeouts and irrelevant scans
                 if (item.size > 500 * 1024) continue;
+
+                // SKIP test files and configs that are often noise
+                const isNoiseFile = item.name.match(/\.(test|spec|config|setup|stories)\.[tj]sx?$/) ||
+                    item.name.match(/^(jest|next|postcss|tailwind)\.config\.[tj]s$/);
+
+                if (isNoiseFile) continue;
 
                 if (item.name.match(/\.(jsx?|tsx?)$/)) {
                     scannedFileCount++;
@@ -203,27 +209,45 @@ function scanFileContent(
             }
         }
 
+        // EXCLUSION 1: Check for manual override tag
+        if (line.includes('@vull-ignore')) continue;
+
         // Handle single line comments
         lineWithoutComments = lineWithoutComments.split('//')[0].split('#')[0].trim();
         if (!lineWithoutComments) continue;
+
+        // EXCLUSION 2: Simple heuristic to check if the dangerous term is inside a string literal
+        // (This prevents flagging descriptions or documentation)
+        const isLikelyStringLiteral = (term: string) => {
+            const doubleQuoteIndex = lineWithoutComments.indexOf(`"${term}"`);
+            const singleQuoteIndex = lineWithoutComments.indexOf(`'${term}'`);
+            const backtickIndex = lineWithoutComments.indexOf('`' + term + '`');
+            return doubleQuoteIndex !== -1 || singleQuoteIndex !== -1 || backtickIndex !== -1;
+        };
 
         // 1. Check for dangerouslySetInnerHTML
         const DANGER_API = 'dangerously' + 'SetInnerHTML';
         if (lineWithoutComments.includes(DANGER_API)) {
             // Check if it's likely a prop or usage, not just a string
             const isUsage = new RegExp(DANGER_API + '\\s*[:=]').test(lineWithoutComments);
-            if (isUsage) {
+
+            // AUTO-FP REDUCTION: Check if it's already sanitized on the same line
+            const isAlreadySanitized = lineWithoutComments.includes('DOMPurify.sanitize') ||
+                lineWithoutComments.includes('sanitizeHtml(') ||
+                lineWithoutComments.includes('sanitize(');
+
+            if (isUsage && !isAlreadySanitized && !isLikelyStringLiteral(DANGER_API)) {
                 const snippet = extractSnippet(lines, i);
                 vulnerabilities.push({
                     id: `${filePath}-${lineNum}-dangerous-html`,
                     type: 'dangerous-api',
                     severity: 'high',
                     title: 'Unsafe HTML Rendering',
-                    description: 'Using dangerouslySetInnerHTML can expose your app to XSS attacks if the content is not properly sanitized',
+                    description: 'Using ' + DANGER_API + ' can expose your app to XSS attacks if the content is not properly sanitized',
                     file: filePath,
                     line: lineNum,
                     snippet,
-                    recommendation: 'Use DOMPurify to sanitize HTML content, or avoid dangerouslySetInnerHTML entirely'
+                    recommendation: 'Use DOMPurify to sanitize HTML content, or avoid ' + DANGER_API + ' entirely'
                 });
             }
         }
@@ -243,10 +267,9 @@ function scanFileContent(
 
             if (hasUserInput && !hasSanitization) {
                 // Verify it's actually an exported function or constant, not a mention
-                const isDefinition = /export\s+(async\s+)?(function|const)\s+(getServerSideProps|getStaticProps)/.test(lineWithoutComments) ||
-                    /getServerSideProps|getStaticProps/.test(lineWithoutComments);
+                const isDefinition = /export\s+(async\s+)?(function|const)\s+(getServerSideProps|getStaticProps)/.test(lineWithoutComments);
 
-                if (isDefinition) {
+                if (isDefinition && !isLikelyStringLiteral('getServerSideProps') && !isLikelyStringLiteral('getStaticProps')) {
                     vulnerabilities.push({
                         id: `${filePath}-${lineNum}-ssr-injection`,
                         type: 'ssr-injection',
@@ -266,7 +289,7 @@ function scanFileContent(
         if (lineWithoutComments.match(/react-markdown|marked|markdown-it/)) {
             // Only flag if it looks like an import or initialization and sanitization is not mentioned in the whole file
             const hasSanitizeInFile = content.includes('sanitize') || content.includes('DOMPurify') || content.includes('rehype-sanitize');
-            if (!hasSanitizeInFile) {
+            if (!hasSanitizeInFile && !isLikelyStringLiteral('react-markdown')) {
                 vulnerabilities.push({
                     id: `${filePath}-${lineNum}-markdown-xss`,
                     type: 'markdown-xss',
@@ -283,7 +306,7 @@ function scanFileContent(
 
         // 4. Check for eval or Function constructor (red flag)
         const EVAL_PATTERN = new RegExp('\\b' + 'eval\\(|new ' + 'Function\\(');
-        if (lineWithoutComments.match(EVAL_PATTERN)) {
+        if (lineWithoutComments.match(EVAL_PATTERN) && !isLikelyStringLiteral('eval') && !isLikelyStringLiteral('Function')) {
             // Ensure matches are actual calls, not just strings or words in comments (already handled by split('//'))
             vulnerabilities.push({
                 id: `${filePath}-${lineNum}-eval`,
