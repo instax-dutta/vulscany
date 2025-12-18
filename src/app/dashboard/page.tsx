@@ -92,16 +92,22 @@ export default function Dashboard() {
         }
     };
 
-    const scanRepo = async (repo: Repository) => {
+    const scanRepo = async (repo: Repository, force: boolean = false) => {
         const key = `${repo.owner}/${repo.name}`;
+        setCurrentRepoKey(key);
         updateRepoStatus(repo.id, 'scanning');
         setScanning(true);
+        setMasterPrompt(null); // Clear previous prompt when starting new scan
 
         try {
             const res = await fetch('/api/scan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ owner: repo.owner, repo: repo.name })
+                body: JSON.stringify({
+                    owner: repo.owner,
+                    repo: repo.name,
+                    force // Pass force parameter to bypass cache
+                })
             });
             const data = await res.json();
 
@@ -656,17 +662,40 @@ export default function Dashboard() {
                                 <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: '#00ff88', fontFamily: 'monospace', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                     {currentResult.repoName}
                                     {(currentResult as any)._cached && (
-                                        <span style={{
-                                            fontSize: '0.625rem',
-                                            background: 'rgba(0, 204, 255, 0.2)',
-                                            border: '1px solid #00ccff',
-                                            color: '#00ccff',
-                                            padding: '0.25rem 0.5rem',
-                                            borderRadius: '0.25rem',
-                                            fontWeight: '700'
-                                        }}>
-                                            ⚡ CACHED
-                                        </span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <span style={{
+                                                fontSize: '0.625rem',
+                                                background: 'rgba(0, 204, 255, 0.2)',
+                                                border: '1px solid #00ccff',
+                                                color: '#00ccff',
+                                                padding: '0.25rem 0.5rem',
+                                                borderRadius: '0.25rem',
+                                                fontWeight: '700'
+                                            }}>
+                                                ⚡ CACHED ({new Date((currentResult as any)._cacheTimestamp || currentResult.scanTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
+                                            </span>
+                                            <button
+                                                onClick={() => {
+                                                    const repo = repositories.find(r => `${r.owner}/${r.name}` === currentRepoKey);
+                                                    if (repo) scanRepo(repo, true);
+                                                }}
+                                                style={{
+                                                    background: 'rgba(255,255,255,0.1)',
+                                                    border: '1px solid rgba(255,255,255,0.2)',
+                                                    color: '#fff',
+                                                    padding: '0.25rem 0.5rem',
+                                                    borderRadius: '0.25rem',
+                                                    fontSize: '0.625rem',
+                                                    fontWeight: '700',
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '0.25rem'
+                                                }}
+                                            >
+                                                🔄 REFRESH SCAN
+                                            </button>
+                                        </div>
                                     )}
                                 </h2>
                                 <p style={{ fontSize: '0.875rem', color: '#cbd5e1', marginBottom: '1rem' }}>

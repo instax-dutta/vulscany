@@ -45,17 +45,24 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const { owner, repo } = await request.json();
+        const { owner, repo, force } = await request.json();
 
         if (!owner || !repo) {
             return NextResponse.json({ error: 'Missing owner or repo' }, { status: 400 });
         }
 
         // Check cache first (privacy-compliant - no source code cached)
-        const { getCachedScanResult, cacheScanResult } = await import('@/lib/cache/scan-cache');
+        const { getCachedScanResult, cacheScanResult, invalidateScanCache } = await import('@/lib/cache/scan-cache');
+
+        // If force is requested, invalidate the cache first
+        if (force) {
+            console.log(`[API] Force refresh requested for ${owner}/${repo}`);
+            await invalidateScanCache(owner, repo);
+        }
+
         const cachedResult = await getCachedScanResult(owner, repo);
 
-        if (cachedResult) {
+        if (cachedResult && !force) {
             console.log(`[API] Returning cached scan for ${owner}/${repo}`);
             return NextResponse.json({
                 scanResult: cachedResult,
