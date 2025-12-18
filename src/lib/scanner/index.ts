@@ -82,6 +82,23 @@ export async function scanRepository(
     const sourceVulns = await scanSourceFiles(accessToken, owner, repo, reactInfo);
     vulnerabilities.push(...sourceVulns);
 
+    // 4. Enrich vulnerabilities with Knowledgebase data (Redis)
+    const { getVulnerabilityDefinition } = await import('../knowledgebase/vulnerability-db');
+    for (let i = 0; i < vulnerabilities.length; i++) {
+        const v = vulnerabilities[i];
+        const definition = await getVulnerabilityDefinition(v.type);
+        if (definition) {
+            // Merge standardized KB info with scan-specific info
+            vulnerabilities[i] = {
+                ...v,
+                title: definition.title,
+                description: definition.description,
+                recommendation: definition.recommendation,
+                // Add extended metadata if needed (we might need to extend the Vulnerability interface)
+            };
+        }
+    }
+
     // Determine status
     const status = determineStatus(vulnerabilities);
     const summary = generateSummary(vulnerabilities);

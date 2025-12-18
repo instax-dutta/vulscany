@@ -18,17 +18,20 @@ export interface MasterFixPromptOptions {
 export function generateMasterFixPrompt(options: MasterFixPromptOptions): string {
     const { repoName, vulnerabilities, techStack } = options;
 
-    const vulnerabilityList = vulnerabilities.map((v, i) => `
+    const vulnerabilityList = vulnerabilities.map((v, i) => {
+        const lang = techStack.isTypeScript ? 'tsx' : 'jsx';
+        return `
 ### Issue ${i + 1}: ${v.title} (${v.severity.toUpperCase()})
 - **File**: \`${v.file}\`
 - **Line**: ${v.line || 'N/A'}
 - **Description**: ${v.description}
-- **Vulnerable Code**: 
-\`\`\`
-${v.snippet || 'Code snippet not available'}
+- **Vulnerable Code Context**: 
+\`\`\`${lang}
+${v.snippet || '// Snippet not available for this issue'}
 \`\`\`
 - **Goal**: ${v.recommendation}
-`).join('\n');
+`;
+    }).join('\n');
 
     return `
 # VullScanny Master Security Fix Mission 🛡️

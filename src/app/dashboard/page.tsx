@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Lenis from '@studio-freight/lenis';
 import ReactMarkdown from 'react-markdown';
+import rehypeSanitize from 'rehype-sanitize';
 import type { Vulnerability } from '@/lib/scanner';
 
 interface ScanResult {
@@ -51,6 +52,11 @@ export default function Dashboard() {
     const [aiExpanded, setAiExpanded] = useState<Record<string, boolean>>({});
     const [codeExpanded, setCodeExpanded] = useState<Record<string, boolean>>({});
     const [loadingAnalysis, setLoadingAnalysis] = useState<Record<string, boolean>>({});
+
+    // Knowledgebase state
+    const [view, setView] = useState<'scans' | 'kb'>('scans');
+    const [kbData, setKbData] = useState<any[]>([]);
+    const [loadingKb, setLoadingKb] = useState(false);
 
     useEffect(() => {
         const lenis = new Lenis({
@@ -218,6 +224,31 @@ export default function Dashboard() {
         }
     };
 
+    const fetchKb = async () => {
+        setLoadingKb(true);
+        try {
+            const res = await fetch('/api/kb/list');
+            const data = await res.json();
+            setKbData(data.vulnerabilities || []);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoadingKb(false);
+        }
+    };
+
+    const syncKb = async () => {
+        setLoadingKb(true);
+        try {
+            await fetch('/api/kb/sync', { method: 'POST' });
+            await fetchKb();
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoadingKb(false);
+        }
+    };
+
     const navigateResults = (direction: 'next' | 'prev') => {
         const keys = Object.keys(scanResults);
         const currentIndex = keys.indexOf(currentRepoKey!);
@@ -293,6 +324,41 @@ export default function Dashboard() {
                                 SCAN {selectedRepos.size} REPOS
                             </button>
                         )}
+
+                        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '0.75rem', padding: '0.25rem', border: '1px solid rgba(255,255,255,0.1)' }}>
+                            <button
+                                onClick={() => setView('scans')}
+                                style={{
+                                    background: view === 'scans' ? 'rgba(0, 255, 136, 0.2)' : 'transparent',
+                                    color: view === 'scans' ? '#00ff88' : '#666',
+                                    border: 'none',
+                                    padding: '0.5rem 1rem',
+                                    borderRadius: '0.5rem',
+                                    fontSize: '0.75rem',
+                                    fontWeight: '700',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                🎯 SCANS
+                            </button>
+                            <button
+                                onClick={() => { setView('kb'); fetchKb(); }}
+                                style={{
+                                    background: view === 'kb' ? 'rgba(0, 204, 255, 0.2)' : 'transparent',
+                                    color: view === 'kb' ? '#00ccff' : '#666',
+                                    border: 'none',
+                                    padding: '0.5rem 1rem',
+                                    borderRadius: '0.5rem',
+                                    fontSize: '0.75rem',
+                                    fontWeight: '700',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                📚 KNOWLEDGEBASE
+                            </button>
+                        </div>
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -326,89 +392,213 @@ export default function Dashboard() {
             {/* Main Content */}
             <main style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '1.5rem', padding: '1.5rem 2rem', maxWidth: '1800px', margin: '0 auto' }}>
 
-                {/* Repository List */}
+                {/* Repository List / KB Sidebar */}
                 <div
                     data-lenis-prevent
                     style={{
                         background: 'rgba(10, 10, 15, 0.6)',
-                        border: '2px solid rgba(0, 255, 136, 0.3)',
+                        border: `2px solid ${view === 'kb' ? 'rgba(0, 204, 255, 0.3)' : 'rgba(0, 255, 136, 0.3)'}`,
                         borderRadius: '1rem',
                         padding: '1rem',
                         height: 'calc(100vh - 150px)',
                         overflow: 'auto'
                     }}
                 >
-                    <h3 style={{ fontSize: '0.875rem', color: '#00ff88', fontFamily: 'monospace', marginBottom: '1rem' }}>
-                        REPOSITORIES ({repositories.length})
-                    </h3>
+                    {view === 'scans' ? (
+                        <>
+                            <h3 style={{ fontSize: '0.875rem', color: '#00ff88', fontFamily: 'monospace', marginBottom: '1rem' }}>
+                                REPOSITORIES ({repositories.length})
+                            </h3>
 
-                    {loading ? (
-                        <div style={{ textAlign: 'center', padding: '2rem', color: '#00ccff' }}>Loading...</div>
+                            {loading ? (
+                                <div style={{ textAlign: 'center', padding: '2rem', color: '#00ccff' }}>Loading...</div>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    {repositories.map(repo => (
+                                        <button
+                                            key={repo.id}
+                                            onClick={() => batchMode ? toggleRepoSelection(repo.id) : scanRepo(repo)}
+                                            style={{
+                                                background: selectedRepos.has(repo.id) ? 'rgba(0, 255, 136, 0.2)' : 'rgba(10, 10, 15, 0.8)',
+                                                border: `2px solid ${repo.scanStatus === 'critical' ? '#ff0055' :
+                                                    repo.scanStatus === 'issues' ? '#ffaa00' :
+                                                        repo.scanStatus === 'safe' ? '#00ff88' :
+                                                            selectedRepos.has(repo.id) ? '#00ff88' :
+                                                                'rgba(0, 255, 136, 0.2)'
+                                                    }`,
+                                                borderRadius: '0.5rem',
+                                                padding: '0.75rem',
+                                                cursor: 'pointer',
+                                                textAlign: 'left',
+                                                transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                                                <span style={{ fontSize: '0.875rem', fontWeight: '700', color: '#00ff88', fontFamily: 'monospace' }}>
+                                                    {repo.name}
+                                                </span>
+                                                {repo.scanStatus !== 'pending' && (
+                                                    <span style={{ fontSize: '0.75rem', color: '#00ccff', fontFamily: 'monospace' }}>
+                                                        {repo.scanStatus === 'scanning' ? '⏳' :
+                                                            repo.scanStatus === 'safe' ? '✓' :
+                                                                repo.scanStatus === 'issues' ? '⚠' :
+                                                                    '⚠⚠'}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {repo.issueCount !== undefined && (
+                                                <div style={{ fontSize: '0.625rem', color: '#666', fontFamily: 'monospace' }}>
+                                                    {repo.issueCount} {repo.issueCount === 1 ? 'issue' : 'issues'}
+                                                </div>
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                            {repositories.map(repo => (
-                                <button
-                                    key={repo.id}
-                                    onClick={() => batchMode ? toggleRepoSelection(repo.id) : scanRepo(repo)}
-                                    style={{
-                                        background: selectedRepos.has(repo.id) ? 'rgba(0, 255, 136, 0.2)' : 'rgba(10, 10, 15, 0.8)',
-                                        border: `2px solid ${repo.scanStatus === 'critical' ? '#ff0055' :
-                                            repo.scanStatus === 'issues' ? '#ffaa00' :
-                                                repo.scanStatus === 'safe' ? '#00ff88' :
-                                                    selectedRepos.has(repo.id) ? '#00ff88' :
-                                                        'rgba(0, 255, 136, 0.2)'
-                                            }`,
-                                        borderRadius: '0.5rem',
-                                        padding: '0.75rem',
-                                        cursor: 'pointer',
-                                        textAlign: 'left',
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                                        <span style={{ fontSize: '0.875rem', fontWeight: '700', color: '#00ff88', fontFamily: 'monospace' }}>
-                                            {repo.name}
-                                        </span>
-                                        {repo.scanStatus !== 'pending' && (
-                                            <span style={{ fontSize: '0.75rem', color: '#00ccff', fontFamily: 'monospace' }}>
-                                                {repo.scanStatus === 'scanning' ? '⏳' :
-                                                    repo.scanStatus === 'safe' ? '✓' :
-                                                        repo.scanStatus === 'issues' ? '⚠' :
-                                                            '⚠⚠'}
-                                            </span>
-                                        )}
-                                    </div>
-                                    {repo.issueCount !== undefined && (
-                                        <div style={{ fontSize: '0.625rem', color: '#666', fontFamily: 'monospace' }}>
-                                            {repo.issueCount} {repo.issueCount === 1 ? 'issue' : 'issues'}
-                                        </div>
-                                    )}
-                                </button>
-                            ))}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            <h3 style={{ fontSize: '0.875rem', color: '#00ccff', fontFamily: 'monospace' }}>
+                                KB CONTROLS
+                            </h3>
+
+                            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '0.75rem', border: '1px solid rgba(0,204,255,0.2)' }}>
+                                <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.5rem', fontFamily: 'monospace' }}>STATUS</div>
+                                <div style={{ fontSize: '1rem', fontWeight: '800', color: '#00ccff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <span style={{ width: '8px', height: '8px', background: '#00ff88', borderRadius: '50%', boxShadow: '0 0 10px #00ff88' }}></span>
+                                    PERSISTENT (REDIS)
+                                </div>
+                            </div>
+
+                            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '0.75rem', border: '1px solid rgba(0,204,255,0.2)' }}>
+                                <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.5rem', fontFamily: 'monospace' }}>TOTAL PROFILES</div>
+                                <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#fff', fontFamily: 'monospace' }}>
+                                    {kbData.length}
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={syncKb}
+                                disabled={loadingKb}
+                                style={{
+                                    background: 'linear-gradient(135deg, #00ccff, #0066ff)',
+                                    color: '#fff',
+                                    border: 'none',
+                                    padding: '1rem',
+                                    borderRadius: '0.75rem',
+                                    fontSize: '0.875rem',
+                                    fontWeight: '900',
+                                    cursor: loadingKb ? 'not-allowed' : 'pointer',
+                                    fontFamily: 'monospace',
+                                    opacity: loadingKb ? 0.7 : 1,
+                                    boxShadow: '0 4px 15px rgba(0, 204, 255, 0.3)'
+                                }}
+                            >
+                                {loadingKb ? '⏳ SYNCING...' : '🔄 SYNC DATABASE'}
+                            </button>
+
+                            <p style={{ fontSize: '0.625rem', color: '#444', fontStyle: 'italic', lineHeight: 1.5 }}>
+                                The knowledgebase caches definitions for faster cross-scan processing and standardized reporting.
+                            </p>
                         </div>
                     )}
                 </div>
 
-                {/* Results Panel */}
+                {/* Results Panel / KB Content */}
                 <div
                     data-lenis-prevent
                     style={{
                         background: 'rgba(10, 10, 15, 0.6)',
-                        border: '2px solid rgba(0, 204, 255, 0.3)',
+                        border: `2px solid ${view === 'kb' ? 'rgba(0, 204, 255, 0.3)' : 'rgba(0, 255, 136, 0.3)'}`,
                         borderRadius: '1rem',
                         padding: '1.5rem',
                         height: 'calc(100vh - 150px)',
                         overflow: 'auto'
                     }}
                 >
-                    {scanning && !currentResult && (
+                    {view === 'kb' ? (
+                        <div style={{ padding: '0.5rem' }}>
+                            <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: '#00ccff', fontFamily: 'monospace', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                🛡️ VULNERABILITY KNOWLEDGEBASE
+                                <span style={{ fontSize: '0.625rem', background: 'rgba(0, 204, 255, 0.2)', border: '1px solid #00ccff', color: '#00ccff', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontWeight: '700' }}>
+                                    CROSS-PROJECT INTELLIGENCE
+                                </span>
+                            </h2>
+
+                            {loadingKb ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '300px' }}>
+                                    <div style={{ width: '40px', height: '40px', border: '4px solid #00ccff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                                    <p style={{ marginTop: '1rem', color: '#00ccff', fontFamily: 'monospace' }}>FETCHING KNOWLEDGEBASE...</p>
+                                </div>
+                            ) : kbData.length === 0 ? (
+                                <div style={{ textAlign: 'center', padding: '4rem', background: 'rgba(0,0,0,0.2)', borderRadius: '1rem', border: '2px dashed rgba(255,255,255,0.1)' }}>
+                                    <p style={{ color: '#666', marginBottom: '1.5rem' }}>No vulnerability profiles found in the persistent store.</p>
+                                    <button onClick={syncKb} style={{ background: '#00ccff', color: '#000', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '0.5rem', fontWeight: '800', cursor: 'pointer' }}>
+                                        INITIALIZE DATABASE
+                                    </button>
+                                </div>
+                            ) : (
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1.5rem' }}>
+                                    {kbData.map((vuln, i) => (
+                                        <motion.div
+                                            key={vuln.id}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: i * 0.05 }}
+                                            style={{
+                                                background: 'rgba(0,0,0,0.4)',
+                                                border: `2px solid ${vuln.severity === 'critical' ? '#ff0055' : vuln.severity === 'high' ? '#ffaa00' : '#00ff88'}`,
+                                                borderRadius: '1rem',
+                                                padding: '1.5rem',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: '1rem'
+                                            }}
+                                        >
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                                <h3 style={{ fontSize: '1.125rem', fontWeight: '900', color: '#fff', fontFamily: 'monospace' }}>{vuln.title}</h3>
+                                                <span style={{
+                                                    fontSize: '0.625rem',
+                                                    fontWeight: '900',
+                                                    padding: '0.25rem 0.5rem',
+                                                    borderRadius: '0.25rem',
+                                                    background: vuln.severity === 'critical' ? 'rgba(255,0,85,0.2)' : 'rgba(0,255,136,0.2)',
+                                                    color: vuln.severity === 'critical' ? '#ff0055' : '#00ff88',
+                                                    border: `1px solid ${vuln.severity === 'critical' ? '#ff0055' : '#00ff88'}`
+                                                }}>
+                                                    {vuln.severity.toUpperCase()}
+                                                </span>
+                                            </div>
+
+                                            <p style={{ fontSize: '0.875rem', color: '#cbd5e1', lineHeight: 1.6 }}>{vuln.description}</p>
+
+                                            <div style={{ background: 'rgba(0,255,136,0.05)', padding: '0.75rem', borderRadius: '0.5rem', borderLeft: `3px solid ${vuln.severity === 'critical' ? '#ff0055' : '#00ff88'}` }}>
+                                                <div style={{ fontSize: '0.625rem', color: '#666', marginBottom: '0.25rem', fontWeight: '700' }}>FIX RECOMMENDATION</div>
+                                                <div style={{ fontSize: '0.75rem', color: '#fff', fontFamily: 'monospace' }}>{vuln.recommendation}</div>
+                                            </div>
+
+                                            {vuln.consequences && (
+                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                                                    {vuln.consequences.map((c: string, j: number) => (
+                                                        <span key={j} style={{ fontSize: '0.625rem', color: '#ffaa00', background: 'rgba(255,170,0,0.1)', padding: '0.25rem 0.5rem', borderRadius: '1rem', border: '1px solid rgba(255,170,0,0.3)' }}>
+                                                            {c}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    ) : scanning && !currentResult ? (
                         <div style={{ textAlign: 'center', padding: '3rem' }}>
                             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
                             <div style={{ fontSize: '1rem', color: '#00ff88', fontFamily: 'monospace' }}>SCANNING...</div>
                         </div>
-                    )}
+                    ) : null}
 
-                    {currentResult && (
+                    {view === 'scans' && currentResult && (
                         <>
                             {/* Navigation */}
                             {Object.keys(scanResults).length > 1 && (
@@ -595,19 +785,52 @@ export default function Dashboard() {
                                                 </button>
                                             </div>
                                         </div>
-                                        <pre style={{
+                                        <div style={{
                                             background: 'rgba(0,0,0,0.4)',
-                                            padding: '1rem',
+                                            padding: '1.5rem',
                                             borderRadius: '0.5rem',
-                                            fontSize: '0.8125rem',
+                                            fontSize: '0.875rem',
                                             color: '#cbd5e1',
-                                            whiteSpace: 'pre-wrap',
-                                            maxHeight: '400px',
+                                            maxHeight: '500px',
                                             overflow: 'auto',
-                                            fontFamily: 'monospace'
+                                            fontFamily: 'monospace',
+                                            lineHeight: '1.6',
+                                            border: '1px solid rgba(255, 0, 85, 0.1)'
                                         }}>
-                                            {masterPrompt}
-                                        </pre>
+                                            <ReactMarkdown
+                                                rehypePlugins={[rehypeSanitize]}
+                                                components={{
+                                                    h1: ({ node, ...props }) => <h1 style={{ color: '#ff0055', fontSize: '1.25rem', fontWeight: '900', marginBottom: '1rem', borderBottom: '1px solid rgba(255,0,85,0.2)', paddingBottom: '0.5rem' }} {...props} />,
+                                                    h2: ({ node, ...props }) => <h2 style={{ color: '#00ff88', fontSize: '1.1rem', fontWeight: '800', marginTop: '1.5rem', marginBottom: '0.75rem' }} {...props} />,
+                                                    h3: ({ node, ...props }) => <h3 style={{ color: '#00ccff', fontSize: '1rem', fontWeight: '700', marginTop: '1rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }} {...props} />,
+                                                    p: ({ node, ...props }) => <p style={{ marginBottom: '1rem' }} {...props} />,
+                                                    ul: ({ node, ...props }) => <ul style={{ paddingLeft: '1.5rem', marginBottom: '1rem' }} {...props} />,
+                                                    li: ({ node, ...props }) => <li style={{ marginBottom: '0.5rem' }} {...props} />,
+                                                    code: ({ node, ...props }) => (
+                                                        <code style={{
+                                                            background: 'rgba(255, 255, 255, 0.05)',
+                                                            padding: '0.2rem 0.4rem',
+                                                            borderRadius: '4px',
+                                                            color: '#ffaa00',
+                                                            fontSize: '0.85em'
+                                                        }} {...props} />
+                                                    ),
+                                                    pre: ({ node, ...props }) => (
+                                                        <pre style={{
+                                                            background: 'rgba(0,0,0,0.5)',
+                                                            padding: '1rem',
+                                                            borderRadius: '0.5rem',
+                                                            overflow: 'auto',
+                                                            marginBottom: '1rem',
+                                                            border: '1px solid rgba(255,255,255,0.1)'
+                                                        }} {...props} />
+                                                    ),
+                                                    strong: ({ node, ...props }) => <strong style={{ color: '#fff', fontWeight: '800' }} {...props} />
+                                                }}
+                                            >
+                                                {masterPrompt}
+                                            </ReactMarkdown>
+                                        </div>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -924,16 +1147,31 @@ export default function Dashboard() {
 
                                                         <div style={{ fontSize: '0.8125rem', color: '#cbd5e1', lineHeight: 1.6, fontFamily: 'monospace' }}>
                                                             <ReactMarkdown
+                                                                rehypePlugins={[rehypeSanitize]}
                                                                 components={{
+                                                                    h1: ({ node, ...props }) => <h1 style={{ color: '#00ccff', fontSize: '1.25rem', fontWeight: '900', marginBottom: '1rem' }} {...props} />,
+                                                                    h2: ({ node, ...props }) => <h2 style={{ color: '#00ff88', fontSize: '1.1rem', fontWeight: '800', marginTop: '1.5rem', marginBottom: '0.75rem' }} {...props} />,
+                                                                    h3: ({ node, ...props }) => <h3 style={{ color: '#ffaa00', fontSize: '1rem', fontWeight: '700', marginTop: '1rem', marginBottom: '0.5rem' }} {...props} />,
                                                                     p: ({ node, ...props }) => <p style={{ marginBottom: '0.75rem' }} {...props} />,
                                                                     a: ({ node, ...props }) => <a style={{ color: '#00ff88', textDecoration: 'underline' }} {...props} />,
                                                                     code: ({ node, ...props }) => <code style={{ background: 'rgba(0,0,0,0.3)', padding: '0.2rem', borderRadius: '4px', color: '#ffaa00' }} {...props} />,
+                                                                    pre: ({ node, ...props }) => (
+                                                                        <pre style={{
+                                                                            background: 'rgba(0,0,0,0.5)',
+                                                                            padding: '1rem',
+                                                                            borderRadius: '0.5rem',
+                                                                            overflow: 'auto',
+                                                                            marginBottom: '1rem',
+                                                                            border: '1px solid rgba(0,255,136,0.2)'
+                                                                        }} {...props} />
+                                                                    ),
                                                                     ul: ({ node, ...props }) => <ul style={{ paddingLeft: '1.5rem', marginBottom: '0.75rem' }} {...props} />,
                                                                     li: ({ node, ...props }) => <li style={{ marginBottom: '0.25rem' }} {...props} />,
                                                                     strong: ({ node, ...props }) => <strong style={{ color: '#fff', fontWeight: '700' }} {...props} />
                                                                 }}
                                                             >
-                                                                {vuln.aiAnalysis.explanation?.technicalDetails || 'Analysis complete'}
+                                                                {(vuln.aiAnalysis.explanation?.technicalDetails || 'Analysis complete') +
+                                                                    (vuln.aiAnalysis.fixSuggestion ? `\n\n### 🚀 SUGGESTED FIX\n${vuln.aiAnalysis.fixSuggestion}` : '')}
                                                             </ReactMarkdown>
                                                         </div>
                                                     </div>

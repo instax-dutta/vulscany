@@ -85,7 +85,8 @@ function sanitizeScanResult(result: any): any {
             description: v.description,
             file: v.file,
             line: v.line,
-            // REMOVE snippet - this is source code
+            // Include snippet for AI context and mission-critical fixes
+            snippet: v.snippet,
             recommendation: v.recommendation,
         })) || [],
         status: result.status,
