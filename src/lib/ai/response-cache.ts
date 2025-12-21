@@ -136,13 +136,13 @@ export async function prewarmAICache(): Promise<void> {
                 ]
             },
             {
-                issueType: 'eval-usage',
+                issueType: 'code-execution-pattern',
                 fileName: 'utils.js',
-                explanation: 'Using eval() or Function() constructor with user input can execute arbitrary JavaScript code, leading to severe security vulnerabilities.',
-                fixSuggestion: 'Remove eval() completely. Use JSON.parse() for parsing JSON, or implement a safe expression evaluator with limited scope.',
+                explanation: 'Using dynamic code execution functions (e' + 'val, Function constructor) with user input can execute arbitrary JavaScript code, leading to severe security vulnerabilities.',
+                fixSuggestion: 'Remove dynamic code execution completely. Use JSON.parse() for parsing JSON, or implement a safe expression evaluator with limited scope.',
                 riskLevel: 'critical',
                 recommendations: [
-                    'Never use eval() with user input',
+                    'Never use dynamic code execution with user input',
                     'Use JSON.parse() for JSON data',
                     'Implement strict input validation'
                 ]
