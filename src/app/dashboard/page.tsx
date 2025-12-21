@@ -429,58 +429,60 @@ export default function Dashboard() {
                         <>
                             {/* Navigation */}
                             {Object.keys(scanResults).length > 1 && (
-                                <div style={{ marginBottom: '1rem', borderBottom: '2px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
-                                <div style={{
-                                    background: 'rgba(0, 255, 136, 0.2)',
-                                    border: '2px solid #00ff88',
-                                    color: '#00ff88',
-                                    padding: '0.5rem 1rem',
-                                    borderRadius: '0.5rem',
-                                    fontSize: '0.75rem',
-                                    fontFamily: 'monospace',
-                                    fontWeight: '800',
-                                    textAlign: 'center'
-                                }}>
-                                    🔍 SCAN RESULTS
-                                </div>
-                            </div>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                                    <button
-                                        onClick={() => navigateResults('prev')}
-                                        style={{
-                                            background: 'rgba(0, 204, 255, 0.2)',
-                                            border: '2px solid #00ccff',
-                                            color: '#00ccff',
+                                <>
+                                    <div style={{ marginBottom: '1rem', borderBottom: '2px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
+                                        <div style={{
+                                            background: 'rgba(0, 255, 136, 0.2)',
+                                            border: '2px solid #00ff88',
+                                            color: '#00ff88',
                                             padding: '0.5rem 1rem',
                                             borderRadius: '0.5rem',
                                             fontSize: '0.75rem',
-                                            cursor: 'pointer',
                                             fontFamily: 'monospace',
-                                            fontWeight: '700'
-                                        }}
-                                    >
-                                        ← PREV
-                                    </button>
-                                    <span style={{ fontSize: '0.75rem', color: '#00ccff', fontFamily: 'monospace' }}>
-                                        {Object.keys(scanResults).indexOf(currentRepoKey!) + 1} / {Object.keys(scanResults).length}
-                                    </span>
-                                    <button
-                                        onClick={() => navigateResults('next')}
-                                        style={{
-                                            background: 'rgba(0, 204, 255, 0.2)',
-                                            border: '2px solid #00ccff',
-                                            color: '#00ccff',
-                                            padding: '0.5rem 1rem',
-                                            borderRadius: '0.5rem',
-                                            fontSize: '0.75rem',
-                                            cursor: 'pointer',
-                                            fontFamily: 'monospace',
-                                            fontWeight: '700'
-                                        }}
-                                    >
-                                        NEXT →
-                                    </button>
-                                </div>
+                                            fontWeight: '800',
+                                            textAlign: 'center'
+                                        }}>
+                                            🔍 SCAN RESULTS
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                        <button
+                                            onClick={() => navigateResults('prev')}
+                                            style={{
+                                                background: 'rgba(0, 204, 255, 0.2)',
+                                                border: '2px solid #00ccff',
+                                                color: '#00ccff',
+                                                padding: '0.5rem 1rem',
+                                                borderRadius: '0.5rem',
+                                                fontSize: '0.75rem',
+                                                cursor: 'pointer',
+                                                fontFamily: 'monospace',
+                                                fontWeight: '700'
+                                            }}
+                                        >
+                                            ← PREV
+                                        </button>
+                                        <span style={{ fontSize: '0.75rem', color: '#00ccff', fontFamily: 'monospace' }}>
+                                            {Object.keys(scanResults).indexOf(currentRepoKey!) + 1} / {Object.keys(scanResults).length}
+                                        </span>
+                                        <button
+                                            onClick={() => navigateResults('next')}
+                                            style={{
+                                                background: 'rgba(0, 204, 255, 0.2)',
+                                                border: '2px solid #00ccff',
+                                                color: '#00ccff',
+                                                padding: '0.5rem 1rem',
+                                                borderRadius: '0.5rem',
+                                                fontSize: '0.75rem',
+                                                cursor: 'pointer',
+                                                fontFamily: 'monospace',
+                                                fontWeight: '700'
+                                            }}
+                                        >
+                                            NEXT →
+                                        </button>
+                                    </div>
+                                </>
                             )}
 
                             {/* Result Header */}
