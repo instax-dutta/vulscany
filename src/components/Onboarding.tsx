@@ -11,6 +11,20 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     const [step, setStep] = useState(0);
     const [userName, setUserName] = useState('');
     const [userGoal, setUserGoal] = useState('');
+    const [isMobile, setIsMobile] = useState(false);
+    const [isTablet, setIsTablet] = useState(false);
+
+    // Proper responsive handling with React hooks
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 480);
+            setIsTablet(window.innerWidth > 480 && window.innerWidth <= 768);
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const steps = [
         {
@@ -91,7 +105,6 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         if (step < steps.length - 1) {
             setStep(step + 1);
         } else {
-            // Save onboarding completion
             localStorage.setItem('vullscanny_onboarding_complete', 'true');
             localStorage.setItem('vullscanny_user_name', userName);
             localStorage.setItem('vullscanny_user_goal', userGoal);
@@ -110,345 +123,478 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         return true;
     };
 
-    return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-                position: 'fixed',
-                inset: 0,
-                background: 'rgba(0, 0, 0, 0.95)',
-                backdropFilter: 'blur(20px)',
-                zIndex: 10000,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '2rem 1rem',
-                overflowY: 'auto'
-            }}
-        >
-            {/* Background particles effect */}
-            <div style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'radial-gradient(circle at 50% 50%, rgba(0, 255, 136, 0.05) 0%, transparent 50%)',
-                pointerEvents: 'none'
-            }} />
+    // Responsive values
+    const getResponsiveValue = (mobile: any, tablet: any, desktop: any) => {
+        if (isMobile) return mobile;
+        if (isTablet) return tablet;
+        return desktop;
+    };
 
+    const modalPadding = getResponsiveValue('2rem 1.5rem', '2.5rem 2rem', '3rem');
+    const modalWidth = getResponsiveValue('calc(100% - 2rem)', 'calc(100% - 4rem)', '100%');
+    const emojiSize = getResponsiveValue('3.5rem', '4.5rem', '5.5rem');
+    const titleSize = getResponsiveValue('1.5rem', '1.75rem', '2.25rem');
+    const subtitleSize = getResponsiveValue('0.9375rem', '1rem', '1.0625rem');
+    const buttonPadding = getResponsiveValue('1rem 1.75rem', '1.125rem 2rem', '1.25rem 2.5rem');
+    const buttonFontSize = getResponsiveValue('0.9375rem', '1rem', '1.0625rem');
+
+    return (
+        <AnimatePresence>
             <motion.div
-                key={step}
-                initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.9, opacity: 0, y: -20 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 style={{
-                    background: 'linear-gradient(135deg, rgba(10, 10, 15, 0.98), rgba(0, 20, 30, 0.98))',
-                    border: '2px solid rgba(0, 255, 136, 0.3)',
-                    borderRadius: '1.5rem',
-                    padding: window.innerWidth <= 480 ? '2rem 1.5rem' : window.innerWidth <= 768 ? '2.5rem 2rem' : '3rem',
-                    maxWidth: '600px',
-                    width: window.innerWidth <= 480 ? 'calc(100% - 2rem)' : window.innerWidth <= 768 ? 'calc(100% - 4rem)' : '90%',
-                    maxHeight: '90vh',
-                    overflowY: 'auto',
-                    boxShadow: '0 30px 90px rgba(0, 255, 136, 0.2)',
-                    position: 'relative',
-                    margin: 'auto'
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'radial-gradient(circle at center, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.98))',
+                    backdropFilter: 'blur(24px)',
+                    WebkitBackdropFilter: 'blur(24px)',
+                    zIndex: 10000,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: isMobile ? '1rem' : '2rem',
+                    overflowY: 'auto'
                 }}
             >
-                {/* Progress bar */}
-                <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: '4px',
-                    background: 'rgba(0, 255, 136, 0.1)'
-                }}>
-                    <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${progress}%` }}
-                        transition={{ duration: 0.5, ease: 'easeOut' }}
-                        style={{
-                            height: '100%',
-                            background: 'linear-gradient(90deg, #00ff88, #00ccff)',
-                            boxShadow: '0 0 10px rgba(0, 255, 136, 0.5)'
-                        }}
-                    />
-                </div>
-
-                {/* Skip button */}
-                {step < steps.length - 1 && (
-                    <button
-                        onClick={handleSkip}
-                        style={{
-                            position: 'absolute',
-                            top: '1.5rem',
-                            right: '1.5rem',
-                            background: 'transparent',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            color: '#999',
-                            padding: '0.5rem 1rem',
-                            borderRadius: '0.5rem',
-                            fontSize: '0.75rem',
-                            fontWeight: '700',
-                            cursor: 'pointer',
-                            fontFamily: 'monospace',
-                            transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)';
-                            e.currentTarget.style.color = '#fff';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                            e.currentTarget.style.color = '#999';
-                        }}
-                    >
-                        SKIP TOUR
-                    </button>
-                )}
-
-                {/* Emoji animation */}
+                {/* Animated background effect */}
                 <motion.div
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ type: 'spring', delay: 0.2 }}
-                    style={{
-                        fontSize: window.innerWidth <= 480 ? '3rem' : window.innerWidth <= 768 ? '4rem' : '5rem',
-                        textAlign: 'center',
-                        marginBottom: window.innerWidth <= 480 ? '1rem' : '1.5rem',
-                        filter: 'drop-shadow(0 0 20px rgba(0, 255, 136, 0.3))'
+                    animate={{
+                        background: [
+                            'radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.08) 0%, transparent 50%)',
+                            'radial-gradient(circle at 80% 50%, rgba(0, 204, 255, 0.08) 0%, transparent 50%)',
+                            'radial-gradient(circle at 50% 80%, rgba(0, 255, 136, 0.08) 0%, transparent 50%)',
+                            'radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.08) 0%, transparent 50%)'
+                        ]
                     }}
-                >
-                    {currentStep.emoji}
-                </motion.div>
-
-                {/* Title */}
-                <motion.h1
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    style={{
-                        fontSize: window.innerWidth <= 480 ? '1.375rem' : window.innerWidth <= 768 ? '1.625rem' : '2rem',
-                        fontWeight: '900',
-                        background: 'linear-gradient(90deg, #00ff88, #00ccff)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        textAlign: 'center',
-                        marginBottom: '0.5rem',
-                        fontFamily: 'monospace',
-                        letterSpacing: '0.02em',
-                        lineHeight: 1.2
+                    transition={{
+                        duration: 10,
+                        repeat: Infinity,
+                        ease: 'easeInOut'
                     }}
-                >
-                    {currentStep.title}
-                </motion.h1>
-
-                {/* Subtitle */}
-                <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4 }}
                     style={{
-                        fontSize: window.innerWidth <= 480 ? '0.875rem' : window.innerWidth <= 768 ? '0.9375rem' : '1rem',
-                        color: '#999',
-                        textAlign: 'center',
-                        marginBottom: window.innerWidth <= 480 ? '1.5rem' : '2rem',
-                        fontFamily: 'monospace'
+                        position: 'absolute',
+                        inset: 0,
+                        pointerEvents: 'none'
                     }}
-                >
-                    {currentStep.subtitle}
-                </motion.p>
+                />
 
-                {/* Content */}
                 <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    style={{ marginBottom: '2.5rem' }}
+                    key={step}
+                    initial={{ scale: 0.92, opacity: 0, y: 30 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.92, opacity: 0, y: -30 }}
+                    transition={{
+                        type: 'spring',
+                        damping: 30,
+                        stiffness: 400,
+                        mass: 0.8
+                    }}
+                    style={{
+                        background: 'linear-gradient(145deg, rgba(10, 12, 16, 0.95), rgba(5, 15, 25, 0.98))',
+                        border: '1px solid rgba(0, 255, 136, 0.25)',
+                        borderRadius: '1.75rem',
+                        padding: modalPadding,
+                        maxWidth: '640px',
+                        width: modalWidth,
+                        maxHeight: '92vh',
+                        overflowY: 'auto',
+                        boxShadow: `
+                            0 0 0 1px rgba(0, 255, 136, 0.1),
+                            0 8px 16px rgba(0, 0, 0, 0.4),
+                            0 24px 48px rgba(0, 0, 0, 0.3),
+                            0 0 80px rgba(0, 255, 136, 0.15)
+                        `,
+                        position: 'relative',
+                        margin: 'auto'
+                    }}
                 >
-                    {currentStep.type === 'input' && (
-                        <input
-                            type="text"
-                            value={userName}
-                            onChange={(e) => setUserName(e.target.value)}
-                            placeholder={currentStep.inputPlaceholder}
-                            autoFocus
+                    {/* Smooth progress bar */}
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '3px',
+                        background: 'linear-gradient(90deg, rgba(0, 255, 136, 0.15), rgba(0, 204, 255, 0.15))',
+                        borderRadius: '1.75rem 1.75rem 0 0',
+                        overflow: 'hidden'
+                    }}>
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progress}%` }}
+                            transition={{ duration: 0.7, ease: [0.4, 0.0, 0.2, 1] }}
                             style={{
-                                width: '100%',
-                                background: 'rgba(0, 255, 136, 0.05)',
-                                border: '2px solid rgba(0, 255, 136, 0.3)',
-                                borderRadius: '0.75rem',
-                                padding: '1rem 1.5rem',
-                                fontSize: '1.125rem',
-                                color: '#fff',
-                                fontFamily: 'monospace',
-                                outline: 'none',
-                                transition: 'all 0.3s ease'
-                            }}
-                            onFocus={(e) => {
-                                e.currentTarget.style.borderColor = '#00ff88';
-                                e.currentTarget.style.boxShadow = '0 0 0 4px rgba(0, 255, 136, 0.1)';
-                            }}
-                            onBlur={(e) => {
-                                e.currentTarget.style.borderColor = 'rgba(0, 255, 136, 0.3)';
-                                e.currentTarget.style.boxShadow = 'none';
-                            }}
-                            onKeyPress={(e) => {
-                                if (e.key === 'Enter' && canProceed()) handleNext();
-                            }}
-                        />
-                    )}
-
-                    {currentStep.type === 'selection' && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {currentStep.options?.map((option) => (
-                                <motion.button
-                                    key={option.value}
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => setUserGoal(option.value)}
-                                    style={{
-                                        background: userGoal === option.value
-                                            ? 'linear-gradient(90deg, rgba(0, 255, 136, 0.2), rgba(0, 204, 255, 0.2))'
-                                            : 'rgba(0, 255, 136, 0.05)',
-                                        border: userGoal === option.value
-                                            ? '2px solid #00ff88'
-                                            : '2px solid rgba(0, 255, 136, 0.2)',
-                                        borderRadius: '0.75rem',
-                                        padding: '1.25rem',
-                                        color: '#fff',
-                                        cursor: 'pointer',
-                                        fontFamily: 'monospace',
-                                        textAlign: 'left',
-                                        transition: 'all 0.3s ease',
-                                        boxShadow: userGoal === option.value
-                                            ? '0 4px 20px rgba(0, 255, 136, 0.2)'
-                                            : 'none'
-                                    }}
-                                >
-                                    <div style={{ fontSize: '1.125rem', fontWeight: '800', marginBottom: '0.25rem' }}>
-                                        {option.label}
-                                    </div>
-                                    <div style={{ fontSize: '0.875rem', color: '#999' }}>
-                                        {option.desc}
-                                    </div>
-                                </motion.button>
-                            ))}
-                        </div>
-                    )}
-
-                    {(currentStep.type === 'intro' || currentStep.type === 'feature' || currentStep.type === 'completion') && (
-                        <p style={{
-                            fontSize: '1.0625rem',
-                            color: '#cbd5e1',
-                            lineHeight: 1.8,
-                            textAlign: 'center',
-                            fontFamily: 'system-ui'
-                        }}>
-                            {currentStep.content}
-                        </p>
-                    )}
-                </motion.div>
-
-                {/* Navigation */}
-                <div style={{
-                    display: 'flex',
-                    flexDirection: window.innerWidth <= 480 ? 'column' : 'row',
-                    gap: '1rem',
-                    alignItems: 'stretch'
-                }}>
-                    {step > 0 && (
-                        <button
-                            onClick={() => setStep(step - 1)}
-                            style={{
-                                background: 'transparent',
-                                border: '2px solid rgba(255, 255, 255, 0.2)',
-                                color: '#fff',
-                                padding: window.innerWidth <= 480 ? '0.875rem 1.5rem' : '1rem 2rem',
-                                borderRadius: '0.75rem',
-                                fontSize: window.innerWidth <= 480 ? '0.875rem' : '1rem',
-                                fontWeight: '800',
-                                cursor: 'pointer',
-                                fontFamily: 'monospace',
-                                transition: 'all 0.2s ease',
-                                flex: window.innerWidth <= 480 ? 'none' : 1,
-                                order: window.innerWidth <= 480 ? 2 : 0
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.background = 'transparent';
-                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                                height: '100%',
+                                background: 'linear-gradient(90deg, #00ff88, #00ccff)',
+                                boxShadow: '0 0 20px rgba(0, 255, 136, 0.6)',
+                                position: 'relative'
                             }}
                         >
-                            ← BACK
-                        </button>
+                            <motion.div
+                                animate={{
+                                    x: ['-100%', '100%']
+                                }}
+                                transition={{
+                                    duration: 1.5,
+                                    repeat: Infinity,
+                                    ease: 'linear'
+                                }}
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent)'
+                                }}
+                            />
+                        </motion.div>
+                    </div>
+
+                    {/* Skip button - premium design */}
+                    {step < steps.length - 1 && (
+                        <motion.button
+                            whileHover={{ scale: 1.05, borderColor: 'rgba(255, 255, 255, 0.5)' }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handleSkip}
+                            style={{
+                                position: 'absolute',
+                                top: isMobile ? '1rem' : '1.5rem',
+                                right: isMobile ? '1rem' : '1.75rem',
+                                background: 'rgba(0, 0, 0, 0.4)',
+                                backdropFilter: 'blur(10px)',
+                                border: '1px solid rgba(255, 255, 255, 0.15)',
+                                color: '#94a3b8',
+                                padding: '0.625rem 1.25rem',
+                                borderRadius: '0.625rem',
+                                fontSize: '0.8125rem',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                fontFamily: 'ui-monospace, monospace',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                                letterSpacing: '0.025em'
+                            }}
+                        >
+                            SKIP TOUR
+                        </motion.button>
                     )}
-                    <button
-                        onClick={handleNext}
-                        disabled={!canProceed()}
+
+                    {/* Animated emoji */}
+                    <motion.div
+                        initial={{ scale: 0, rotate: -90 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{
+                            type: 'spring',
+                            delay: 0.15,
+                            damping: 15,
+                            stiffness: 300
+                        }}
                         style={{
-                            flex: window.innerWidth <= 480 ? 'none' : (step > 0 ? 2 : 1),
-                            order: window.innerWidth <= 480 ? 1 : 0,
-                            background: canProceed()
-                                ? 'linear-gradient(90deg, #00ff88, #00ccff)'
-                                : 'rgba(100, 100, 100, 0.3)',
-                            border: 'none',
-                            color: canProceed() ? '#0a0a0f' : '#666',
-                            padding: window.innerWidth <= 480 ? '0.875rem 1.5rem' : '1rem 2rem',
-                            borderRadius: '0.75rem',
-                            fontSize: window.innerWidth <= 480 ? '0.875rem' : '1rem',
-                            fontWeight: '800',
-                            cursor: canProceed() ? 'pointer' : 'not-allowed',
-                            fontFamily: 'monospace',
-                            boxShadow: canProceed() ? '0 4px 20px rgba(0, 255, 136, 0.3)' : 'none',
-                            transition: 'all 0.3s ease',
-                            transform: canProceed() ? 'none' : 'scale(0.98)'
-                        }}
-                        onMouseEnter={(e) => {
-                            if (canProceed()) {
-                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                e.currentTarget.style.boxShadow = '0 6px 25px rgba(0, 255, 136, 0.4)';
-                            }
-                        }}
-                        onMouseLeave={(e) => {
-                            if (canProceed()) {
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 255, 136, 0.3)';
-                            }
+                            fontSize: emojiSize,
+                            textAlign: 'center',
+                            marginTop: '1rem',
+                            marginBottom: isMobile ? '1.25rem' : '1.75rem',
+                            filter: 'drop-shadow(0 4px 24px rgba(0, 255, 136, 0.25))',
+                            lineHeight: 1
                         }}
                     >
-                        {step === steps.length - 1 ? '🚀 START SECURING' : 'NEXT →'}
-                    </button>
-                </div>
+                        {currentStep.emoji}
+                    </motion.div>
 
-                {/* Step indicator */}
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '0.5rem',
-                    marginTop: '2rem'
-                }}>
-                    {steps.map((_, index) => (
-                        <div
-                            key={index}
+                    {/* Title with gradient */}
+                    <motion.h1
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.25, duration: 0.5 }}
+                        style={{
+                            fontSize: titleSize,
+                            fontWeight: '900',
+                            background: 'linear-gradient(135deg, #00ff88 0%, #00ccff 100%)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                            textAlign: 'center',
+                            marginBottom: '0.75rem',
+                            fontFamily: 'ui-monospace, monospace',
+                            letterSpacing: '-0.02em',
+                            lineHeight: 1.15
+                        }}
+                    >
+                        {currentStep.title}
+                    </motion.h1>
+
+                    {/* Subtitle */}
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.35, duration: 0.5 }}
+                        style={{
+                            fontSize: subtitleSize,
+                            color: '#94a3b8',
+                            textAlign: 'center',
+                            marginBottom: isMobile ? '1.75rem' : '2.25rem',
+                            fontFamily: 'ui-monospace, monospace',
+                            fontWeight: '500',
+                            letterSpacing: '0.01em'
+                        }}
+                    >
+                        {currentStep.subtitle}
+                    </motion.p>
+
+                    {/* Content area */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.45, duration: 0.5 }}
+                        style={{ marginBottom: isMobile ? '2rem' : '2.5rem' }}
+                    >
+                        {/* Input field */}
+                        {currentStep.type === 'input' && (
+                            <motion.input
+                                initial={{ scale: 0.98 }}
+                                animate={{ scale: 1 }}
+                                whileFocus={{ scale: 1.01 }}
+                                type="text"
+                                value={userName}
+                                onChange={(e) => setUserName(e.target.value)}
+                                placeholder={currentStep.inputPlaceholder}
+                                autoFocus
+                                onKeyPress={(e) => {
+                                    if (e.key === 'Enter' && canProceed()) handleNext();
+                                }}
+                                style={{
+                                    width: '100%',
+                                    background: 'rgba(0, 255, 136, 0.03)',
+                                    border: '2px solid rgba(0, 255, 136, 0.25)',
+                                    borderRadius: '0.875rem',
+                                    padding: '1.125rem 1.5rem',
+                                    fontSize: '1.125rem',
+                                    color: '#ffffff',
+                                    fontFamily: 'ui-monospace, monospace',
+                                    outline: 'none',
+                                    transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                                    boxShadow: '0 0 0 0 rgba(0, 255, 136, 0)'
+                                }}
+                                onFocus={(e) => {
+                                    e.currentTarget.style.borderColor = '#00ff88';
+                                    e.currentTarget.style.boxShadow = '0 0 0 4px rgba(0, 255, 136, 0.12)';
+                                    e.currentTarget.style.background = 'rgba(0, 255, 136, 0.05)';
+                                }}
+                                onBlur={(e) => {
+                                    e.currentTarget.style.borderColor = 'rgba(0, 255, 136, 0.25)';
+                                    e.currentTarget.style.boxShadow = '0 0 0 0 rgba(0, 255, 136, 0)';
+                                    e.currentTarget.style.background = 'rgba(0, 255, 136, 0.03)';
+                                }}
+                            />
+                        )}
+
+                        {/* Selection cards */}
+                        {currentStep.type === 'selection' && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+                                {currentStep.options?.map((option, index) => (
+                                    <motion.button
+                                        key={option.value}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: index * 0.1 }}
+                                        whileHover={{ scale: 1.02, x: 4 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={() => setUserGoal(option.value)}
+                                        style={{
+                                            background: userGoal === option.value
+                                                ? 'linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 204, 255, 0.15))'
+                                                : 'rgba(0, 255, 136, 0.03)',
+                                            border: userGoal === option.value
+                                                ? '2px solid #00ff88'
+                                                : '2px solid rgba(0, 255, 136, 0.2)',
+                                            borderRadius: '0.875rem',
+                                            padding: '1.25rem 1.5rem',
+                                            color: '#ffffff',
+                                            cursor: 'pointer',
+                                            fontFamily: 'ui-monospace, monospace',
+                                            textAlign: 'left',
+                                            transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                                            boxShadow: userGoal === option.value
+                                                ? '0 0 0 1px rgba(0, 255, 136, 0.2), 0 8px 24px rgba(0, 255, 136, 0.15)'
+                                                : '0 2px 8px rgba(0, 0, 0, 0.1)',
+                                            position: 'relative',
+                                            overflow: 'hidden'
+                                        }}
+                                    >
+                                        {userGoal === option.value && (
+                                            <motion.div
+                                                layoutId="selectedBg"
+                                                style={{
+                                                    position: 'absolute',
+                                                    inset: 0,
+                                                    background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.08), rgba(0, 204, 255, 0.08))',
+                                                    zIndex: 0
+                                                }}
+                                                transition={{ type: 'spring', damping: 30, stiffness: 400 }}
+                                            />
+                                        )}
+                                        <div style={{ position: 'relative', zIndex: 1 }}>
+                                            <div style={{
+                                                fontSize: '1.0625rem',
+                                                fontWeight: '800',
+                                                marginBottom: '0.375rem',
+                                                color: userGoal === option.value ? '#00ff88' : '#ffffff'
+                                            }}>
+                                                {option.label}
+                                            </div>
+                                            <div style={{ fontSize: '0.875rem', color: '#94a3b8', fontWeight: '500' }}>
+                                                {option.desc}
+                                            </div>
+                                        </div>
+                                    </motion.button>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Feature content */}
+                        {(currentStep.type === 'intro' || currentStep.type === 'feature' || currentStep.type === 'completion') && (
+                            <motion.p
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.5 }}
+                                style={{
+                                    fontSize: '1.0625rem',
+                                    color: '#cbd5e1',
+                                    lineHeight: 1.7,
+                                    textAlign: 'center',
+                                    fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+                                    fontWeight: '400',
+                                    maxWidth: '520px',
+                                    margin: '0 auto'
+                                }}
+                            >
+                                {currentStep.content}
+                            </motion.p>
+                        )}
+                    </motion.div>
+
+                    {/* Navigation buttons */}
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: isMobile ? 'column-reverse' : 'row',
+                        gap: '0.875rem',
+                        alignItems: 'stretch'
+                    }}>
+                        {step > 0 && (
+                            <motion.button
+                                whileHover={{ scale: 1.02, x: -2 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => setStep(step - 1)}
+                                style={{
+                                    flex: isMobile ? 'none' : 1,
+                                    background: 'rgba(255, 255, 255, 0.03)',
+                                    backdropFilter: 'blur(10px)',
+                                    border: '2px solid rgba(255, 255, 255, 0.15)',
+                                    color: '#ffffff',
+                                    padding: buttonPadding,
+                                    borderRadius: '0.875rem',
+                                    fontSize: buttonFontSize,
+                                    fontWeight: '800',
+                                    cursor: 'pointer',
+                                    fontFamily: 'ui-monospace, monospace',
+                                    transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                                    letterSpacing: '0.025em'
+                                }}
+                            >
+                                ← BACK
+                            </motion.button>
+                        )}
+                        <motion.button
+                            whileHover={canProceed() ? { scale: 1.02, y: -2 } : {}}
+                            whileTap={canProceed() ? { scale: 0.98 } : {}}
+                            onClick={handleNext}
+                            disabled={!canProceed()}
                             style={{
-                                width: index === step ? '2rem' : '0.5rem',
-                                height: '0.5rem',
-                                borderRadius: '0.25rem',
-                                background: index === step
-                                    ? 'linear-gradient(90deg, #00ff88, #00ccff)'
-                                    : 'rgba(255, 255, 255, 0.2)',
-                                transition: 'all 0.3s ease'
+                                flex: isMobile ? 'none' : (step > 0 ? 2 : 1),
+                                background: canProceed()
+                                    ? 'linear-gradient(135deg, #00ff88 0%, #00ccff 100%)'
+                                    : 'rgba(100, 100, 100, 0.2)',
+                                border: 'none',
+                                color: canProceed() ? '#0a0a0f' : '#64748b',
+                                padding: buttonPadding,
+                                borderRadius: '0.875rem',
+                                fontSize: buttonFontSize,
+                                fontWeight: '900',
+                                cursor: canProceed() ? 'pointer' : 'not-allowed',
+                                fontFamily: 'ui-monospace, monospace',
+                                boxShadow: canProceed()
+                                    ? '0 0 0 1px rgba(0, 255, 136, 0.3), 0 8px 24px rgba(0, 255, 136, 0.25)'
+                                    : 'none',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                                opacity: canProceed() ? 1 : 0.5,
+                                letterSpacing: '0.025em',
+                                position: 'relative',
+                                overflow: 'hidden'
                             }}
-                        />
-                    ))}
-                </div>
+                        >
+                            {canProceed() && (
+                                <motion.div
+                                    animate={{
+                                        x: ['-200%', '200%']
+                                    }}
+                                    transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        ease: 'linear'
+                                    }}
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        right: 0,
+                                        bottom: 0,
+                                        background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)',
+                                        pointerEvents: 'none'
+                                    }}
+                                />
+                            )}
+                            <span style={{ position: 'relative', zIndex: 1 }}>
+                                {step === steps.length - 1 ? '🚀 START SECURING' : 'NEXT →'}
+                            </span>
+                        </motion.button>
+                    </div>
+
+                    {/* Step indicators */}
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        gap: '0.625rem',
+                        marginTop: isMobile ? '1.75rem' : '2.25rem'
+                    }}>
+                        {steps.map((_, index) => (
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{
+                                    opacity: 1,
+                                    scale: 1,
+                                    width: index === step ? '2.5rem' : '0.625rem'
+                                }}
+                                transition={{ duration: 0.3, ease: 'easeOut' }}
+                                style={{
+                                    height: '0.625rem',
+                                    borderRadius: '0.3125rem',
+                                    background: index === step
+                                        ? 'linear-gradient(90deg, #00ff88, #00ccff)'
+                                        : index < step
+                                            ? 'rgba(0, 255, 136, 0.4)'
+                                            : 'rgba(255, 255, 255, 0.15)',
+                                    boxShadow: index === step ? '0 0 12px rgba(0, 255, 136, 0.4)' : 'none',
+                                    cursor: index < step ? 'pointer' : 'default'
+                                }}
+                                onClick={() => index < step && setStep(index)}
+                            />
+                        ))}
+                    </div>
+                </motion.div>
             </motion.div>
-        </motion.div>
+        </AnimatePresence>
     );
 }
