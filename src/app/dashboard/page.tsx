@@ -703,7 +703,7 @@ export default function Dashboard() {
                             </AnimatePresence>
 
                             {/* Threat Intelligence Panel - Only display when displayInUI is true */}
-                            {currentResult.threatIntelligence && currentResult.threatIntelligence.displayInUI !== false && (
+                            {currentResult.threatIntelligence && (currentResult.threatIntelligence as any).displayInUI !== false && (
                                 <motion.div
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
