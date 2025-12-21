@@ -124,7 +124,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '2rem'
+                padding: '2rem 1rem',
+                overflowY: 'auto'
             }}
         >
             {/* Background particles effect */}
@@ -145,12 +146,14 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     background: 'linear-gradient(135deg, rgba(10, 10, 15, 0.98), rgba(0, 20, 30, 0.98))',
                     border: '2px solid rgba(0, 255, 136, 0.3)',
                     borderRadius: '1.5rem',
-                    padding: '3rem',
+                    padding: window.innerWidth <= 480 ? '2rem 1.5rem' : window.innerWidth <= 768 ? '2.5rem 2rem' : '3rem',
                     maxWidth: '600px',
-                    width: '100%',
+                    width: window.innerWidth <= 480 ? 'calc(100% - 2rem)' : window.innerWidth <= 768 ? 'calc(100% - 4rem)' : '90%',
+                    maxHeight: '90vh',
+                    overflowY: 'auto',
                     boxShadow: '0 30px 90px rgba(0, 255, 136, 0.2)',
                     position: 'relative',
-                    overflow: 'hidden'
+                    margin: 'auto'
                 }}
             >
                 {/* Progress bar */}
@@ -212,9 +215,9 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ type: 'spring', delay: 0.2 }}
                     style={{
-                        fontSize: '5rem',
+                        fontSize: window.innerWidth <= 480 ? '3rem' : window.innerWidth <= 768 ? '4rem' : '5rem',
                         textAlign: 'center',
-                        marginBottom: '1.5rem',
+                        marginBottom: window.innerWidth <= 480 ? '1rem' : '1.5rem',
                         filter: 'drop-shadow(0 0 20px rgba(0, 255, 136, 0.3))'
                     }}
                 >
@@ -227,7 +230,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                     style={{
-                        fontSize: '2rem',
+                        fontSize: window.innerWidth <= 480 ? '1.375rem' : window.innerWidth <= 768 ? '1.625rem' : '2rem',
                         fontWeight: '900',
                         background: 'linear-gradient(90deg, #00ff88, #00ccff)',
                         WebkitBackgroundClip: 'text',
@@ -235,7 +238,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                         textAlign: 'center',
                         marginBottom: '0.5rem',
                         fontFamily: 'monospace',
-                        letterSpacing: '0.02em'
+                        letterSpacing: '0.02em',
+                        lineHeight: 1.2
                     }}
                 >
                     {currentStep.title}
@@ -247,10 +251,10 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
                     style={{
-                        fontSize: '1rem',
+                        fontSize: window.innerWidth <= 480 ? '0.875rem' : window.innerWidth <= 768 ? '0.9375rem' : '1rem',
                         color: '#999',
                         textAlign: 'center',
-                        marginBottom: '2rem',
+                        marginBottom: window.innerWidth <= 480 ? '1.5rem' : '2rem',
                         fontFamily: 'monospace'
                     }}
                 >
@@ -349,7 +353,12 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 </motion.div>
 
                 {/* Navigation */}
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div style={{
+                    display: 'flex',
+                    flexDirection: window.innerWidth <= 480 ? 'column' : 'row',
+                    gap: '1rem',
+                    alignItems: 'stretch'
+                }}>
                     {step > 0 && (
                         <button
                             onClick={() => setStep(step - 1)}
@@ -357,14 +366,15 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                                 background: 'transparent',
                                 border: '2px solid rgba(255, 255, 255, 0.2)',
                                 color: '#fff',
-                                padding: '1rem 2rem',
+                                padding: window.innerWidth <= 480 ? '0.875rem 1.5rem' : '1rem 2rem',
                                 borderRadius: '0.75rem',
-                                fontSize: '1rem',
+                                fontSize: window.innerWidth <= 480 ? '0.875rem' : '1rem',
                                 fontWeight: '800',
                                 cursor: 'pointer',
                                 fontFamily: 'monospace',
                                 transition: 'all 0.2s ease',
-                                flex: 1
+                                flex: window.innerWidth <= 480 ? 'none' : 1,
+                                order: window.innerWidth <= 480 ? 2 : 0
                             }}
                             onMouseEnter={(e) => {
                                 e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
@@ -382,15 +392,16 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                         onClick={handleNext}
                         disabled={!canProceed()}
                         style={{
-                            flex: step > 0 ? 2 : 1,
+                            flex: window.innerWidth <= 480 ? 'none' : (step > 0 ? 2 : 1),
+                            order: window.innerWidth <= 480 ? 1 : 0,
                             background: canProceed()
                                 ? 'linear-gradient(90deg, #00ff88, #00ccff)'
                                 : 'rgba(100, 100, 100, 0.3)',
                             border: 'none',
                             color: canProceed() ? '#0a0a0f' : '#666',
-                            padding: '1rem 2rem',
+                            padding: window.innerWidth <= 480 ? '0.875rem 1.5rem' : '1rem 2rem',
                             borderRadius: '0.75rem',
-                            fontSize: '1rem',
+                            fontSize: window.innerWidth <= 480 ? '0.875rem' : '1rem',
                             fontWeight: '800',
                             cursor: canProceed() ? 'pointer' : 'not-allowed',
                             fontFamily: 'monospace',
