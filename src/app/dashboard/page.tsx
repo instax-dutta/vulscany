@@ -58,6 +58,9 @@ export default function Dashboard() {
     const [prResult, setPrResult] = useState<{ prUrl: string; prNumber: number; branch: string } | null>(null);
     const [showPRSuccess, setShowPRSuccess] = useState(false);
 
+    // Copy fix snippets state
+    const [copiedFix, setCopiedFix] = useState<Record<string, boolean>>({});
+
     // Removed knowledgebase - no longer needed
 
     useEffect(() => {
@@ -1122,6 +1125,83 @@ export default function Dashboard() {
                                                                     (vuln.aiAnalysis.fixSuggestion ? `\n\n### 🚀 SUGGESTED FIX\n${vuln.aiAnalysis.fixSuggestion}` : '')}
                                                             </ReactMarkdown>
                                                         </div>
+
+                                                        {/* Copy Fix Snippet Button */}
+                                                        {vuln.aiAnalysis.fixSuggestion && (
+                                                            <motion.div
+                                                                initial={{ opacity: 0, y: 10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                style={{ marginTop: '1rem' }}
+                                                            >
+                                                                <button
+                                                                    onClick={() => {
+                                                                        navigator.clipboard.writeText(vuln.aiAnalysis.fixSuggestion);
+                                                                        setCopiedFix({ ...copiedFix, [vulnKey]: true });
+                                                                        setTimeout(() => {
+                                                                            setCopiedFix({ ...copiedFix, [vulnKey]: false });
+                                                                        }, 2500);
+                                                                    }}
+                                                                    style={{
+                                                                        width: '100%',
+                                                                        background: copiedFix[vulnKey]
+                                                                            ? 'linear-gradient(90deg, #00ff88, #00ffcc)'
+                                                                            : 'linear-gradient(90deg, rgba(0, 255, 136, 0.1), rgba(0, 204, 255, 0.1))',
+                                                                        border: copiedFix[vulnKey]
+                                                                            ? '2px solid #00ff88'
+                                                                            : '1px solid rgba(0, 255, 136, 0.3)',
+                                                                        color: copiedFix[vulnKey] ? '#0a0a0f' : '#00ff88',
+                                                                        padding: '0.75rem 1rem',
+                                                                        borderRadius: '0.5rem',
+                                                                        fontSize: '0.8125rem',
+                                                                        fontWeight: '800',
+                                                                        cursor: 'pointer',
+                                                                        fontFamily: 'monospace',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        justifyContent: 'center',
+                                                                        gap: '0.5rem',
+                                                                        transition: 'all 0.3s ease',
+                                                                        boxShadow: copiedFix[vulnKey]
+                                                                            ? '0 4px 15px rgba(0, 255, 136, 0.4)'
+                                                                            : '0 2px 8px rgba(0, 0, 0, 0.2)'
+                                                                    }}
+                                                                    onMouseEnter={(e: any) => {
+                                                                        if (!copiedFix[vulnKey]) {
+                                                                            e.currentTarget.style.borderColor = '#00ff88';
+                                                                            e.currentTarget.style.transform = 'translateY(-2px)';
+                                                                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 255, 136, 0.3)';
+                                                                        }
+                                                                    }}
+                                                                    onMouseLeave={(e: any) => {
+                                                                        if (!copiedFix[vulnKey]) {
+                                                                            e.currentTarget.style.borderColor = 'rgba(0, 255, 136, 0.3)';
+                                                                            e.currentTarget.style.transform = 'translateY(0)';
+                                                                            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.2)';
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    {copiedFix[vulnKey] ? (
+                                                                        <>
+                                                                            <motion.span
+                                                                                initial={{ scale: 0 }}
+                                                                                animate={{ scale: 1 }}
+                                                                                transition={{ type: 'spring', stiffness: 500 }}
+                                                                            >
+                                                                                ✓
+                                                                            </motion.span>
+                                                                            COPIED TO CLIPBOARD!
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            📋 COPY FIX SNIPPET
+                                                                        </>
+                                                                    )}
+                                                                </button>
+                                                                <p style={{ fontSize: '0.65rem', color: '#666', textAlign: 'center', marginTop: '0.5rem', fontFamily: 'monospace' }}>
+                                                                    ONE-CLICK COPY • PASTE INTO YOUR IDE
+                                                                </p>
+                                                            </motion.div>
+                                                        )}
                                                     </div>
                                                 )}
                                             </div>
