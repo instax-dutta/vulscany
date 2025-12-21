@@ -67,6 +67,7 @@ export default function Dashboard() {
     // Onboarding state
     const [showOnboarding, setShowOnboarding] = useState(false);
     const [userName, setUserName] = useState('');
+    const [demoScanResults, setDemoScanResults] = useState<Record<string, any> | null>(null);
 
     // Removed knowledgebase - no longer needed
 
@@ -96,6 +97,13 @@ export default function Dashboard() {
 
         return () => lenis.destroy();
     }, []);
+
+    // Auto-select demo repo when demo data is injected
+    useEffect(() => {
+        if (demoScanResults && Object.keys(demoScanResults).length > 0) {
+            setCurrentRepoKey(Object.keys(demoScanResults)[0]);
+        }
+    }, [demoScanResults]);
 
     useEffect(() => {
         fetchRepos();
@@ -296,7 +304,7 @@ export default function Dashboard() {
 
 
     const navigateResults = (direction: 'next' | 'prev') => {
-        const keys = Object.keys(scanResults);
+        const keys = Object.keys(displayScanResults);
         const currentIndex = keys.indexOf(currentRepoKey!);
         const newIndex = direction === 'next' ?
             (currentIndex + 1) % keys.length :
@@ -304,7 +312,9 @@ export default function Dashboard() {
         setCurrentRepoKey(keys[newIndex]);
     };
 
-    const currentResult = currentRepoKey ? scanResults[currentRepoKey] : null;
+    // Merge demo data with real scan results during onboarding
+    const displayScanResults = demoScanResults ? { ...scanResults, ...demoScanResults } : scanResults;
+    const currentResult = currentRepoKey ? displayScanResults[currentRepoKey] : null;
     const pendingCount = repositories.filter(r => r.scanStatus === 'pending').length;
     const scannedCount = repositories.filter(r => r.scanStatus !== 'pending').length;
 
@@ -407,6 +417,7 @@ export default function Dashboard() {
 
                 {/* Repository List / KB Sidebar */}
                 <div
+                    data-onboarding="repo-section"
                     data-lenis-prevent
                     style={{
                         background: 'rgba(10, 10, 15, 0.6)',
@@ -494,7 +505,7 @@ export default function Dashboard() {
                     {currentResult && (
                         <>
                             {/* Navigation */}
-                            {Object.keys(scanResults).length > 1 && (
+                            {Object.keys(displayScanResults).length > 1 && (
                                 <>
                                     <div style={{ marginBottom: '1rem', borderBottom: '2px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
                                         <div style={{
@@ -529,7 +540,7 @@ export default function Dashboard() {
                                             ← PREV
                                         </button>
                                         <span style={{ fontSize: '0.75rem', color: '#00ccff', fontFamily: 'monospace' }}>
-                                            {Object.keys(scanResults).indexOf(currentRepoKey!) + 1} / {Object.keys(scanResults).length}
+                                            {Object.keys(displayScanResults).indexOf(currentRepoKey!) + 1} / {Object.keys(displayScanResults).length}
                                         </span>
                                         <button
                                             onClick={() => navigateResults('next')}
@@ -552,17 +563,19 @@ export default function Dashboard() {
                             )}
 
                             {/* Result Header */}
-                            <div style={{
-                                background: currentResult.status === 'safe' ? 'rgba(0, 255, 136, 0.1)' :
-                                    currentResult.status === 'high-risk' ? 'rgba(255, 0, 85, 0.1)' :
-                                        'rgba(255, 170, 0, 0.1)',
-                                border: `2px solid ${currentResult.status === 'safe' ? '#00ff88' :
-                                    currentResult.status === 'high-risk' ? '#ff0055' : '#ffaa00'
-                                    }`,
-                                borderRadius: '1rem',
-                                padding: '1.5rem',
-                                marginBottom: '1.5rem'
-                            }}>
+                            <div
+                                data-onboarding="scan-results"
+                                style={{
+                                    background: currentResult.status === 'safe' ? 'rgba(0, 255, 136, 0.1)' :
+                                        currentResult.status === 'high-risk' ? 'rgba(255, 0, 85, 0.1)' :
+                                            'rgba(255, 170, 0, 0.1)',
+                                    border: `2px solid ${currentResult.status === 'safe' ? '#00ff88' :
+                                        currentResult.status === 'high-risk' ? '#ff0055' : '#ffaa00'
+                                        }`,
+                                    borderRadius: '1rem',
+                                    padding: '1.5rem',
+                                    marginBottom: '1.5rem'
+                                }}>
                                 <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: '#00ff88', fontFamily: 'monospace', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                     {currentResult.repoName}
                                     {(currentResult as any)._cached && (
@@ -660,6 +673,7 @@ export default function Dashboard() {
                                 {currentResult.vulnerabilities.length > 0 && (
                                     <div style={{ marginTop: '1rem' }}>
                                         <button
+                                            data-onboarding="auto-fix"
                                             onClick={() => generateAutoFixPR(currentRepoKey!)}
                                             disabled={generatingPR}
                                             style={{
@@ -922,7 +936,7 @@ export default function Dashboard() {
                                                 SECURITY RECOMMENDATIONS
                                             </div>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                                {currentResult.threatIntelligence.recommendations.map((rec, i) => (
+                                                {currentResult.threatIntelligence.recommendations.map((rec: string, i: number) => (
                                                     <div key={i} style={{
                                                         fontSize: '0.8125rem',
                                                         color: '#cbd5e1',
@@ -1405,7 +1419,10 @@ export default function Dashboard() {
             {/* Onboarding */}
             <AnimatePresence>
                 {showOnboarding && (
-                    <Onboarding onComplete={() => setShowOnboarding(false)} />
+                    <Onboarding
+                        onComplete={() => setShowOnboarding(false)}
+                        onDemoDataChange={setDemoScanResults}
+                    />
                 )}
             </AnimatePresence>
         </div>
