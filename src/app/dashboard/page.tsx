@@ -232,6 +232,45 @@ export default function Dashboard() {
         }
     };
 
+    // Auto-Fix PR Generation
+    const generateAutoFixPR = async (repoKey: string) => {
+        const repo = scanResults[repoKey];
+        if (!repo || repo.vulnerabilities.length === 0) return;
+
+        setGeneratingPR(true);
+        setPrResult(null);
+
+        try {
+            const res = await fetch('/api/ai/generate-pr', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    owner: repo.owner,
+                    repo: repo.repoName,
+                    vulnerabilities: repo.vulnerabilities,
+                    mode: 'create'
+                })
+            });
+
+            const data = await res.json();
+
+            if (data.success && data.prUrl) {
+                setPrResult({
+                    prUrl: data.prUrl,
+                    prNumber: data.prNumber,
+                    branch: data.branch
+                });
+                setShowPRSuccess(true);
+            } else {
+                alert(`Failed to create PR: ${data.error || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('Auto-fix PR error:', error);
+            alert('Failed to create auto-fix PR. Please try again.');
+        } finally {
+            setGeneratingPR(false);
+        }
+    };
 
 
     const navigateResults = (direction: 'next' | 'prev') => {
@@ -591,6 +630,43 @@ export default function Dashboard() {
                                         </button>
                                         <p style={{ fontSize: '0.7rem', color: '#666', textAlign: 'center', marginTop: '0.5rem', fontFamily: 'monospace' }}>
                                             ONE-SHOT PROMPT FOR CURSOR / WINDSURF / COPILOT
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Auto-Fix PR Action */}
+                                {currentResult.vulnerabilities.length > 0 && (
+                                    <div style={{ marginTop: '1rem' }}>
+                                        <button
+                                            onClick={() => generateAutoFixPR(currentRepoKey!)}
+                                            disabled={generatingPR}
+                                            style={{
+                                                width: '100%',
+                                                background: generatingPR
+                                                    ? 'linear-gradient(90deg, #666, #888)'
+                                                    : 'linear-gradient(90deg, #00ff88, #00ccff)',
+                                                border: 'none',
+                                                color: generatingPR ? '#ccc' : '#0a0a0f',
+                                                padding: '0.75rem',
+                                                borderRadius: '0.5rem',
+                                                fontSize: '0.875rem',
+                                                fontWeight: '900',
+                                                cursor: generatingPR ? 'not-allowed' : 'pointer',
+                                                fontFamily: 'monospace',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '0.5rem',
+                                                boxShadow: generatingPR
+                                                    ? 'none'
+                                                    : '0 4px 15px rgba(0, 255, 136, 0.3)',
+                                                transition: 'all 0.3s ease'
+                                            }}
+                                        >
+                                            {generatingPR ? '🔧 CREATING PR...' : '🚀 AUTO-FIX: CREATE PR'}
+                                        </button>
+                                        <p style={{ fontSize: '0.7rem', color: '#666', textAlign: 'center', marginTop: '0.5rem', fontFamily: 'monospace' }}>
+                                            ONE-CLICK PR WITH SECURITY FIXES • PRIVACY-FIRST
                                         </p>
                                     </div>
                                 )}
@@ -1076,6 +1152,155 @@ export default function Dashboard() {
                         </div>
                     )}
                 </div>
+
+                {/* PR Success Modal */}
+                {showPRSuccess && prResult && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                            position: 'fixed',
+                            inset: 0,
+                            background: 'rgba(0, 0, 0, 0.8)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 9999,
+                            padding: '2rem',
+                            backdropFilter: 'blur(10px)'
+                        }}
+                        onClick={() => setShowPRSuccess(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                background: 'linear-gradient(135deg, rgba(10, 10, 15, 0.95), rgba(0, 20, 30, 0.95))',
+                                border: '2px solid #00ff88',
+                                borderRadius: '1rem',
+                                padding: '2.5rem',
+                                maxWidth: '550px',
+                                width: '100%',
+                                boxShadow: '0 20px 60px rgba(0, 255, 136, 0.3)'
+                            }}
+                        >
+                            <div style={{ textAlign: 'center' }}>
+                                <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ delay: 0.2, type: 'spring' }}
+                                    style={{ fontSize: '5rem', marginBottom: '1rem' }}
+                                >
+                                    🎉
+                                </motion.div>
+                                <motion.h2
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    style={{
+                                        fontSize: '2rem',
+                                        fontWeight: '900',
+                                        background: 'linear-gradient(90deg, #00ff88, #00ccff)',
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                        marginBottom: '1.5rem',
+                                        fontFamily: 'monospace',
+                                        letterSpacing: '0.05em'
+                                    }}
+                                >
+                                    PR CREATED!
+                                </motion.h2>
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.4 }}
+                                >
+                                    <p style={{
+                                        color: '#cbd5e1',
+                                        marginBottom: '0.75rem',
+                                        lineHeight: 1.7,
+                                        fontSize: '1rem'
+                                    }}>
+                                        Your security fixes have been committed to:
+                                    </p>
+                                    <div style={{
+                                        background: 'rgba(0, 255, 136, 0.1)',
+                                        border: '1px solid rgba(0, 255, 136, 0.3)',
+                                        padding: '1rem',
+                                        borderRadius: '0.5rem',
+                                        marginBottom: '2rem'
+                                    }}>
+                                        <code style={{
+                                            color: '#00ff88',
+                                            fontFamily: 'monospace',
+                                            fontSize: '0.875rem',
+                                            wordBreak: 'break-all'
+                                        }}>
+                                            {prResult.branch}
+                                        </code>
+                                    </div>
+                                </motion.div>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.5 }}
+                                    style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}
+                                >
+                                    <a
+                                        href={prResult.prUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            background: 'linear-gradient(90deg, #00ff88, #00ccff)',
+                                            color: '#0a0a0f',
+                                            padding: '1rem 2rem',
+                                            borderRadius: '0.5rem',
+                                            fontSize: '1rem',
+                                            fontWeight: '800',
+                                            textDecoration: 'none',
+                                            fontFamily: 'monospace',
+                                            boxShadow: '0 4px 15px rgba(0, 255, 136, 0.4)',
+                                            display: 'block',
+                                            transition: 'transform 0.2s ease',
+                                            textAlign: 'center'
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                                    >
+                                        VIEW PULL REQUEST #{prResult.prNumber} →
+                                    </a>
+                                    <button
+                                        onClick={() => setShowPRSuccess(false)}
+                                        style={{
+                                            background: 'rgba(255, 255, 255, 0.05)',
+                                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                                            color: '#cbd5e1',
+                                            padding: '0.875rem 2rem',
+                                            borderRadius: '0.5rem',
+                                            fontSize: '0.875rem',
+                                            fontWeight: '700',
+                                            cursor: 'pointer',
+                                            fontFamily: 'monospace',
+                                            transition: 'all 0.2s ease'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                                        }}
+                                    >
+                                        CLOSE
+                                    </button>
+                                </motion.div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
             </main>
         </div>
     );
