@@ -53,6 +53,11 @@ export default function Dashboard() {
     const [codeExpanded, setCodeExpanded] = useState<Record<string, boolean>>({});
     const [loadingAnalysis, setLoadingAnalysis] = useState<Record<string, boolean>>({});
 
+    // Auto-Fix PR state
+    const [generatingPR, setGeneratingPR] = useState(false);
+    const [prResult, setPrResult] = useState<{ prUrl: string; prNumber: number; branch: string } | null>(null);
+    const [showPRSuccess, setShowPRSuccess] = useState(false);
+
     // Removed knowledgebase - no longer needed
 
     useEffect(() => {
