@@ -11,6 +11,7 @@ import Lenis from '@studio-freight/lenis';
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
 import type { Vulnerability } from '@/lib/scanner';
+import Onboarding from '@/components/Onboarding';
 
 interface ScanResult {
     repoName: string;
@@ -61,7 +62,23 @@ export default function Dashboard() {
     // Copy fix snippets state
     const [copiedFix, setCopiedFix] = useState<Record<string, boolean>>({});
 
+    // Onboarding state
+    const [showOnboarding, setShowOnboarding] = useState(false);
+    const [userName, setUserName] = useState('');
+
     // Removed knowledgebase - no longer needed
+
+    // Check if user has completed onboarding
+    useEffect(() => {
+        const onboardingComplete = localStorage.getItem('vullscanny_onboarding_complete');
+        const savedName = localStorage.getItem('vullscanny_user_name');
+
+        if (!onboardingComplete) {
+            setShowOnboarding(true);
+        } else if (savedName) {
+            setUserName(savedName);
+        }
+    }, []);
 
     useEffect(() => {
         const lenis = new Lenis({
@@ -1382,6 +1399,13 @@ export default function Dashboard() {
                     </motion.div>
                 )}
             </main>
+
+            {/* Onboarding */}
+            <AnimatePresence>
+                {showOnboarding && (
+                    <Onboarding onComplete={() => setShowOnboarding(false)} />
+                )}
+            </AnimatePresence>
         </div>
     );
 }
