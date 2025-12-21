@@ -9,7 +9,7 @@ import { isReactVersionVulnerable, detectHighRiskDependencies } from '../github/
 
 export interface Vulnerability {
     id: string;
-    type: 'version' | 'dangerous-api' | 'ssr-injection' | 'markdown-xss' | 'dependency';
+    type: 'version' | 'dangerous-api' | 'ssr-injection' | 'markdown-xss' | 'dependency' | 'xss-vulnerable-attribute' | 'code-execution-pattern';
     severity: 'low' | 'medium' | 'high' | 'critical';
     title: string;
     description: string;

@@ -1,0 +1,42 @@
+
+> vulscany@0.1.0 build
+> next build
+
+   ▲ Next.js 16.0.10 (Turbopack)
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 5.0s
+   Running TypeScript ...
+   Collecting page data using 7 workers ...
+   Generating static pages using 7 workers (0/20) ...
+   Generating static pages using 7 workers (5/20) 
+   Generating static pages using 7 workers (10/20) 
+   Generating static pages using 7 workers (15/20) 
+ ✓ Generating static pages using 7 workers (20/20) in 751.0ms
+   Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/ai/batch-fix
+├ ƒ /api/ai/explain
+├ ƒ /api/ai/generate-pr
+├ ƒ /api/ai/generate-prompt
+├ ƒ /api/auth/callback
+├ ƒ /api/auth/logout
+├ ƒ /api/batch-scan
+├ ƒ /api/repos/react
+├ ƒ /api/scan
+├ ƒ /api/threat-intel
+├ ○ /apple-icon.png
+├ ○ /dashboard
+├ ○ /icon.svg
+├ ○ /opengraph-image.png
+├ ○ /privacy
+├ ○ /robots.txt
+└ ○ /sitemap.xml
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

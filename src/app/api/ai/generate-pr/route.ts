@@ -54,8 +54,16 @@ export async function POST(request: NextRequest) {
 
         for (const filePath of uniqueFiles) {
             try {
-                const content = await getFileContent(accessToken, owner, repo, filePath);
-                fileContents.set(filePath, content);
+                const fileData = await getFileContent(accessToken, owner, repo, filePath);
+
+                if (!fileData) {
+                    return NextResponse.json(
+                        { error: `File not found: ${filePath}` },
+                        { status: 404 }
+                    );
+                }
+
+                fileContents.set(filePath, fileData.content);
             } catch (error) {
                 console.error(`[Generate PR] Failed to fetch ${filePath}:`, error);
                 return NextResponse.json(
