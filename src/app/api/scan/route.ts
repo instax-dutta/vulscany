@@ -84,7 +84,8 @@ export async function POST(request: NextRequest) {
         // Scan the repository
         const scanResult = await scanRepository(token, owner, repo, reactInfo);
 
-        // Enhance with threat intelligence
+        // Always gather threat intelligence for zero-day detection and effective scanning
+        // This data is cached and used to enhance vulnerability detection
         try {
             const { analyzeRepositoryThreats } = await import('@/lib/threat-intel');
             const dependencies = reactInfo.dependencies || {};
@@ -92,6 +93,7 @@ export async function POST(request: NextRequest) {
             if (Object.keys(dependencies).length > 0) {
                 const threatIntel = await analyzeRepositoryThreats(dependencies);
 
+                // Always include threat intelligence data, but mark if it should be displayed
                 scanResult.threatIntelligence = {
                     riskScore: threatIntel.riskScore,
                     riskLevel: threatIntel.riskLevel,
@@ -99,7 +101,11 @@ export async function POST(request: NextRequest) {
                     advisoryCount: threatIntel.advisoryMatches.length,
                     criticalThreats: threatIntel.cveMatches.filter(c => c.severity === 'CRITICAL').length,
                     recommendations: threatIntel.recommendations,
+                    // Only display in UI if vulnerabilities were found in the scan
+                    displayInUI: scanResult.vulnerabilities && scanResult.vulnerabilities.length > 0
                 };
+
+                console.log(`[API] Threat intel gathered: ${threatIntel.cveMatches.length} CVEs, ${threatIntel.advisoryMatches.length} advisories`);
             }
         } catch (error) {
             console.error('[API] Threat intelligence failed:', error);

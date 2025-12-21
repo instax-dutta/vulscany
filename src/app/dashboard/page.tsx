@@ -53,10 +53,7 @@ export default function Dashboard() {
     const [codeExpanded, setCodeExpanded] = useState<Record<string, boolean>>({});
     const [loadingAnalysis, setLoadingAnalysis] = useState<Record<string, boolean>>({});
 
-    // Knowledgebase state
-    const [view, setView] = useState<'scans' | 'kb'>('scans');
-    const [kbData, setKbData] = useState<any[]>([]);
-    const [loadingKb, setLoadingKb] = useState(false);
+    // Removed knowledgebase - no longer needed
 
     useEffect(() => {
         const lenis = new Lenis({
@@ -230,30 +227,7 @@ export default function Dashboard() {
         }
     };
 
-    const fetchKb = async () => {
-        setLoadingKb(true);
-        try {
-            const res = await fetch('/api/kb/list');
-            const data = await res.json();
-            setKbData(data.vulnerabilities || []);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoadingKb(false);
-        }
-    };
 
-    const syncKb = async () => {
-        setLoadingKb(true);
-        try {
-            await fetch('/api/kb/sync', { method: 'POST' });
-            await fetchKb();
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoadingKb(false);
-        }
-    };
 
     const navigateResults = (direction: 'next' | 'prev') => {
         const keys = Object.keys(scanResults);
@@ -331,40 +305,7 @@ export default function Dashboard() {
                             </button>
                         )}
 
-                        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '0.75rem', padding: '0.25rem', border: '1px solid rgba(255,255,255,0.1)' }}>
-                            <button
-                                onClick={() => setView('scans')}
-                                style={{
-                                    background: view === 'scans' ? 'rgba(0, 255, 136, 0.2)' : 'transparent',
-                                    color: view === 'scans' ? '#00ff88' : '#666',
-                                    border: 'none',
-                                    padding: '0.5rem 1rem',
-                                    borderRadius: '0.5rem',
-                                    fontSize: '0.75rem',
-                                    fontWeight: '700',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                🎯 SCANS
-                            </button>
-                            <button
-                                onClick={() => { setView('kb'); fetchKb(); }}
-                                style={{
-                                    background: view === 'kb' ? 'rgba(0, 204, 255, 0.2)' : 'transparent',
-                                    color: view === 'kb' ? '#00ccff' : '#666',
-                                    border: 'none',
-                                    padding: '0.5rem 1rem',
-                                    borderRadius: '0.5rem',
-                                    fontSize: '0.75rem',
-                                    fontWeight: '700',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                📚 KNOWLEDGEBASE
-                            </button>
-                        </div>
+
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -403,14 +344,14 @@ export default function Dashboard() {
                     data-lenis-prevent
                     style={{
                         background: 'rgba(10, 10, 15, 0.6)',
-                        border: `2px solid ${view === 'kb' ? 'rgba(0, 204, 255, 0.3)' : 'rgba(0, 255, 136, 0.3)'}`,
+                        border: '2px solid rgba(0, 255, 136, 0.3)',
                         borderRadius: '1rem',
                         padding: '1rem',
                         height: 'calc(100vh - 150px)',
                         overflow: 'auto'
                     }}
                 >
-                    {view === 'scans' ? (
+                    {(
                         <>
                             <h3 style={{ fontSize: '0.875rem', color: '#00ff88', fontFamily: 'monospace', marginBottom: '1rem' }}>
                                 REPOSITORIES ({repositories.length})
@@ -462,51 +403,6 @@ export default function Dashboard() {
                                 </div>
                             )}
                         </>
-                    ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                            <h3 style={{ fontSize: '0.875rem', color: '#00ccff', fontFamily: 'monospace' }}>
-                                KB CONTROLS
-                            </h3>
-
-                            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '0.75rem', border: '1px solid rgba(0,204,255,0.2)' }}>
-                                <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.5rem', fontFamily: 'monospace' }}>STATUS</div>
-                                <div style={{ fontSize: '1rem', fontWeight: '800', color: '#00ccff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <span style={{ width: '8px', height: '8px', background: '#00ff88', borderRadius: '50%', boxShadow: '0 0 10px #00ff88' }}></span>
-                                    PERSISTENT (REDIS)
-                                </div>
-                            </div>
-
-                            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '0.75rem', border: '1px solid rgba(0,204,255,0.2)' }}>
-                                <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.5rem', fontFamily: 'monospace' }}>TOTAL PROFILES</div>
-                                <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#fff', fontFamily: 'monospace' }}>
-                                    {kbData.length}
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={syncKb}
-                                disabled={loadingKb}
-                                style={{
-                                    background: 'linear-gradient(135deg, #00ccff, #0066ff)',
-                                    color: '#fff',
-                                    border: 'none',
-                                    padding: '1rem',
-                                    borderRadius: '0.75rem',
-                                    fontSize: '0.875rem',
-                                    fontWeight: '900',
-                                    cursor: loadingKb ? 'not-allowed' : 'pointer',
-                                    fontFamily: 'monospace',
-                                    opacity: loadingKb ? 0.7 : 1,
-                                    boxShadow: '0 4px 15px rgba(0, 204, 255, 0.3)'
-                                }}
-                            >
-                                {loadingKb ? '⏳ SYNCING...' : '🔄 SYNC DATABASE'}
-                            </button>
-
-                            <p style={{ fontSize: '0.625rem', color: '#444', fontStyle: 'italic', lineHeight: 1.5 }}>
-                                The knowledgebase caches definitions for faster cross-scan processing and standardized reporting.
-                            </p>
-                        </div>
                     )}
                 </div>
 
@@ -515,99 +411,39 @@ export default function Dashboard() {
                     data-lenis-prevent
                     style={{
                         background: 'rgba(10, 10, 15, 0.6)',
-                        border: `2px solid ${view === 'kb' ? 'rgba(0, 204, 255, 0.3)' : 'rgba(0, 255, 136, 0.3)'}`,
+                        border: '2px solid rgba(0, 255, 136, 0.3)',
                         borderRadius: '1rem',
                         padding: '1.5rem',
                         height: 'calc(100vh - 150px)',
                         overflow: 'auto'
                     }}
                 >
-                    {view === 'kb' ? (
-                        <div style={{ padding: '0.5rem' }}>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: '#00ccff', fontFamily: 'monospace', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                🛡️ VULNERABILITY KNOWLEDGEBASE
-                                <span style={{ fontSize: '0.625rem', background: 'rgba(0, 204, 255, 0.2)', border: '1px solid #00ccff', color: '#00ccff', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontWeight: '700' }}>
-                                    CROSS-PROJECT INTELLIGENCE
-                                </span>
-                            </h2>
-
-                            {loadingKb ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '300px' }}>
-                                    <div style={{ width: '40px', height: '40px', border: '4px solid #00ccff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-                                    <p style={{ marginTop: '1rem', color: '#00ccff', fontFamily: 'monospace' }}>FETCHING KNOWLEDGEBASE...</p>
-                                </div>
-                            ) : kbData.length === 0 ? (
-                                <div style={{ textAlign: 'center', padding: '4rem', background: 'rgba(0,0,0,0.2)', borderRadius: '1rem', border: '2px dashed rgba(255,255,255,0.1)' }}>
-                                    <p style={{ color: '#666', marginBottom: '1.5rem' }}>No vulnerability profiles found in the persistent store.</p>
-                                    <button onClick={syncKb} style={{ background: '#00ccff', color: '#000', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '0.5rem', fontWeight: '800', cursor: 'pointer' }}>
-                                        INITIALIZE DATABASE
-                                    </button>
-                                </div>
-                            ) : (
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1.5rem' }}>
-                                    {kbData.map((vuln, i) => (
-                                        <motion.div
-                                            key={vuln.id}
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: i * 0.05 }}
-                                            style={{
-                                                background: 'rgba(0,0,0,0.4)',
-                                                border: `2px solid ${vuln.severity === 'critical' ? '#ff0055' : vuln.severity === 'high' ? '#ffaa00' : '#00ff88'}`,
-                                                borderRadius: '1rem',
-                                                padding: '1.5rem',
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                gap: '1rem'
-                                            }}
-                                        >
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                                <h3 style={{ fontSize: '1.125rem', fontWeight: '900', color: '#fff', fontFamily: 'monospace' }}>{vuln.title}</h3>
-                                                <span style={{
-                                                    fontSize: '0.625rem',
-                                                    fontWeight: '900',
-                                                    padding: '0.25rem 0.5rem',
-                                                    borderRadius: '0.25rem',
-                                                    background: vuln.severity === 'critical' ? 'rgba(255,0,85,0.2)' : 'rgba(0,255,136,0.2)',
-                                                    color: vuln.severity === 'critical' ? '#ff0055' : '#00ff88',
-                                                    border: `1px solid ${vuln.severity === 'critical' ? '#ff0055' : '#00ff88'}`
-                                                }}>
-                                                    {vuln.severity.toUpperCase()}
-                                                </span>
-                                            </div>
-
-                                            <p style={{ fontSize: '0.875rem', color: '#cbd5e1', lineHeight: 1.6 }}>{vuln.description}</p>
-
-                                            <div style={{ background: 'rgba(0,255,136,0.05)', padding: '0.75rem', borderRadius: '0.5rem', borderLeft: `3px solid ${vuln.severity === 'critical' ? '#ff0055' : '#00ff88'}` }}>
-                                                <div style={{ fontSize: '0.625rem', color: '#666', marginBottom: '0.25rem', fontWeight: '700' }}>FIX RECOMMENDATION</div>
-                                                <div style={{ fontSize: '0.75rem', color: '#fff', fontFamily: 'monospace' }}>{vuln.recommendation}</div>
-                                            </div>
-
-                                            {vuln.consequences && (
-                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                                                    {vuln.consequences.map((c: string, j: number) => (
-                                                        <span key={j} style={{ fontSize: '0.625rem', color: '#ffaa00', background: 'rgba(255,170,0,0.1)', padding: '0.25rem 0.5rem', borderRadius: '1rem', border: '1px solid rgba(255,170,0,0.3)' }}>
-                                                            {c}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </motion.div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ) : scanning && !currentResult ? (
+                    {scanning && !currentResult ? (
                         <div style={{ textAlign: 'center', padding: '3rem' }}>
                             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
                             <div style={{ fontSize: '1rem', color: '#00ff88', fontFamily: 'monospace' }}>SCANNING...</div>
                         </div>
                     ) : null}
 
-                    {view === 'scans' && currentResult && (
+                    {currentResult && (
                         <>
                             {/* Navigation */}
                             {Object.keys(scanResults).length > 1 && (
+                                <div style={{ marginBottom: '1rem', borderBottom: '2px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
+                                <div style={{
+                                    background: 'rgba(0, 255, 136, 0.2)',
+                                    border: '2px solid #00ff88',
+                                    color: '#00ff88',
+                                    padding: '0.5rem 1rem',
+                                    borderRadius: '0.5rem',
+                                    fontSize: '0.75rem',
+                                    fontFamily: 'monospace',
+                                    fontWeight: '800',
+                                    textAlign: 'center'
+                                }}>
+                                    🔍 SCAN RESULTS
+                                </div>
+                            </div>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
                                     <button
                                         onClick={() => navigateResults('prev')}
@@ -864,8 +700,8 @@ export default function Dashboard() {
                                 )}
                             </AnimatePresence>
 
-                            {/* Threat Intelligence Panel */}
-                            {currentResult.threatIntelligence && (
+                            {/* Threat Intelligence Panel - Only display when displayInUI is true */}
+                            {currentResult.threatIntelligence && currentResult.threatIntelligence.displayInUI !== false && (
                                 <motion.div
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}

@@ -86,21 +86,12 @@ export async function getPackageVulnerabilities(
 }
 
 /**
- * Pre-warm cache with common React packages
+ * Pre-warm cache with common React packages and latest threat data
  */
 export async function prewarmThreatCache(): Promise<void> {
     if (typeof window !== 'undefined') return; // Server-side only
 
     console.log('[ThreatIntel] Pre-warming cache...');
-
-    // 1. Sync the persistent Vulnerability Knowledgebase (VKB)
-    try {
-        const { syncKnowledgebase } = await import('../knowledgebase/vulnerability-db');
-        await syncKnowledgebase();
-        console.log('[ThreatIntel] Vulnerability Knowledgebase synced to Redis');
-    } catch (err) {
-        console.error('[ThreatIntel] Knowledgebase sync failed:', err);
-    }
 
     const commonPackages = [
         { name: 'react', version: '18.0.0' },

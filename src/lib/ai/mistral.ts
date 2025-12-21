@@ -27,12 +27,27 @@ export interface VulnerabilityExplanation {
 
 /**
  * Generate vulnerability explanation using Mistral (Fallback)
+ * Now with Redis caching for common issues
  */
 export async function explainVulnerability(
     fileName: string,
     codeSnippet: string,
     issueType: string
 ): Promise<VulnerabilityExplanation | null> {
+    // Check cache first
+    const { getCachedAIResponse, cacheAIResponse } = await import('./response-cache');
+    const cached = await getCachedAIResponse(issueType, fileName);
+
+    if (cached) {
+        console.log('[Mistral] Using cached AI response');
+        return {
+            summary: cached.explanation.split('\n')[0] || 'Security issue detected',
+            technicalDetails: cached.explanation,
+            riskLevel: cached.riskLevel as 'low' | 'medium' | 'high' | 'critical',
+            recommendations: cached.recommendations
+        };
+    }
+
     const rotator = getMistralRotator();
     const apiKey = rotator.getNextKey();
 
@@ -82,12 +97,27 @@ Be direct and actionable.`;
         const data = await response.json();
         const content = data.choices?.[0]?.message?.content || '';
 
-        return {
+        const riskLevel = determineRiskLevel(issueType);
+        const recommendations = extractRecommendations(content);
+
+        const result = {
             summary: content.split('\n')[0] || 'Security issue detected',
             technicalDetails: content,
-            riskLevel: determineRiskLevel(issueType),
-            recommendations: extractRecommendations(content)
+            riskLevel,
+            recommendations
         };
+
+        // Cache the response for future use
+        await cacheAIResponse(
+            issueType,
+            fileName,
+            content,
+            undefined,
+            riskLevel,
+            recommendations
+        );
+
+        return result;
 
     } catch (error: any) {
         rotator.markKeyFailed(apiKey, error.message);
