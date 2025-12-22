@@ -87,7 +87,7 @@ export async function getProjectContext(
             packageJson = JSON.parse(content);
         }
     } catch (error) {
-        console.warn('Could not fetch package.json:', error);
+        console.warn('[Context] Could not fetch package.json:', error);
     }
 
     // Fetch tsconfig.json
@@ -101,10 +101,45 @@ export async function getProjectContext(
 
         if ('content' in data && data.content) {
             const content = Buffer.from(data.content, 'base64').toString('utf-8');
-            tsConfig = JSON.parse(content);
+            // Remove comments before parsing
+            const cleanContent = content.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
+            tsConfig = JSON.parse(cleanContent);
         }
     } catch (error) {
-        console.warn('Could not fetch tsconfig.json:', error);
+        console.warn('[Context] Could not fetch tsconfig.json:', error);
+    }
+
+    // Try to fetch next.config.js/ts for more context
+    let hasAppRouter = false;
+    try {
+        const configs = ['next.config.js', 'next.config.ts', 'next.config.mjs'];
+        for (const configFile of configs) {
+            try {
+                await octokit.rest.repos.getContent({
+                    owner,
+                    repo,
+                    path: configFile
+                });
+                // If we got here, config exists
+                break;
+            } catch (e) {
+                continue;
+            }
+        }
+
+        // Check for app directory
+        try {
+            await octokit.rest.repos.getContent({
+                owner,
+                repo,
+                path: 'app'
+            });
+            hasAppRouter = true;
+        } catch (e) {
+            // No app directory
+        }
+    } catch (error) {
+        console.warn('[Context] Could not check Next.js config:', error);
     }
 
     // Extract framework info
@@ -112,7 +147,11 @@ export async function getProjectContext(
     const devDeps = packageJson.devDependencies || {};
     const hasNextJs = !!deps.next || !!devDeps.next;
     const nextVersion = deps.next || devDeps.next || 'unknown';
-    const isAppRouter = nextVersion.startsWith('14') || nextVersion.startsWith('15');
+
+    // Better app router detection
+    const versionMatch = nextVersion.match(/\d+/);
+    const majorVersion = versionMatch ? parseInt(versionMatch[0]) : 0;
+    const isAppRouter = hasAppRouter || (hasNextJs && majorVersion >= 13);
 
     return {
         dependencies: deps,
