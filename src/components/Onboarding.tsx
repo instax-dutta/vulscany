@@ -25,7 +25,7 @@ const createDemoData = (userName: string) => ({
                 description: 'Using dangerouslySetInnerHTML without proper sanitization can lead to XSS attacks',
                 file: 'src/components/UserProfile.tsx',
                 line: 42,
-                snippet: '<div dangerouslySetInnerHTML={{__html: userBio}} />',
+                snippet: '<div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userBio) }} />',
                 recommendation: 'Use DOMPurify.sanitize() to clean user input before rendering HTML'
             },
             {
