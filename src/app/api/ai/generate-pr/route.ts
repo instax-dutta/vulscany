@@ -8,6 +8,8 @@ import { cookies } from 'next/headers';
 import { generateBatchFixes } from '@/lib/ai/fix-generator';
 import { createSecurityFixPR } from '@/lib/github/pr-creator';
 import { getFileContent } from '@/lib/github/client';
+import { getProjectContext, buildContextString } from '@/lib/ai/pr-context';
+import { validateGeneratedCode, formatValidationReport } from '@/lib/validators/code-validator';
 import type { Vulnerability } from '@/lib/scanner';
 
 export const runtime = 'nodejs';
@@ -73,9 +75,32 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // Step 2: Generate fixes
-        console.log('[Generate PR] Generating fixes...');
-        const fixes = await generateBatchFixes(vulnerabilities, fileContents);
+        // Step 1.5: Gather project context for better AI fixes
+        console.log('[Generate PR] Gathering project context...');
+        const primaryFile = uniqueFiles[0];
+        const primaryFileContent = fileContents.get(primaryFile) || '';
+
+        const projectContext = await getProjectContext(
+            accessToken,
+            owner,
+            repo,
+            primaryFileContent
+        );
+
+        const contextString = buildContextString(projectContext);
+        console.log('[Generate PR] Context gathered:', {
+            dependencies: Object.keys(projectContext.dependencies).length,
+            framework: projectContext.framework.name,
+            imports: projectContext.fileImports.length
+        });
+
+        // Step 2: Generate fixes with enriched context
+        console.log('[Generate PR] Generating fixes with project context...');
+        const fixes = await generateBatchFixes(
+            vulnerabilities,
+            fileContents,
+            contextString // Pass context to AI
+        );
 
         if (fixes.length === 0) {
             return NextResponse.json(
@@ -84,18 +109,44 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Step 3: Preview mode - just return the fixes
+        // Step 2.5: Validate generated fixes
+        console.log('[Generate PR] Validating generated code...');
+        const availablePackages = [
+            ...Object.keys(projectContext.dependencies),
+            ...Object.keys(projectContext.devDependencies)
+        ];
+
+        const validationResults = fixes.map(fix => ({
+            filePath: fix.filePath,
+            validation: validateGeneratedCode(fix.fixedCode, availablePackages)
+        }));
+
+        const hasErrors = validationResults.some(r => !r.validation.valid);
+        const totalWarnings = validationResults.reduce((sum, r) => sum + r.validation.warnings.length, 0);
+
+        console.log('[Generate PR] Validation results:', {
+            filesValidated: fixes.length,
+            errors: validationResults.filter(r => !r.validation.valid).length,
+            warnings: totalWarnings
+        });
+
+        // Step 3: Preview mode - just return the fixes with validation
         if (mode === 'preview') {
             return NextResponse.json({
                 success: true,
                 mode: 'preview',
-                fixes: fixes.map(fix => ({
+                fixes: fixes.map((fix, idx) => ({
                     filePath: fix.filePath,
                     diff: fix.diff,
                     vulnerabilityId: fix.vulnerabilityId,
-                    commitMessage: fix.commitMessage
+                    commitMessage: fix.commitMessage,
+                    validation: validationResults[idx].validation
                 })),
-                totalFiles: fixes.length
+                totalFiles: fixes.length,
+                validationSummary: {
+                    hasErrors,
+                    totalWarnings
+                }
             });
         }
 

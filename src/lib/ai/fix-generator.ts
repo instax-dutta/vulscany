@@ -20,38 +20,45 @@ export interface FixResult {
  */
 export async function generateCodeFix(
     vulnerability: Vulnerability,
-    fileContent: string
+    fileContent: string,
+    projectContext?: string
 ): Promise<FixResult> {
     // Build a comprehensive prompt for fix generation
-    const prompt = `You are a security expert. Fix the following ${vulnerability.severity} severity security issue in this code.
+    const prompt = `You are a security expert fixing vulnerabilities in a production codebase.
 
-VULNERABILITY:
+${projectContext ? `${projectContext}\n\n` : ''}
+
+VULNERABILITY TO FIX:
 - Type: ${vulnerability.type}
+- Severity: ${vulnerability.severity}
 - Title: ${vulnerability.title}
 - Description: ${vulnerability.description}
 - File: ${vulnerability.file}
 ${vulnerability.line ? `- Line: ${vulnerability.line}` : ''}
 
-CURRENT CODE:
+CURRENT FILE CODE:
 \`\`\`
 ${fileContent}
 \`\`\`
 
-${vulnerability.snippet ? `VULNERABLE SNIPPET:
+${vulnerability.snippet ? `VULNERABLE CODE SNIPPET:
 \`\`\`
 ${vulnerability.snippet}
 \`\`\`
 ` : ''}
 
-INSTRUCTIONS:
-1. Generate the COMPLETE fixed version of the file (not just the snippet)
-2. Apply the security fix: ${vulnerability.recommendation}
-3. Maintain all existing functionality
-4. Keep the same code style and formatting
-5. Add necessary imports (e.g., DOMPurify, etc.)
-6. Add comments explaining the security fix
+FIX INSTRUCTIONS:
+1. Apply this security fix: ${vulnerability.recommendation}
+2. Generate the COMPLETE fixed version of the ENTIRE file
+3. **CRITICAL**: Do NOT remove any existing imports
+4. ADD new imports ONLY if absolutely necessary (e.g., DOMPurify for sanitization)
+5. Maintain ALL existing functionality - code must work identically
+6. Keep the same code style, formatting, and structure
+7. Add a brief comment explaining the security fix
+8. Ensure TypeScript strict mode compliance (no 'any' types)
+9. If adding dependencies, ensure they match the project's dependency versions
 
-RESPOND WITH ONLY THE COMPLETE FIXED FILE CODE. NO EXPLANATIONS, JUST CODE.`;
+RESPOND WITH ONLY THE COMPLETE FIXED FILE CODE. NO MARKDOWN CODE BLOCKS, NO EXPLANATIONS, JUST THE RAW CODE.`;
 
     try {
         // Use AI to generate the fix
@@ -168,7 +175,8 @@ function generateDiff(original: string, fixed: string): string {
  */
 export async function generateBatchFixes(
     vulnerabilities: Vulnerability[],
-    fileContents: Map<string, string>
+    fileContents: Map<string, string>,
+    projectContext?: string // Optional project context for better AI fixes
 ): Promise<FixResult[]> {
     const fixes: FixResult[] = [];
 
@@ -194,7 +202,7 @@ export async function generateBatchFixes(
 
         for (const vuln of vulns) {
             try {
-                const fix = await generateCodeFix(vuln, fixedContent);
+                const fix = await generateCodeFix(vuln, fixedContent, projectContext);
                 fixedContent = fix.fixedCode; // Apply fix cumulatively
                 appliedFixes.push(fix);
             } catch (error) {
