@@ -1,0 +1,207 @@
+# VullScanny Security Scan GitHub Action
+# Add this file to your repository at .github/workflows/vullscanny.yml
+# 
+# This action will automatically scan your React/Next.js code for security
+# vulnerabilities on every pull request and leave a comment with findings.
+
+name: 🛡️ VullScanny Security Scan
+
+on:
+  pull_request:
+    branches: [main, master, develop]
+    types: [opened, synchronize, reopened]
+
+# Prevent concurrent scans on the same PR
+concurrency:
+  group: vullscanny-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      pull-requests: write
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🔍 Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            **/*.js
+            **/*.jsx
+            **/*.ts
+            **/*.tsx
+      
+      - name: 🛡️ Run VullScanny Scan
+        id: scan
+        if: steps.changed-files.outputs.any_changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VULLSCANNY_API: https://vullscanny.sdad.pro/api
+        run: |
+          echo "Scanning changed files..."
+          
+          # Collect all changed files
+          FILES="${{ steps.changed-files.outputs.all_changed_files }}"
+          
+          # Initialize results
+          CRITICAL=0
+          HIGH=0
+          MEDIUM=0
+          LOW=0
+          FINDINGS=""
+          
+          for file in $FILES; do
+            if [[ -f "$file" ]]; then
+              echo "Scanning: $file"
+              content=$(cat "$file" | head -c 50000)
+              
+              # Check for dangerouslySetInnerHTML without sanitization
+              if echo "$content" | grep -q "dangerouslySetInnerHTML" && ! echo "$content" | grep -q "DOMPurify\|sanitize"; then
+                ((HIGH++))
+                FINDINGS="$FINDINGS\n- **HIGH** ⚠️ \`$file\`: Unsanitized dangerouslySetInnerHTML detected"
+              fi
+              
+              # Check for eval usage
+              if echo "$content" | grep -qE "\beval\s*\("; then
+                ((CRITICAL++))
+                FINDINGS="$FINDINGS\n- **CRITICAL** 🔴 \`$file\`: eval() usage detected - major security risk"
+              fi
+              
+              # Check for innerHTML
+              if echo "$content" | grep -qE "\.innerHTML\s*=" && ! echo "$content" | grep -q "DOMPurify\|sanitize"; then
+                ((HIGH++))
+                FINDINGS="$FINDINGS\n- **HIGH** ⚠️ \`$file\`: Unsanitized innerHTML assignment"
+              fi
+              
+              # Check for document.write
+              if echo "$content" | grep -q "document\.write"; then
+                ((MEDIUM++))
+                FINDINGS="$FINDINGS\n- **MEDIUM** 🟡 \`$file\`: document.write() usage"
+              fi
+            fi
+          done
+          
+          # Calculate score
+          SCORE=$((100 - (CRITICAL * 25) - (HIGH * 15) - (MEDIUM * 8) - (LOW * 3)))
+          if [ $SCORE -lt 0 ]; then SCORE=0; fi
+          
+          # Set outputs
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
+          echo "high=$HIGH" >> $GITHUB_OUTPUT
+          echo "medium=$MEDIUM" >> $GITHUB_OUTPUT
+          echo "low=$LOW" >> $GITHUB_OUTPUT
+          echo "findings<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$FINDINGS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Determine status
+          if [ $CRITICAL -gt 0 ]; then
+            echo "status=critical" >> $GITHUB_OUTPUT
+          elif [ $HIGH -gt 0 ]; then
+            echo "status=warning" >> $GITHUB_OUTPUT
+          elif [ $MEDIUM -gt 0 ]; then
+            echo "status=notice" >> $GITHUB_OUTPUT
+          else
+            echo "status=success" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: 💬 Comment on PR
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const score = '${{ steps.scan.outputs.score }}';
+            const critical = '${{ steps.scan.outputs.critical }}';
+            const high = '${{ steps.scan.outputs.high }}';
+            const medium = '${{ steps.scan.outputs.medium }}';
+            const low = '${{ steps.scan.outputs.low }}';
+            const findings = `${{ steps.scan.outputs.findings }}`;
+            const status = '${{ steps.scan.outputs.status }}';
+            
+            let emoji = '✅';
+            let statusText = 'All Clear!';
+            if (status === 'critical') {
+              emoji = '🔴';
+              statusText = 'Critical Issues Found';
+            } else if (status === 'warning') {
+              emoji = '⚠️';
+              statusText = 'Security Warnings';
+            } else if (status === 'notice') {
+              emoji = '🟡';
+              statusText = 'Minor Issues';
+            }
+            
+            const body = `## ${emoji} VullScanny Security Scan
+            
+            ### Security Score: ${score}/100
+            
+            | Severity | Count |
+            |----------|-------|
+            | 🔴 Critical | ${critical} |
+            | ⚠️ High | ${high} |
+            | 🟡 Medium | ${medium} |
+            | 🟢 Low | ${low} |
+            
+            ${findings ? `### Findings\n${findings}` : '### ✅ No security issues detected!'}
+            
+            ---
+            
+            <details>
+            <summary>ℹ️ About VullScanny</summary>
+            
+            [VullScanny](https://vullscanny.sdad.pro) is a privacy-first React security scanner.
+            Your code is never stored - all scans happen in real-time.
+            
+            **Quick Fixes:**
+            - For XSS issues: Use \`DOMPurify.sanitize()\`
+            - For eval: Replace with \`JSON.parse()\` or safe alternatives
+            - For innerHTML: Use React's controlled rendering
+            
+            </details>
+            
+            *Powered by [VullScanny](https://vullscanny.sdad.pro) 🛡️*`;
+            
+            // Check for existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            
+            const botComment = comments.find(c => 
+              c.user.type === 'Bot' && c.body.includes('VullScanny Security Scan')
+            );
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body
+              });
+            }
+      
+      - name: ❌ Fail on Critical Issues
+        if: steps.scan.outputs.status == 'critical'
+        run: |
+          echo "::error::Critical security vulnerabilities detected!"
+          echo "Please fix the issues before merging."
+          exit 1

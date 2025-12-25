@@ -14,6 +14,16 @@ import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
 import type { Vulnerability } from '@/lib/scanner';
 import Onboarding from '@/components/Onboarding';
+import {
+    SecurityScoreWidget,
+    AchievementsPanel,
+    EducationPanel,
+    CommunityPatternsPanel,
+    SecurityTipBanner,
+    GitHubActionModal
+} from '@/components/DashboardFeatures';
+import { loadUserStats, saveUserStats, updateStatsAfterScan, updateStatsAfterFix, type UserStats } from '@/lib/security-score';
+
 
 interface ScanResult {
     repoName: string;
@@ -69,7 +79,11 @@ export default function Dashboard() {
     const [userName, setUserName] = useState('');
     const [demoScanResults, setDemoScanResults] = useState<Record<string, any> | null>(null);
 
-    // Removed knowledgebase - no longer needed
+    // New Feature States
+    const [userStats, setUserStats] = useState<UserStats | null>(null);
+    const [showGitHubActionModal, setShowGitHubActionModal] = useState(false);
+    const [simpleEducationMode, setSimpleEducationMode] = useState(true);
+
 
     // Check if user has completed onboarding
     useEffect(() => {
@@ -82,6 +96,13 @@ export default function Dashboard() {
             setUserName(savedName);
         }
     }, []);
+
+    // Load user stats
+    useEffect(() => {
+        const stats = loadUserStats();
+        setUserStats(stats);
+    }, []);
+
 
     useEffect(() => {
         const lenis = new Lenis({
@@ -412,8 +433,14 @@ export default function Dashboard() {
                 </div>
             </header>
 
+            {/* Security Tip Banner */}
+            <div style={{ padding: '0 2rem', maxWidth: '1800px', margin: '0 auto' }}>
+                <SecurityTipBanner />
+            </div>
+
             {/* Main Content */}
             <main style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '1.5rem', padding: '1.5rem 2rem', maxWidth: '1800px', margin: '0 auto' }}>
+
 
                 {/* Repository List / KB Sidebar */}
                 <div
@@ -481,7 +508,63 @@ export default function Dashboard() {
                             )}
                         </>
                     )}
+
+                    {/* Security Score Widget - show when we have a current result */}
+                    {currentResult && currentResult.vulnerabilities && currentResult.vulnerabilities.length >= 0 && (
+                        <div style={{ marginTop: '1rem' }}>
+                            <SecurityScoreWidget
+                                vulnerabilities={currentResult.vulnerabilities}
+                                onScoreCalculated={(score) => {
+                                    // Update user stats when score is calculated
+                                    if (userStats) {
+                                        const updated = updateStatsAfterScan(
+                                            userStats,
+                                            currentResult.repoName,
+                                            score,
+                                            currentResult.vulnerabilities.length
+                                        );
+                                        setUserStats(updated);
+                                        saveUserStats(updated);
+                                    }
+                                }}
+                            />
+                        </div>
+                    )}
+
+                    {/* Achievements Panel */}
+                    {userStats && (
+                        <AchievementsPanel stats={userStats} />
+                    )}
+
+                    {/* Community Patterns */}
+                    <CommunityPatternsPanel
+                        onPatternSubmit={() => {
+                            // Could refresh patterns or show toast
+                        }}
+                    />
+
+                    {/* GitHub Action Setup Button */}
+                    <button
+                        onClick={() => setShowGitHubActionModal(true)}
+                        style={{
+                            width: '100%',
+                            marginTop: '1rem',
+                            background: 'rgba(0, 204, 255, 0.1)',
+                            border: '2px solid rgba(0, 204, 255, 0.3)',
+                            color: '#00ccff',
+                            padding: '0.75rem',
+                            borderRadius: '0.5rem',
+                            fontSize: '0.75rem',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            fontFamily: 'monospace',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        🎬 SETUP GITHUB ACTION
+                    </button>
                 </div>
+
 
                 {/* Results Panel / KB Content */}
                 <div
@@ -1237,9 +1320,16 @@ export default function Dashboard() {
                                                         )}
                                                     </div>
                                                 )}
+
+                                                {/* Education Panel */}
+                                                <EducationPanel
+                                                    vulnerabilityType={vuln.type}
+                                                    isSimpleMode={simpleEducationMode}
+                                                />
                                             </div>
                                         );
                                     })}
+
                                 </div>
                             ) : (
                                 <div style={{
@@ -1425,6 +1515,17 @@ export default function Dashboard() {
                     />
                 )}
             </AnimatePresence>
+
+            {/* GitHub Action Setup Modal */}
+            <AnimatePresence>
+                {showGitHubActionModal && (
+                    <GitHubActionModal
+                        isOpen={showGitHubActionModal}
+                        onClose={() => setShowGitHubActionModal(false)}
+                    />
+                )}
+            </AnimatePresence>
         </div>
+
     );
 }
