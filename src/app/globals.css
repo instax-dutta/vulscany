@@ -3,6 +3,23 @@
 @theme {
   --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  
+  /* Severity Colors */
+  --color-critical: #ff0055;
+  --color-critical-bg: rgba(255, 0, 85, 0.1);
+  --color-critical-border: rgba(255, 0, 85, 0.3);
+  
+  --color-high: #ffaa00;
+  --color-high-bg: rgba(255, 170, 0, 0.1);
+  --color-high-border: rgba(255, 170, 0, 0.3);
+  
+  --color-medium: #ffc800;
+  --color-medium-bg: rgba(255, 200, 0, 0.1);
+  --color-medium-border: rgba(255, 200, 0, 0.3);
+  
+  --color-low: #00ff88;
+  --color-low-bg: rgba(0, 255, 136, 0.1);
+  --color-low-border: rgba(0, 255, 136, 0.3);
 }
 
 * {
