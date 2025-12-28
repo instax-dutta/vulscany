@@ -12,7 +12,7 @@
 
 # testing
 /coverage
-
+/.rohkun/
 # next.js
 /.next/
 /out/
