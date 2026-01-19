@@ -14,47 +14,39 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const siteUrl = 'https://vullscanny.sdad.pro';
-const siteName = 'VullScanny';
-const siteDescription = 'Privacy-first React security scanner for GitHub repositories. Scan your React projects for XSS, injection vulnerabilities, and dangerous patterns. Your code is never stored.';
+const siteUrl = 'https://app.example.com';
+const siteName = 'Aeglyn';
+const siteDescription = 'Aeglyn is a GDPR-compliant, real-time AI code scan tool with no data logging. Secure your vibe coding with zero-knowledge static analysis and local-only secrets scanning.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${siteName} - Privacy-First React Security Scanner`,
+    default: 'Aeglyn | Privacy-First AI Code Security Scanner 2026',
     template: `%s | ${siteName}`
   },
-  description: '🚀 NEW: VullScanny now features advanced threat intelligence with real-time CVE tracking and zero-day detection! Privacy-first React security scanner powered by VulkanorAI. Automate XSS detection, prevent injection attacks, and audit your GitHub repositories instantly with comprehensive risk analysis.',
+  description: siteDescription,
   keywords: [
-    // Core Functionality
-    'react security scanner',
-    'automated vulnerability detection',
-    'fix react xss',
-    'javascript static analysis',
-    'github security audit',
-
-    // Brand & Tech
-    'VulkanorAI',
-    'VullScanny',
-    'sdad.pro',
-    'SDAD security',
-
-    // Specific Threats
-    'react injection vulnerabilities',
-    'identifying dangerous code patterns',
-    'next.js security best practices',
-    'unsafe dependencies check',
-
-    // Developer Intent
-    'audit github repo',
-    'secure code review automation',
-    'developer cyber security tools',
-    'privacy-first code analysis'
+    'privacy-first vibe coding security scanner 2026',
+    'AI code scan tool no data logging vibe coders',
+    'GDPR compliant real-time vibe code security checker',
+    'on-device AI vulnerability scan for no-code startups',
+    'zero-knowledge static analysis tool vibe coding 2026',
+    'local-only secrets scanner for vibe script kiddies',
+    'privacy-first GitHub Copilot security linter 2026',
+    'end-to-end encrypted code review tool vibe hackers',
+    'Aeglyn',
+    'security scanner',
+    'vibe coding',
+    'react security',
+    'automated vulnerability detection'
   ],
   generator: 'VulkanorAI Engine',
-  authors: [{ name: 'Sai Dutta Abhishek Dash', url: 'https://sdad.pro' }],
-  creator: 'VullScanny',
-  publisher: 'VullScanny',
+  authors: [
+    { name: 'Sai Dutta Abhishek Dash' },
+    { name: 'Tejes Munde' }
+  ],
+  creator: 'Aeglyn',
+  publisher: 'Aeglyn',
   formatDetection: {
     email: false,
     address: false,
@@ -64,25 +56,25 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: siteUrl,
-    title: `${siteName} - Privacy-First React Security Scanner`,
-    description: siteDescription,
-    siteName: siteName,
+    title: 'Aeglyn | Privacy-First AI Code Security Scanner 2026',
+    description: 'Secure your vibe coding with zero-knowledge static analysis and local-only secrets scanning.',
+    siteName: 'Aeglyn',
     images: [
       {
-        url: `${siteUrl}/og-image.png`,
+        url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'VullScanny - React Security Scanner',
+        alt: 'Aeglyn Security Scanner',
         type: 'image/png',
       }
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${siteName} - Privacy-First React Security Scanner`,
-    description: siteDescription,
-    images: [`${siteUrl}/og-image.png`],
-    creator: '@vulnscany',
+    title: 'Aeglyn | AI Code Security Scanner',
+    description: 'GDPR-compliant, real-time AI code scan tool with no data logging.',
+    images: ['/og-image.png'],
+    creator: '@AeglynHQ',
   },
   robots: {
     index: true,
@@ -95,7 +87,10 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-
+  icons: {
+    icon: '/favicon.png',
+    apple: '/favicon.png',
+  },
   manifest: '/manifest.json',
   alternates: {
     canonical: siteUrl,
@@ -104,14 +99,8 @@ export const metadata: Metadata = {
   classification: 'Security Tools',
   appleWebApp: {
     capable: true,
-    title: siteName,
+    title: 'Aeglyn',
     statusBarStyle: 'black-translucent',
-  },
-  verification: {
-    // Add your verification codes here when available
-    // google: 'your-google-verification-code',
-    // yandex: 'your-yandex-verification-code',
-    // other: 'your-other-verification-code',
   },
 };
 
@@ -123,26 +112,26 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <meta name="theme-color" content="#3b82f6" />
+        <meta name="theme-color" content="#00d4ff" />
         <meta name="color-scheme" content="dark" />
 
         {/* Additional SEO meta tags */}
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta name="application-name" content="VullScanny" />
+        <meta name="application-name" content="Aeglyn" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="VullScanny" />
+        <meta name="apple-mobile-web-app-title" content="Aeglyn" />
         <meta name="mobile-web-app-capable" content="yes" />
 
         {/* Structured Data for SEO */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ // @vull-ignore: Sanity checked, content is stringified and escaped
+          dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'SoftwareApplication',
-              name: 'VullScanny',
+              name: 'Aeglyn',
               applicationCategory: 'DeveloperApplication',
               operatingSystem: 'Web',
               offers: {
@@ -153,25 +142,20 @@ export default function RootLayout({
               description: siteDescription,
               url: siteUrl,
               image: `${siteUrl}/og-image.png`,
-              author: {
-                '@type': 'Organization',
-                name: 'SDAD.pro',
-                url: 'https://sdad.pro',
-                logo: 'https://sdad.pro/logo.png', // Assuming standard logo path or can use the app icon
-                sameAs: [
-                  'https://github.com/saiduttaabhishekdash',
-                  'https://twitter.com/saiduttaabhishekdash'
-                ]
-              },
+              author: [
+                {
+                  '@type': 'Person',
+                  name: 'Sai Dutta Abhishek Dash'
+                },
+                {
+                  '@type': 'Person',
+                  name: 'Tejes Munde'
+                }
+              ],
               publisher: {
                 '@type': 'Organization',
-                name: 'VullScanny powered by VulkanorAI',
+                name: 'Aeglyn powered by VulkanorAI',
                 url: siteUrl
-              },
-              aggregateRating: {
-                '@type': 'AggregateRating',
-                ratingValue: '5.0',
-                ratingCount: '1'
               },
               featureList: [
                 'GitHub OAuth Integration',
@@ -179,8 +163,8 @@ export default function RootLayout({
                 'AI-Powered Fix Suggestions',
                 'Privacy-First Architecture',
                 'Zero Data Storage',
-                'XSS Detection',
-                'Injection Risk Analysis'
+                'GDPR Compliant',
+                'Real-time Security Scanning'
               ]
             }).replace(/</g, '\\u003c')
           }}
