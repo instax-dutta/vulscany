@@ -1,8 +1,8 @@
-# 🚀 VullScanny - Vibe Coding Community Empowerment Plan
+# 🚀 Aeglyn - Vibe Coding Community Empowerment Plan
 
 ## 🎯 Mission
 
-Transform VullScanny into the ultimate security scanning tool for the vibe coding community - developers who want to ship fast, code clean, and stay secure without getting bogged down in complexity.
+Transform Aeglyn into the ultimate security scanning tool for the vibe coding community - developers who want to ship fast, code clean, and stay secure without getting bogged down in complexity.
 
 ---
 
@@ -119,14 +119,14 @@ Transform VullScanny into the ultimate security scanning tool for the vibe codin
 **Implementation**:
 
 ```yaml
-# .github/workflows/vullscanny.yml
+# .github/workflows/Aeglyn.yml
 name: Security Scan
 on: [pull_request]
 jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: vullscanny/scan-action@v1
+      - uses: Aeglyn/scan-action@v1
         with:
           fail-on: critical
           comment-pr: true
@@ -213,19 +213,19 @@ jobs:
 ### 8. **CLI Tool** 💻 (TERMINAL WARRIORS)
 
 **Current State**: Web-only
-**Vibe Upgrade**: `npx vullscanny scan`
+**Vibe Upgrade**: `npx Aeglyn scan`
 
 **Features**:
 
 ```bash
 # Quick scan
-npx vullscanny scan ./src
+npx Aeglyn scan ./src
 
 # CI mode
-npx vullscanny scan --fail-on=high --format=json
+npx Aeglyn scan --fail-on=high --format=json
 
 # Watch mode (dev)
-npx vullscanny watch ./src --fix-on-save
+npx Aeglyn watch ./src --fix-on-save
 ```
 
 **Output**:
@@ -403,7 +403,7 @@ Power user navigation (S = scan, F = fix, etc.)
 
 ## ✨ Differentiators vs Competition
 
-| Feature | VullScanny | Snyk | SonarQube |
+| Feature | Aeglyn | Snyk | SonarQube |
 |---------|-----------|------|-----------|
 | Setup Time | 30 seconds | 15 mins | 1 hour |
 | Beginner Friendly | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐ |
@@ -418,4 +418,4 @@ Power user navigation (S = scan, F = fix, etc.)
 
 The vibe coding community wants tools that **empower**, **educate**, and **elevate** their work without slowing them down.
 
-VullScanny has the foundation - now let's make it the tool every dev reaches for when they want to ship secure code fast! 🛡️✨
+Aeglyn has the foundation - now let's make it the tool every dev reaches for when they want to ship secure code fast! 🛡️✨
