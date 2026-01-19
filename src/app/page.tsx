@@ -1,5 +1,5 @@
 /**
- * VullScanny Landing Page - Clean & Modern
+ * Aeglyn Landing Page - Clean & Modern
  */
 
 'use client';
@@ -73,7 +73,7 @@ export default function Home() {
               justifyContent: 'center'
             }}>🛡️</div>
             <span style={{ fontSize: '1.25rem', fontWeight: '900', background: 'linear-gradient(90deg, #00ff88, #00ccff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'monospace' }}>
-              VullScanny
+              Aeglyn
             </span>
           </div>
           <Link href="/privacy" style={{ color: '#00ccff', fontSize: '0.875rem', textDecoration: 'none' }}>Privacy</Link>
@@ -391,7 +391,7 @@ export default function Home() {
       {/* Footer */}
       <footer style={{ borderTop: '1px solid rgba(0, 255, 136, 0.2)', marginTop: '6rem', padding: '2rem' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', textAlign: 'center', color: '#666', fontSize: '0.875rem' }}>
-          <p>© 2025 VullScanny • Powered by <strong>VulkanorAI</strong> Engine</p>
+          <p>© 2025 Aeglyn • Powered by <strong>VulkanorAI</strong> Engine</p>
           <div style={{ marginTop: '1rem' }}>
             <Link href="/privacy" style={{ color: '#00ccff', textDecoration: 'none' }}>Privacy Policy</Link>
           </div>
