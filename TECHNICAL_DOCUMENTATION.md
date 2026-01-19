@@ -1,4 +1,4 @@
-# VullScanny - Complete Technical Documentation
+# Aeglyn - Complete Technical Documentation
 
 > **Privacy-First React Security Scanner with AI-Powered Auto-Fix**
 
@@ -20,7 +20,7 @@
 
 ## 🎯 Overview
 
-VullScanny is a **privacy-first** security scanner designed specifically for React and Next.js applications. It scans GitHub repositories for common security vulnerabilities and can automatically generate Pull Requests with fixes.
+Aeglyn is a **privacy-first** security scanner designed specifically for React and Next.js applications. It scans GitHub repositories for common security vulnerabilities and can automatically generate Pull Requests with fixes.
 
 ### Key Principles
 
@@ -208,7 +208,7 @@ const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
    └─→ TypeScript compliance check
 
 4. PR CREATION
-   └─→ Check for existing VullScanny PRs (prevent duplicates)
+   └─→ Check for existing Aeglyn PRs (prevent duplicates)
    └─→ Create new branch
    └─→ Commit fixed files
    └─→ Create PR with validation report
@@ -224,7 +224,7 @@ async function hasExistingSecurityPR(octokit, owner, repo) {
     });
     
     return prs.find(pr => 
-        pr.head.ref.startsWith('vullscanny/security-fixes-') ||
+        pr.head.ref.startsWith('Aeglyn/security-fixes-') ||
         pr.title.includes('🔒 Security Fixes')
     );
 }
@@ -485,7 +485,7 @@ Response: {
 
 ### 12. GitHub Action Template ✅
 
-**Implementation**: `/public/vullscanny-action.yml`
+**Implementation**: `/public/Aeglyn-action.yml`
 
 **Features**:
 
@@ -503,7 +503,7 @@ Response: {
 - innerHTML assignments
 - document.write() calls
 
-**Setup**: Copy YAML file to `.github/workflows/vullscanny.yml`
+**Setup**: Copy YAML file to `.github/workflows/Aeglyn.yml`
 
 ---
 
@@ -651,7 +651,7 @@ export function validateGeneratedCode(code, availablePackages) {
 ### PR Description Format
 
 ```markdown
-## 🛡️ Security Fixes by VullScanny
+## 🛡️ Security Fixes by Aeglyn
 
 ### Files Changed
 - `src/components/UserProfile.tsx` (1 issue)
@@ -735,7 +735,7 @@ fix(security): Unsanitized HTML Rendering
     "success": true,
     "prUrl": "https://github.com/user/repo/pull/123",
     "prNumber": 123,
-    "branch": "vullscanny/security-fixes-1703500000000",
+    "branch": "Aeglyn/security-fixes-1703500000000",
     "filesChanged": 1
 }
 ```
@@ -846,7 +846,7 @@ Required scopes:
 
 ### Mission
 
-Transform VullScanny into the ultimate security scanning tool for the **vibe coding community** - developers who want to ship fast, code clean, and stay secure without getting bogged down in complexity.
+Transform Aeglyn into the ultimate security scanning tool for the **vibe coding community** - developers who want to ship fast, code clean, and stay secure without getting bogged down in complexity.
 
 ### Core Philosophy
 
@@ -932,7 +932,7 @@ For Vibe Coders:
 
 | Feature | Status | Description |
 |---------|--------|-------------|
-| CLI Tool | 🚀 Planned | `npx vullscanny scan ./src` |
+| CLI Tool | 🚀 Planned | `npx Aeglyn scan ./src` |
 | VS Code Extension | 🚀 Planned | Real-time scanning in editor |
 | Discord/Slack Bot | 🚀 Planned | `/scan` command in servers |
 | Dark/Light Theme Toggle | 🚀 Planned | System preference + manual toggle |
@@ -944,13 +944,13 @@ For Vibe Coders:
 
 ```bash
 # Quick scan
-npx vullscanny scan ./src
+npx Aeglyn scan ./src
 
 # CI mode
-npx vullscanny scan --fail-on=high --format=json
+npx Aeglyn scan --fail-on=high --format=json
 
 # Watch mode (dev)
-npx vullscanny watch ./src --fix-on-save
+npx Aeglyn watch ./src --fix-on-save
 ```
 
 #### GitHub Action 🎬
@@ -962,7 +962,7 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: vullscanny/scan-action@v1
+      - uses: Aeglyn/scan-action@v1
         with:
           fail-on: critical
           comment-pr: true
@@ -979,7 +979,7 @@ jobs:
 
 ## 📈 Future UX Improvements
 
-| Feature | VullScanny | Snyk | SonarQube |
+| Feature | Aeglyn | Snyk | SonarQube |
 |---------|-----------|------|-----------|
 | Setup Time | 30 seconds | 15 mins | 1 hour |
 | Beginner Friendly | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐ |
@@ -1042,10 +1042,10 @@ MIT License - See LICENSE file
 
 ---
 
-**Built with ❤️ by the VullScanny Team**
+**Built with ❤️ by the Aeglyn Team**
 
 *The vibe coding community wants tools that **empower**, **educate**, and **elevate** their work without slowing them down.*
 
-*VullScanny has the foundation - now let's make it the tool every dev reaches for when they want to ship secure code fast!* 🛡️✨
+*Aeglyn has the foundation - now let's make it the tool every dev reaches for when they want to ship secure code fast!* 🛡️✨
 
 *Last Updated: December 2024*

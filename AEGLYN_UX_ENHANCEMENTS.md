@@ -1,4 +1,4 @@
-# VullScanny UX Enhancements Implementation Summary
+# Aeglyn UX Enhancements Implementation Summary
 
 **Date:** December 27, 2025  
 **Status:** ✅ All Components Built - Ready for Integration
@@ -72,7 +72,7 @@ const [userMode, setUserMode] = useState<'simple' | 'pro'>(getUserMode());
 - Side-by-side diff view (before/after)
 - Syntax-highlighted code blocks
 - Copy fix button
-- "Test Locally" command generator (`npx vullscanny --test`)
+- "Test Locally" command generator (`npx Aeglyn --test`)
 - Explanation section
 
 **Usage:**
@@ -425,4 +425,4 @@ if (e.key === 'Escape') {
 
 ---
 
-**Built with ❤️ for the VullScanny community**
+**Built with ❤️ for the Aeglyn community**

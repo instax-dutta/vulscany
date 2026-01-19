@@ -1,4 +1,4 @@
-# VullScanny: Internal Product Summary & Strategic Analysis
+# Aeglyn: Internal Product Summary & Strategic Analysis
 
 **Date:** December 27, 2025
 **Role:** Senior Product Analyst + Developer Advocate
@@ -7,7 +7,7 @@
 
 ## 1. Project Name & Short Description
 
-**VullScanny** is a privacy-first, AI-powered security scanner designed specifically for the "vibe coding" era. It transforms security from a chore into a seamless, gamified experience by enabling React and Next.js developers to scan repositories for high-risk vulnerabilities and apply one-click fixes via automated Pull Requests.
+**Aeglyn** is a privacy-first, AI-powered security scanner designed specifically for the "vibe coding" era. It transforms security from a chore into a seamless, gamified experience by enabling React and Next.js developers to scan repositories for high-risk vulnerabilities and apply one-click fixes via automated Pull Requests.
 
 ---
 
@@ -28,7 +28,7 @@
 
 * **GitHub OAuth:** Handled via a secure callback route that exchanges the temporary code for an access token.
 * **Token Management:** Tokens are stored exclusively in **encrypted, httpOnly, secure cookies** with a 2-hour lifespan. They are NEVER stored in a central database, ensuring zero-knowledge of user tokens on the server.
-* **Privacy-First Scanning:** Code is scanned in real-time. No codebase is ever persisted on VullScanny servers; the scanner fetches and analyzes file contents in memory for analysis, then discards them.
+* **Privacy-First Scanning:** Code is scanned in real-time. No codebase is ever persisted on Aeglyn servers; the scanner fetches and analyzes file contents in memory for analysis, then discards them.
 
 ---
 
@@ -78,7 +78,7 @@
   * ✅ Community Pattern Submission System
 * **Planned Next (Phase 3):**
   * 🚀 **VS Code Extension:** Inline security "vibes" while you code.
-  * 🚀 **CLI Tool:** `npx vullscanny scan` for local terminal warriors.
+  * 🚀 **CLI Tool:** `npx Aeglyn scan` for local terminal warriors.
   * 🚀 **Discord/Slack Integration:** Automated bot for team security reports.
 
 ---
@@ -86,7 +86,7 @@
 ## 8. Target Audience Fit
 
 * **Indie Hackers & Agencies:** Built for "Vibe Coders" who value speed and shipping. The one-click fix eliminates the "security bottleneck" in rapid development cycles.
-* **Resonance:** Traditional tools are too noisy and corporate. VullScanny resonates because it's **fast, visual, and actionable**, treating security as a feature, not a barrier.
+* **Resonance:** Traditional tools are too noisy and corporate. Aeglyn resonates because it's **fast, visual, and actionable**, treating security as a feature, not a barrier.
 
 ---
 
@@ -101,6 +101,6 @@
 
 ## 🏁 Conclusion & Product Vision
 
-VullScanny has successfully graduated from a concept to a feature-complete security education platform. By merging advanced AI scanning with high-fidelity UX and gamification, it bridges the gap between fast shipping and secure code.
+Aeglyn has successfully graduated from a concept to a feature-complete security education platform. By merging advanced AI scanning with high-fidelity UX and gamification, it bridges the gap between fast shipping and secure code.
 
 **Readiness Level:** **Beta-Ready** (Phase 1 & 2 Fully Verified). The platform is ready for public beta testing and early-stage investment discussions.
