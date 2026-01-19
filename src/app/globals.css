@@ -3,20 +3,25 @@
 @theme {
   --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-  
+
+  /* Aeglyn Brand Colors - Cyan Theme */
+  --color-primary: #00d4ff;
+  --color-primary-dark: #00a8cc;
+  --color-primary-light: #66e5ff;
+
   /* Severity Colors */
   --color-critical: #ff0055;
   --color-critical-bg: rgba(255, 0, 85, 0.1);
   --color-critical-border: rgba(255, 0, 85, 0.3);
-  
+
   --color-high: #ffaa00;
   --color-high-bg: rgba(255, 170, 0, 0.1);
   --color-high-border: rgba(255, 170, 0, 0.3);
-  
+
   --color-medium: #ffc800;
   --color-medium-bg: rgba(255, 200, 0, 0.1);
   --color-medium-border: rgba(255, 200, 0, 0.3);
-  
+
   --color-low: #00ff88;
   --color-low-bg: rgba(0, 255, 136, 0.1);
   --color-low-border: rgba(0, 255, 136, 0.3);
@@ -78,7 +83,7 @@ pre {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6;
+  background: #00d4ff;
 }
 
 /* Glass morphism */
@@ -88,9 +93,9 @@ pre {
   border: 1px solid #27273a;
 }
 
-/* Gradient text */
+/* Gradient text - Aeglyn Cyan */
 .gradient-text {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #00d4ff 0%, #00ffc8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -110,7 +115,7 @@ pre {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+  background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent);
   animation: scan 3s linear infinite;
 }
 
@@ -124,9 +129,9 @@ pre {
   }
 }
 
-/* Glow effects */
+/* Glow effects - Aeglyn Cyan */
 .glow-hover:hover {
-  box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
   transition: box-shadow 0.3s ease;
 }
 

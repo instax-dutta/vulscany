@@ -1,14 +1,17 @@
-# VullScanny - Internal Documentation
+# Aeglyn - Internal Documentation
 
 **Privacy-First React Security Scanner with AI-Powered Threat Intelligence**
 
-Production URL: [vullscanny.sdad.pro](https://vullscanny.sdad.pro)
+> **Development Note**: Internally developed as "VulScany" - Aeglyn is the public-facing brand.
+
+Production App: [app.aeglyn.site](https://app.aeglyn.site)  
+Landing Page: [aeglyn.site](https://aeglyn.site)
 
 ---
 
 ## 🌟 Overview
 
-VullScanny is a proprietary SaaS platform that scans React applications for security vulnerabilities. It combines static analysis, AI-powered explanations, and real-time threat intelligence to help developers ship secure code fast.
+Aeglyn is a proprietary SaaS platform that scans React applications for security vulnerabilities. It combines static analysis, AI-powered explanations, and real-time threat intelligence to help developers ship secure code fast.
 
 ### ✨ Key Features
 
@@ -229,9 +232,9 @@ Dashboard UI (Results + Auto-Fix Options)
 **Privacy:**
 
 - Uses user's GitHub token for all operations
-- No code stored on VullScanny servers
+- No code stored on Aeglyn servers
 - PR created directly in user's repository
-- VullScanny acts as orchestrator only
+- Aeglyn acts as orchestrator only
 
 **Features:**
 
@@ -255,7 +258,7 @@ Dashboard UI (Results + Auto-Fix Options)
 
 **7-Step Tour:**
 
-1. **Welcome** - Introduction to VullScanny
+1. **Welcome** - Introduction to Aeglyn
 2. **Get Name** - Personalization (with input validation)
 3. **Select Goal** - Choose primary objective:
    - 🔍 Scan repositories
@@ -334,7 +337,7 @@ Dashboard UI (Results + Auto-Fix Options)
 **Code Handling:**
 
 - ✅ Scanned in memory only
-- ✅ Never stored on VullScanny servers
+- ✅ Never stored on Aeglyn servers
 - ✅ Discarded immediately after scan
 - ✅ No logging of user code
 
@@ -549,7 +552,7 @@ Proprietary - All rights reserved.
 
 For internal development questions or deployment support, contact the development team.
 
-**Production Monitoring**: [vullscanny.sdad.pro](https://vullscanny.sdad.pro)
+**Production Monitoring**: [app.aeglyn.site](https://app.aeglyn.site)
 
 ---
 

@@ -2,6 +2,7 @@
   "name": "vulscany",
   "version": "0.1.0",
   "private": true,
+  "description": "Aeglyn - Privacy-First React Security Scanner with AI-Powered Threat Intelligence",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
