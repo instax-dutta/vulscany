@@ -96,10 +96,23 @@ Aeglyn is a proprietary SaaS platform that scans React applications for security
 ### Prerequisites
 
 - Node.js 18+
-- GitHub OAuth App credentials
+- GitHub OAuth App (see setup below)
 - Ollama Cloud API keys
 - Mistral AI API keys (optional fallback)
 - Upstash Redis (highly recommended)
+
+### GitHub OAuth Setup
+
+1. **Create OAuth App**: https://github.com/settings/developers
+   - Name: `Aeglyn`
+   - Homepage: `https://aeglyn.site`
+   - Callback: `https://app.aeglyn.site/api/auth/callback`
+
+2. **Get Credentials**:
+   - Copy Client ID
+   - Generate Client Secret
+
+3. **Update Environment Variables** (see below)
 
 ### Local Installation
 
@@ -114,6 +127,8 @@ npm run dev
 
 ### Environment Variables
 
+**Local Development** (`.env.local`):
+
 ```env
 # GitHub OAuth
 GITHUB_CLIENT_ID=your_client_id
@@ -126,12 +141,36 @@ NEXTAUTH_SECRET=generate_with_openssl_rand_base64_32
 OLLAMA_API_KEYS=key1,key2,key3
 MISTRAL_API_KEYS=key1,key2
 
-# Redis (Highly Recommended for AI Caching)
+# Redis Cache (Highly Recommended)
 UPSTASH_REDIS_REST_URL=https://your-instance.upstash.io
 UPSTASH_REDIS_REST_TOKEN=your_token
 
 NODE_ENV=development
 ```
+
+**Production** (Vercel Environment Variables):
+
+```env
+GITHUB_CLIENT_ID=your_client_id
+GITHUB_CLIENT_SECRET=your_client_secret
+NEXT_PUBLIC_GITHUB_CLIENT_ID=your_client_id
+NEXTAUTH_URL=https://app.aeglyn.site
+NEXTAUTH_SECRET=your_secret
+OLLAMA_API_KEYS=your_keys
+MISTRAL_API_KEYS=your_keys
+UPSTASH_REDIS_REST_URL=your_url
+UPSTASH_REDIS_REST_TOKEN=your_token
+NODE_ENV=production
+```
+
+---
+
+## 📚 Documentation
+
+- **[LANDING_APP_INTEGRATION.md](./LANDING_APP_INTEGRATION.md)** - Complete guide for landing page integration
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deployment instructions for both sites
+- **[DEV_SETUP.md](./DEV_SETUP.md)** - Development environment setup
+- **[AEGLYN_INTEGRATION.md](./AEGLYN_INTEGRATION.md)** - Integration architecture details
 
 ---
 
