@@ -4,27 +4,31 @@
   --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 
-  /* Aeglyn Brand Colors - Cyan Theme */
-  --color-primary: #00d4ff;
-  --color-primary-dark: #00a8cc;
-  --color-primary-light: #66e5ff;
+  /* Aeglyn Design System Tokens (OKLCH) */
+  --color-background: oklch(0.05 0 0);
+  --color-foreground: oklch(0.95 0 0);
+  --color-primary: oklch(0.7 0.1 220);
+  --color-card: oklch(0.1 0 0);
+  --color-muted: oklch(0.2 0 0);
+  --color-border: oklch(0.2 0 0);
 
-  /* Severity Colors */
+  /* Secondary/Accent colors derived from landing */
+  --color-accent: oklch(0.7 0.1 220);
+
+  /* Severity Colors (Maintained for functionality but styled to match) */
   --color-critical: #ff0055;
-  --color-critical-bg: rgba(255, 0, 85, 0.1);
-  --color-critical-border: rgba(255, 0, 85, 0.3);
-
   --color-high: #ffaa00;
-  --color-high-bg: rgba(255, 170, 0, 0.1);
-  --color-high-border: rgba(255, 170, 0, 0.3);
-
   --color-medium: #ffc800;
-  --color-medium-bg: rgba(255, 200, 0, 0.1);
-  --color-medium-border: rgba(255, 200, 0, 0.3);
-
   --color-low: #00ff88;
-  --color-low-bg: rgba(0, 255, 136, 0.1);
-  --color-low-border: rgba(0, 255, 136, 0.3);
+}
+
+:root {
+  --background: oklch(0.05 0 0);
+  --foreground: oklch(0.95 0 0);
+  --primary: oklch(0.7 0.1 220);
+  --card: oklch(0.1 0 0);
+  --border: oklch(0.2 0 0);
+  --muted: oklch(0.2 0 0);
 }
 
 * {
@@ -35,9 +39,11 @@
 
 body {
   font-family: var(--font-inter);
-  background: #0a0a0f;
-  color: #e4e4e7;
+  background: var(--background);
+  color: var(--foreground);
   line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 code,
@@ -45,102 +51,84 @@ pre {
   font-family: var(--font-mono);
 }
 
-/* Force center layout */
-.page-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.content-container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.text-center-forced {
-  text-align: center !important;
-}
-
-.flex-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: #13131a;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #3f3f52;
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #00d4ff;
-}
-
 /* Glass morphism */
 .glass {
-  background: rgba(26, 26, 36, 0.6);
-  backdrop-filter: blur(10px);
-  border: 1px solid #27273a;
+  background: rgba(15, 15, 15, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
 }
 
 /* Gradient text - Aeglyn Cyan */
 .gradient-text {
-  background: linear-gradient(135deg, #00d4ff 0%, #00ffc8 100%);
+  background: linear-gradient(135deg, oklch(0.7 0.1 220) 0%, oklch(0.8 0.15 180) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
 }
 
-/* Security badge animation */
-.security-badge {
-  position: relative;
-  overflow: hidden;
-}
-
-.security-badge::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent);
-  animation: scan 3s linear infinite;
-}
-
-@keyframes scan {
-  0% {
-    transform: translateX(-100%) translateY(-100%);
-  }
-
-  100% {
-    transform: translateX(100%) translateY(100%);
-  }
+/* Digital Grid Background Utility */
+.digital-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, #80808012 1px, transparent 1px),
+    linear-gradient(to bottom, #80808012 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 70%, transparent 100%);
+  pointer-events: none;
+  z-index: -10;
 }
 
 /* Glow effects - Aeglyn Cyan */
-.glow-hover:hover {
-  box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
-  transition: box-shadow 0.3s ease;
+.glow-primary {
+  filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.4));
 }
 
-@keyframes spin {
+.glow-hover:hover {
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.25);
+  transition: all 0.3s ease;
+}
+
+/* Animations from landing */
+@keyframes fade-in {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
+    transform: translateY(10px);
   }
 
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+    transform: translateY(0);
   }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+/* Custom scrollbar matching obsidian theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Navbar blur effect */
+.nav-blur {
+  background: rgba(5, 5, 5, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
 }
