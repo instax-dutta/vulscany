@@ -33,7 +33,7 @@ export function AIFixPreviewModal({ isOpen, onClose, vulnerability, repoName }: 
     };
 
     const handleCopyCommand = () => {
-        const command = `npx vullscanny --test ${vulnerability.file}`;
+        const command = `npx vulscany --test ${vulnerability.file}`;
         navigator.clipboard.writeText(command);
         setCommandCopied(true);
         setTimeout(() => setCommandCopied(false), 2500);
@@ -250,8 +250,8 @@ export function AIFixPreviewModal({ isOpen, onClose, vulnerability, repoName }: 
 
                         {/* Explanation */}
                         <div style={{
-                            background: 'rgba(59, 130, 246, 0.05)',
-                            border: '1px solid rgba(59, 130, 246, 0.2)',
+                            background: 'rgba(0, 212, 255, 0.05)',
+                            border: '1px solid rgba(0, 212, 255, 0.2)',
                             borderRadius: '0.75rem',
                             padding: '1rem',
                             marginBottom: '1.5rem'
@@ -259,7 +259,7 @@ export function AIFixPreviewModal({ isOpen, onClose, vulnerability, repoName }: 
                             <div style={{
                                 fontSize: '0.75rem',
                                 fontWeight: '700',
-                                color: '#3b82f6',
+                                color: '#00d4ff',
                                 fontFamily: 'var(--font-mono)',
                                 marginBottom: '0.5rem'
                             }}>
@@ -290,9 +290,9 @@ export function AIFixPreviewModal({ isOpen, onClose, vulnerability, repoName }: 
                             style={{
                                 flex: 1,
                                 background: copied
-                                    ? 'linear-gradient(90deg, #00ff88, #00ccff)'
+                                    ? 'linear-gradient(90deg, #00ff88, #00d4ff)'
                                     : vulnerability.fixCode
-                                        ? 'linear-gradient(90deg, rgba(0, 255, 136, 0.15), rgba(0, 204, 255, 0.15))'
+                                        ? 'linear-gradient(90deg, rgba(0, 255, 136, 0.15), rgba(0, 212, 255, 0.15))'
                                         : 'rgba(100, 100, 100, 0.1)',
                                 border: copied
                                     ? '2px solid #00ff88'
@@ -358,7 +358,7 @@ export function AIFixPreviewModal({ isOpen, onClose, vulnerability, repoName }: 
                             padding: '0.25rem 0.5rem',
                             borderRadius: '0.25rem',
                             color: '#94a3b8'
-                        }}>npx vullscanny --test {vulnerability.file}</code>
+                        }}>npx vulscany --test {vulnerability.file}</code>
                     </div>
                 </motion.div>
             </motion.div>

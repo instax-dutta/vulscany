@@ -71,11 +71,11 @@ function sanitizeScanResult(result: any): any {
         repoName: result.repoName,
         owner: result.owner,
         scanTimestamp: result.scanTimestamp,
-        reactInfo: {
-            reactVersion: result.reactInfo?.reactVersion,
-            hasNext: result.reactInfo?.hasNext,
-            hasTypeScript: result.reactInfo?.hasTypeScript,
-            // Remove dependencies object (contains versions only, but be safe)
+        stackInfo: {
+            stack: result.stackInfo?.stack,
+            version: result.stackInfo?.version,
+            isNextJS: result.stackInfo?.isNextJS,
+            hasTypeScript: result.stackInfo?.hasTypeScript,
         },
         vulnerabilities: result.vulnerabilities?.map((v: any) => ({
             id: v.id,

@@ -40,11 +40,11 @@ const createDemoData = (userName: string) => ({
                 recommendation: 'Validate and sanitize all URL parameters before using in database queries'
             }
         ],
-        reactInfo: {
-            isReactProject: true,
-            reactVersion: '18.2.0',
-            hasNextJs: true,
-            nextJsVersion: '14.0.0'
+        stackInfo: {
+            stack: 'react',
+            version: '18.2.0',
+            isNextJS: true,
+            hasTypeScript: true
         }
     }
 });
@@ -114,10 +114,10 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
 
     const steps = [
         {
-            title: "Welcome to VullScanny! 👋",
+            title: "Welcome to Aeglyn! 👋",
             subtitle: "Your AI-powered security companion",
-            content: "We're excited to have you here! Let's take a quick tour to help you get the most out of VullScanny.",
-            emoji: "🚀",
+            content: "We're excited to have you here! Let's take a quick tour to help you get the most out of Aeglyn.",
+            emoji: "🛡️",
             type: "intro"
         },
         {
@@ -130,14 +130,14 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
         {
             title: `Nice to meet you, ${userName || 'friend'}! 🎉`,
             subtitle: "What brings you here today?",
-            content: "Select your primary goal with VullScanny:",
+            content: "Select your primary goal with Aeglyn:",
             emoji: "🎯",
             type: "selection",
             options: [
                 { value: "scan", label: "🔍 Scan my repositories", desc: "Find and fix security vulnerabilities" },
                 { value: "learn", label: "📚 Learn about security", desc: "Understand common threats" },
                 { value: "fix", label: "🛠️ Auto-fix issues", desc: "Generate security patches" },
-                { value: "explore", label: "🌟 Just exploring", desc: "See what VullScanny can do" }
+                { value: "explore", label: "🌟 Just exploring", desc: "See what Aeglyn can do" }
             ]
         },
         {
@@ -180,15 +180,15 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
         if (step < steps.length - 1) {
             setStep(step + 1);
         } else {
-            localStorage.setItem('vullscanny_onboarding_complete', 'true');
-            localStorage.setItem('vullscanny_user_name', userName);
-            localStorage.setItem('vullscanny_user_goal', userGoal);
+            localStorage.setItem('vulscany_onboarding_complete', 'true');
+            localStorage.setItem('vulscany_user_name', userName);
+            localStorage.setItem('vulscany_user_goal', userGoal);
             onComplete();
         }
     };
 
     const handleSkip = () => {
-        localStorage.setItem('vullscanny_onboarding_complete', 'true');
+        localStorage.setItem('vulscany_onboarding_complete', 'true');
         if (onDemoDataChange) onDemoDataChange(null);
         onComplete();
     };
@@ -253,7 +253,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
             <h3 style={{
                 fontSize: isMobile ? '1.25rem' : '1.5rem',
                 fontWeight: '900',
-                background: 'linear-gradient(135deg, #00ff88, #00ccff)',
+                background: 'linear-gradient(135deg, #00ff88, #00d4ff)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 marginBottom: '0.5rem',
@@ -312,7 +312,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                     onClick={handleNext}
                     style={{
                         flex: isMobile ? 'none' : (step > 0 ? 2 : 1),
-                        background: 'linear-gradient(135deg, #00ff88, #00ccff)',
+                        background: 'linear-gradient(135deg, #00ff88, #00d4ff)',
                         border: 'none',
                         color: '#0a0a0f',
                         padding: '0.875rem 1.5rem',
@@ -336,7 +336,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                             width: i === step ? '2rem' : '0.5rem',
                             height: '0.5rem',
                             borderRadius: '0.25rem',
-                            background: i === step ? 'linear-gradient(90deg, #00ff88, #00ccff)' : 'rgba(255, 255, 255, 0.2)',
+                            background: i === step ? 'linear-gradient(90deg, #00ff88, #00d4ff)' : 'rgba(255, 255, 255, 0.2)',
                             transition: 'all 0.3s'
                         }}
                     />
@@ -395,7 +395,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                         transition={{ duration: 0.7, ease: [0.4, 0.0, 0.2, 1] }}
                         style={{
                             height: '100%',
-                            background: 'linear-gradient(90deg, #00ff88, #00ccff)',
+                            background: 'linear-gradient(90deg, #00ff88, #00d4ff)',
                             boxShadow: '0 0 20px rgba(0, 255, 136, 0.6)'
                         }}
                     />
@@ -452,7 +452,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                     style={{
                         fontSize: titleSize,
                         fontWeight: '900',
-                        background: 'linear-gradient(135deg, #00ff88, #00ccff)',
+                        background: 'linear-gradient(135deg, #00ff88, #00d4ff)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                         textAlign: 'center',
@@ -609,7 +609,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                         disabled={!canProceed()}
                         style={{
                             flex: isMobile ? 'none' : (step > 0 ? 2 : 1),
-                            background: canProceed() ? 'linear-gradient(135deg, #00ff88, #00ccff)' : 'rgba(100, 100, 100, 0.2)',
+                            background: canProceed() ? 'linear-gradient(135deg, #00ff88, #00d4ff)' : 'rgba(100, 100, 100, 0.2)',
                             border: 'none',
                             color: canProceed() ? '#0a0a0f' : '#64748b',
                             padding: getResponsiveValue('0.875rem 1.5rem', '1.125rem 2rem', '1.25rem 2.5rem'),
@@ -637,7 +637,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                             style={{
                                 height: '0.625rem',
                                 borderRadius: '0.3125rem',
-                                background: i === step ? 'linear-gradient(90deg, #00ff88, #00ccff)' : i < step ? 'rgba(0, 255, 136, 0.4)' : 'rgba(255, 255, 255, 0.15)',
+                                background: i === step ? 'linear-gradient(90deg, #00ff88, #00d4ff)' : i < step ? 'rgba(0, 255, 136, 0.4)' : 'rgba(255, 255, 255, 0.15)',
                                 boxShadow: i === step ? '0 0 12px rgba(0, 255, 136, 0.4)' : 'none',
                                 cursor: i < step ? 'pointer' : 'default'
                             }}

@@ -167,10 +167,7 @@ NODE_ENV=production
 
 ## 📚 Documentation
 
-- **[LANDING_APP_INTEGRATION.md](./LANDING_APP_INTEGRATION.md)** - Complete guide for landing page integration
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deployment instructions for both sites
-- **[DEV_SETUP.md](./DEV_SETUP.md)** - Development environment setup
-- **[AEGLYN_INTEGRATION.md](./AEGLYN_INTEGRATION.md)** - Integration architecture details
+- **[AEGLYN_MASTER_DOCS.md](./AEGLYN_MASTER_DOCS.md)** - Comprehensive master documentation (Integration, Deployment, Technical, Roadmap)
 
 ---
 

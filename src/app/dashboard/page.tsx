@@ -29,7 +29,7 @@ interface ScanResult {
     repoName: string;
     owner: string;
     scanTimestamp: string;
-    reactInfo: any;
+    stackInfo: any;
     vulnerabilities: Vulnerability[];
     status: 'safe' | 'needs-attention' | 'high-risk';
     summary: string;
@@ -87,8 +87,8 @@ export default function Dashboard() {
 
     // Check if user has completed onboarding
     useEffect(() => {
-        const onboardingComplete = localStorage.getItem('vullscanny_onboarding_complete');
-        const savedName = localStorage.getItem('vullscanny_user_name');
+        const onboardingComplete = localStorage.getItem('vulscany_onboarding_complete');
+        const savedName = localStorage.getItem('vulscany_user_name');
 
         if (!onboardingComplete) {
             setShowOnboarding(true);
@@ -132,7 +132,7 @@ export default function Dashboard() {
 
     const fetchRepos = async () => {
         try {
-            const res = await fetch('/api/repos/react');
+            const res = await fetch('/api/repos/webapp');
             const data = await res.json();
             setRepositories((data.repositories || []).map((r: any) => ({
                 ...r,
@@ -231,9 +231,10 @@ export default function Dashboard() {
                     issueType: vuln.title,
                     vulnerableCode: vuln.snippet,
                     techStack: {
-                        hasNext: currentRepo.reactInfo.hasNext,
-                        reactVersion: currentRepo.reactInfo.reactVersion,
-                        hasTypeScript: currentRepo.reactInfo.hasTypeScript
+                        stack: currentRepo.stackInfo.stack,
+                        version: currentRepo.stackInfo.version,
+                        isNextJS: currentRepo.stackInfo.isNextJS,
+                        hasTypeScript: currentRepo.stackInfo.hasTypeScript
                     }
                 })
             });
@@ -271,7 +272,7 @@ export default function Dashboard() {
                 body: JSON.stringify({
                     repoName: repo.repoName,
                     vulnerabilities: repo.vulnerabilities,
-                    techStack: repo.reactInfo
+                    techStack: repo.stackInfo
                 })
             });
             const data = await res.json();
@@ -356,12 +357,12 @@ export default function Dashboard() {
                         <h1 style={{
                             fontSize: '1.5rem',
                             fontWeight: '900',
-                            background: 'linear-gradient(90deg, #00ff88, #00ccff)',
+                            background: 'linear-gradient(90deg, #00ff88, #00d4ff)',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
                             fontFamily: 'monospace'
                         }}>
-                            VULLSCANNY
+                            AEGLYN
                         </h1>
 
                         <button
@@ -386,7 +387,7 @@ export default function Dashboard() {
                                 onClick={scanBatch}
                                 disabled={scanning}
                                 style={{
-                                    background: 'linear-gradient(135deg, #00ff88, #00ccff)',
+                                    background: 'linear-gradient(135deg, #00ff88, #00d4ff)',
                                     border: 'none',
                                     color: '#0a0a0f',
                                     padding: '0.5rem 1rem',
@@ -408,7 +409,7 @@ export default function Dashboard() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <div style={{
                             fontSize: '0.75rem',
-                            color: '#00ccff',
+                            color: '#00d4ff',
                             fontFamily: 'monospace'
                         }}>
                             {scannedCount}/{repositories.length} SCANNED
@@ -462,7 +463,7 @@ export default function Dashboard() {
                             </h3>
 
                             {loading ? (
-                                <div style={{ textAlign: 'center', padding: '2rem', color: '#00ccff' }}>Loading...</div>
+                                <div style={{ textAlign: 'center', padding: '2rem', color: '#00d4ff' }}>Loading...</div>
                             ) : (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                                     {repositories.map(repo => (
@@ -489,7 +490,7 @@ export default function Dashboard() {
                                                     {repo.name}
                                                 </span>
                                                 {repo.scanStatus !== 'pending' && (
-                                                    <span style={{ fontSize: '0.75rem', color: '#00ccff', fontFamily: 'monospace' }}>
+                                                    <span style={{ fontSize: '0.75rem', color: '#00d4ff', fontFamily: 'monospace' }}>
                                                         {repo.scanStatus === 'scanning' ? '⏳' :
                                                             repo.scanStatus === 'safe' ? '✓' :
                                                                 repo.scanStatus === 'issues' ? '⚠' :
@@ -549,9 +550,9 @@ export default function Dashboard() {
                         style={{
                             width: '100%',
                             marginTop: '1rem',
-                            background: 'rgba(0, 204, 255, 0.1)',
-                            border: '2px solid rgba(0, 204, 255, 0.3)',
-                            color: '#00ccff',
+                            background: 'rgba(0, 212, 255, 0.1)',
+                            border: '2px solid rgba(0, 212, 255, 0.3)',
+                            color: '#00d4ff',
                             padding: '0.75rem',
                             borderRadius: '0.5rem',
                             fontSize: '0.75rem',
@@ -609,9 +610,9 @@ export default function Dashboard() {
                                         <button
                                             onClick={() => navigateResults('prev')}
                                             style={{
-                                                background: 'rgba(0, 204, 255, 0.2)',
-                                                border: '2px solid #00ccff',
-                                                color: '#00ccff',
+                                                background: 'rgba(0, 212, 255, 0.2)',
+                                                border: '2px solid #00d4ff',
+                                                color: '#00d4ff',
                                                 padding: '0.5rem 1rem',
                                                 borderRadius: '0.5rem',
                                                 fontSize: '0.75rem',
@@ -622,15 +623,15 @@ export default function Dashboard() {
                                         >
                                             ← PREV
                                         </button>
-                                        <span style={{ fontSize: '0.75rem', color: '#00ccff', fontFamily: 'monospace' }}>
+                                        <span style={{ fontSize: '0.75rem', color: '#00d4ff', fontFamily: 'monospace' }}>
                                             {Object.keys(displayScanResults).indexOf(currentRepoKey!) + 1} / {Object.keys(displayScanResults).length}
                                         </span>
                                         <button
                                             onClick={() => navigateResults('next')}
                                             style={{
-                                                background: 'rgba(0, 204, 255, 0.2)',
-                                                border: '2px solid #00ccff',
-                                                color: '#00ccff',
+                                                background: 'rgba(0, 212, 255, 0.2)',
+                                                border: '2px solid #00d4ff',
+                                                color: '#00d4ff',
                                                 padding: '0.5rem 1rem',
                                                 borderRadius: '0.5rem',
                                                 fontSize: '0.75rem',
@@ -665,9 +666,9 @@ export default function Dashboard() {
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                             <span style={{
                                                 fontSize: '0.625rem',
-                                                background: 'rgba(0, 204, 255, 0.2)',
-                                                border: '1px solid #00ccff',
-                                                color: '#00ccff',
+                                                background: 'rgba(0, 212, 255, 0.2)',
+                                                border: '1px solid #00d4ff',
+                                                color: '#00d4ff',
                                                 padding: '0.25rem 0.5rem',
                                                 borderRadius: '0.25rem',
                                                 fontWeight: '700'
@@ -703,9 +704,9 @@ export default function Dashboard() {
                                 </p>
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
                                     {[
-                                        { label: 'REACT', value: currentResult.reactInfo.reactVersion },
-                                        { label: 'FRAMEWORK', value: currentResult.reactInfo.hasNext ? 'Next.js' : 'React' },
-                                        { label: 'TYPESCRIPT', value: currentResult.reactInfo.hasTypeScript ? 'YES' : 'NO' },
+                                        { label: 'STACK', value: currentResult.stackInfo.stack.toUpperCase() },
+                                        { label: 'VERSION', value: currentResult.stackInfo.version || 'UNKNOWN' },
+                                        { label: 'TYPESCRIPT', value: currentResult.stackInfo.hasTypeScript ? 'YES' : 'NO' },
                                         { label: 'ISSUES', value: currentResult.vulnerabilities.length }
                                     ].map((stat, i) => (
                                         <div key={i} style={{
@@ -763,7 +764,7 @@ export default function Dashboard() {
                                                 width: '100%',
                                                 background: generatingPR
                                                     ? 'linear-gradient(90deg, #666, #888)'
-                                                    : 'linear-gradient(90deg, #00ff88, #00ccff)',
+                                                    : 'linear-gradient(90deg, #00ff88, #00d4ff)',
                                                 border: 'none',
                                                 color: generatingPR ? '#ccc' : '#0a0a0f',
                                                 padding: '0.75rem',
@@ -869,7 +870,7 @@ export default function Dashboard() {
                                                 components={{
                                                     h1: ({ node, ...props }) => <h1 style={{ color: '#ff0055', fontSize: '1.25rem', fontWeight: '900', marginBottom: '1rem', borderBottom: '1px solid rgba(255,0,85,0.2)', paddingBottom: '0.5rem' }} {...props} />,
                                                     h2: ({ node, ...props }) => <h2 style={{ color: '#00ff88', fontSize: '1.1rem', fontWeight: '800', marginTop: '1.5rem', marginBottom: '0.75rem' }} {...props} />,
-                                                    h3: ({ node, ...props }) => <h3 style={{ color: '#00ccff', fontSize: '1rem', fontWeight: '700', marginTop: '1rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }} {...props} />,
+                                                    h3: ({ node, ...props }) => <h3 style={{ color: '#00d4ff', fontSize: '1rem', fontWeight: '700', marginTop: '1rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }} {...props} />,
                                                     p: ({ node, ...props }) => <p style={{ marginBottom: '1rem' }} {...props} />,
                                                     ul: ({ node, ...props }) => <ul style={{ paddingLeft: '1.5rem', marginBottom: '1rem' }} {...props} />,
                                                     li: ({ node, ...props }) => <li style={{ marginBottom: '0.5rem' }} {...props} />,
@@ -908,7 +909,7 @@ export default function Dashboard() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     style={{
-                                        background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.05), rgba(0, 204, 255, 0.05))',
+                                        background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.05), rgba(0, 212, 255, 0.05))',
                                         border: '2px solid rgba(0, 255, 136, 0.3)',
                                         borderRadius: '1rem',
                                         padding: '1.5rem',
@@ -969,7 +970,7 @@ export default function Dashboard() {
                                                     background: currentResult.threatIntelligence.riskScore >= 75 ? 'linear-gradient(90deg, #ff0055, #ff5500)' :
                                                         currentResult.threatIntelligence.riskScore >= 50 ? 'linear-gradient(90deg, #ffaa00, #ffc800)' :
                                                             currentResult.threatIntelligence.riskScore >= 25 ? 'linear-gradient(90deg, #ffc800, #00ff88)' :
-                                                                'linear-gradient(90deg, #00ff88, #00ccff)'
+                                                                'linear-gradient(90deg, #00ff88, #00d4ff)'
                                                 }}
                                             />
                                         </div>
@@ -984,7 +985,7 @@ export default function Dashboard() {
                                             textAlign: 'center'
                                         }}>
                                             <div style={{ fontSize: '0.625rem', color: '#666', marginBottom: '0.25rem', fontFamily: 'monospace' }}>CVEs</div>
-                                            <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#00ccff', fontFamily: 'monospace' }}>
+                                            <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#00d4ff', fontFamily: 'monospace' }}>
                                                 {currentResult.threatIntelligence.cveCount}
                                             </div>
                                         </div>
@@ -995,7 +996,7 @@ export default function Dashboard() {
                                             textAlign: 'center'
                                         }}>
                                             <div style={{ fontSize: '0.625rem', color: '#666', marginBottom: '0.25rem', fontFamily: 'monospace' }}>ADVISORIES</div>
-                                            <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#00ccff', fontFamily: 'monospace' }}>
+                                            <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#00d4ff', fontFamily: 'monospace' }}>
                                                 {currentResult.threatIntelligence.advisoryCount}
                                             </div>
                                         </div>
