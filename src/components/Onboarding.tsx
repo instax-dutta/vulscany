@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLenis } from 'lenis/react';
 
 interface OnboardingProps {
     onComplete: () => void;
@@ -11,38 +12,49 @@ interface OnboardingProps {
 // Demo scan data for interactive tour
 const createDemoData = (userName: string) => ({
     'demo-repo': {
-        repoName: 'my-awesome-app',
-        owner: userName || 'you',
+        repoName: 'aeglyn-secure-webapp',
+        owner: userName || 'developer',
         scanTimestamp: new Date().toISOString(),
         status: 'needs-attention' as const,
-        summary: 'Found 2 security vulnerabilities that need attention',
+        summary: 'Detected 3 high-risk security threats in your production code',
         vulnerabilities: [
+            {
+                id: 'demo-secret-1',
+                type: 'dangerous-api' as const,
+                severity: 'critical' as const,
+                title: 'CRITICAL: Hardcoded API Secret Found',
+                description: 'A production environment variable was found hardcoded in the source code. This is an immediate security risk.',
+                file: 'src/lib/config.ts',
+                line: 12,
+                snippet: 'const STRIPE_SECRET = "sk_live_51P...";',
+                recommendation: 'Move the secret to a secure environment variable and rotate this key immediately.'
+            },
             {
                 id: 'demo-xss-1',
                 type: 'dangerous-api' as const,
                 severity: 'high' as const,
-                title: 'Unsafe HTML Rendering Detected',
-                description: 'Using dangerouslySetInnerHTML without proper sanitization can lead to XSS attacks',
-                file: 'src/components/UserProfile.tsx',
-                line: 42,
-                snippet: '<div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userBio) }} />',
-                recommendation: 'Use DOMPurify.sanitize() to clean user input before rendering HTML'
+                title: 'High: Unsafe Cross-Site Scripting (XSS)',
+                description: 'Using dangerouslySetInnerHTML with unsanitized user input in a public profile component.',
+                file: 'src/components/ReviewBox.tsx',
+                line: 104,
+                snippet: '<div dangerouslySetInnerHTML={{ __html: commentText }} />',
+                recommendation: 'Apply Aeglyn-recommended DOMPurify sanitization or use standard React text rendering.'
             },
             {
                 id: 'demo-injection-1',
                 type: 'ssr-injection' as const,
                 severity: 'medium' as const,
-                title: 'Potential SSR Injection Risk',
-                description: 'Direct use of URL parameters in server-side rendering without validation',
-                file: 'src/pages/blog/[slug].tsx',
-                line: 28,
-                snippet: 'const content = await getPost(params.slug);',
-                recommendation: 'Validate and sanitize all URL parameters before using in database queries'
+                title: 'Medium: Potential SQL/SSR Injection',
+                description: 'Unvalidated URL parameters used directly in a data fetching utility.',
+                file: 'src/app/api/posts/route.ts',
+                line: 15,
+                snippet: 'const posts = await db.query(`SELECT * FROM posts WHERE id = ${id}`);',
+                recommendation: 'Use parameterized queries or ORM validation to prevent injection attacks.'
             }
         ],
         stackInfo: {
-            stack: 'react',
-            version: '18.2.0',
+            stack: 'nextjs',
+            version: '15.1.0',
             isNextJS: true,
             hasTypeScript: true
         }
@@ -52,7 +64,19 @@ const createDemoData = (userName: string) => ({
 export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingProps) {
     const [step, setStep] = useState(0);
     const [userName, setUserName] = useState('');
-    const [userGoal, setUserGoal] = useState('');
+    const [selection, setSelection] = useState<string[]>([]);
+    const lenis = useLenis();
+
+    useEffect(() => {
+        if (lenis) {
+            lenis.stop();
+        }
+        return () => {
+            if (lenis) {
+                lenis.start();
+            }
+        };
+    }, [lenis]);
     const [isMobile, setIsMobile] = useState(false);
     const [isTablet, setIsTablet] = useState(false);
     const [spotlightTarget, setSpotlightTarget] = useState<HTMLElement | null>(null);
@@ -67,7 +91,10 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
 
         handleResize();
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
     }, []);
 
     // Inject demo data when entering interactive tour
@@ -114,61 +141,68 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
 
     const steps = [
         {
-            title: "Welcome to Aeglyn! 👋",
-            subtitle: "Your AI-powered security companion",
-            content: "We're excited to have you here! Let's take a quick tour to help you get the most out of Aeglyn.",
+            title: "Welcome to Aeglyn 👋",
+            subtitle: "Your AI-Powered Security Command Center",
+            content: "Meet the world's most private security scanner. We help you find and fix vulnerabilities across 6+ web stacks without ever moving your code to our servers.",
+            emoji: "🛡️",
+            type: "intro"
+        },
+        {
+            title: "Zero-Knowledge Security",
+            subtitle: "Privacy is our primary directive",
+            content: "Aeglyn is GDPR-compliant and designed to be trustless. We scan your code strictly on-device, ensuring zero data retention and total secrets protection.",
             emoji: "🛡️",
             type: "intro"
         },
         {
             title: "What should we call you?",
-            subtitle: "Let's make this personal",
-            content: "We'd love to know your name to personalize your experience.",
+            subtitle: "Let's personalize your dashboard",
+            content: "We'd love to know your name to make your security reports and AI suggestions feel right at home.",
             emoji: "✨",
             type: "input"
         },
         {
             title: `Nice to meet you, ${userName || 'friend'}! 🎉`,
-            subtitle: "What brings you here today?",
-            content: "Select your primary goal with Aeglyn:",
+            subtitle: "How can we help you today?",
+            content: "Select your primary goal to help us tune our AI engines for your specific workflow:",
             emoji: "🎯",
             type: "selection",
             options: [
-                { value: "scan", label: "🔍 Scan my repositories", desc: "Find and fix security vulnerabilities" },
-                { value: "learn", label: "📚 Learn about security", desc: "Understand common threats" },
-                { value: "fix", label: "🛠️ Auto-fix issues", desc: "Generate security patches" },
-                { value: "explore", label: "🌟 Just exploring", desc: "See what Aeglyn can do" }
+                { value: "scan", label: "🔍 Audit My Repositories", desc: "Perform deep security scans for vulnerabilities" },
+                { value: "fix", label: "🛠️ Automated PR Fixes", desc: "Let AI generate security patches for my code" },
+                { value: "compliance", label: "⚖️ Privacy & Compliance", desc: "Ensure GDPR and SOC2 readiness" },
+                { value: "explore", label: "🌟 Developer Experience", desc: "Enable continuous scanning in my CI/CD" }
             ]
         },
         {
-            title: "🎨 Your Dashboard",
-            subtitle: "Meet your command center",
-            content: "This is where you'll see all your repositories. I've loaded a demo to show you around!",
+            title: "🎨 Unified Dashboard",
+            subtitle: "Multi-Stack Command Center",
+            content: "Aeglyn supports Next.js, React, Vue, Angular, and more. I've prepared a demo project to show you how we manage multiple frameworks!",
             emoji: "🖥️",
             type: "tour",
             tourStep: "dashboard"
         },
         {
-            title: "🔍 Security Scan Results",
-            subtitle: "See what we found",
-            content: "When you scan a repo, you'll see detailed vulnerability reports like this one. Each issue includes the file, line number, and how to fix it!",
-            emoji: "🔬",
+            title: "🧠 Zero-Day Intelligence",
+            subtitle: "Detect what others miss",
+            content: "Aeglyn detects hardcoded secrets, injection risks, and obfuscated malware patterns that standard linters miss. Explore this demo report!",
+            emoji: "🆔",
             type: "tour",
             tourStep: "scan"
         },
         {
-            title: "🚀 One-Click Auto-Fix",
-            subtitle: "Let AI fix it for you",
-            content: "Click this button and we'll create a pull request with all the fixes automatically. Review and merge when ready!",
-            emoji: "⚡",
+            title: "⚡ Intelligent Auto-Fix",
+            subtitle: "Bridge the security gap in seconds",
+            content: "Found a critical issue? Our AI creates a production-ready Pull Request to fix it. Total control, zero friction.",
+            emoji: "🚀",
             type: "tour",
             tourStep: "autofix"
         },
         {
-            title: `You're all set, ${userName || 'champ'}! 🎊`,
-            subtitle: "Ready to secure your code?",
-            content: "Click 'Fetch Repos' in your dashboard to load your actual repositories and start scanning!",
-            emoji: "🎉",
+            title: `Mission Ready, ${userName || 'Commander'}! 🎊`,
+            subtitle: "Time to secure your infrastructure",
+            content: "Connect your GitHub account to begin your first real-time private code scan. Your security journey starts now.",
+            emoji: "✅",
             type: "completion"
         }
     ];
@@ -182,7 +216,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
         } else {
             localStorage.setItem('aeglyn_onboarding_complete', 'true');
             localStorage.setItem('aeglyn_user_name', userName);
-            localStorage.setItem('aeglyn_user_goal', userGoal);
+            localStorage.setItem('aeglyn_user_goal', JSON.stringify(selection));
             onComplete();
         }
     };
@@ -195,7 +229,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
 
     const canProceed = () => {
         if (currentStep.type === 'input') return userName.trim().length > 0;
-        if (currentStep.type === 'selection') return userGoal.length > 0;
+        if (currentStep.type === 'selection') return selection.length > 0;
         return true;
     };
 
@@ -215,20 +249,16 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             style={{
                 position: 'fixed',
-                bottom: isMobile ? '1rem' : '2rem',
-                right: isMobile ? '1rem' : '2rem',
+                bottom: isMobile ? '1.5rem' : '2.5rem',
+                right: isMobile ? '1.5rem' : '2.5rem',
                 zIndex: 10001,
-                background: 'linear-gradient(145deg, rgba(10, 12, 16, 0.98), rgba(5, 15, 25, 0.98))',
-                backdropFilter: 'blur(24px)',
-                border: '1px solid rgba(0, 255, 136, 0.3)',
-                borderRadius: '1.25rem',
+                background: 'rgba(10, 10, 15, 0.85)',
+                backdropFilter: 'blur(32px)',
+                border: '1px solid var(--border)',
+                borderRadius: '1.5rem',
                 padding: isMobile ? '1.5rem' : '2rem',
-                maxWidth: isMobile ? '320px' : '420px',
-                boxShadow: `
-                    0 0 0 1px rgba(0, 255, 136, 0.15),
-                    0 20px 40px rgba(0, 0, 0, 0.5),
-                    0 0 80px rgba(0, 255, 136, 0.2)
-                `
+                maxWidth: isMobile ? '340px' : '440px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 212, 255, 0.1)'
             }}
         >
             {/* Arrow pointer towards highlighted area - only show if we have a target */}
@@ -250,15 +280,13 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                 {currentStep.emoji}
             </div>
 
-            <h3 style={{
+            <h3 className="gradient-text" style={{
                 fontSize: isMobile ? '1.25rem' : '1.5rem',
                 fontWeight: '900',
-                background: 'linear-gradient(135deg, #00ff88, var(--primary))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
                 marginBottom: '0.5rem',
-                fontFamily: 'ui-monospace, monospace',
-                textAlign: 'center'
+                fontFamily: 'var(--font-mono)',
+                textAlign: 'center',
+                letterSpacing: '-0.02em'
             }}>
                 {currentStep.title}
             </h3>
@@ -355,27 +383,23 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
         return (
             <motion.div
                 key={`modal-${step}`}
-                initial={{ scale: 0.92, opacity: 0, y: 30 }}
+                initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.92, opacity: 0, y: -30 }}
-                transition={{ type: 'spring', damping: 30, stiffness: 400, mass: 0.8 }}
+                exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                 style={{
-                    background: 'linear-gradient(145deg, rgba(10, 12, 16, 0.95), rgba(5, 15, 25, 0.98))',
-                    border: '1px solid rgba(0, 255, 136, 0.25)',
-                    borderRadius: '1.75rem',
+                    background: 'rgba(10, 10, 15, 0.9)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '2rem',
                     padding: modalPadding,
-                    maxWidth: '640px',
+                    maxWidth: '680px',
                     width: modalWidth,
                     maxHeight: '92vh',
                     overflowY: 'auto',
-                    boxShadow: `
-                        0 0 0 1px rgba(0, 255, 136, 0.1),
-                        0 8px 16px rgba(0, 0, 0, 0.4),
-                        0 24px 48px rgba(0, 0, 0, 0.3),
-                        0 0 80px rgba(0, 255, 136, 0.15)
-                    `,
+                    boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.05), 0 30px 60px -12px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 212, 255, 0.1)',
                     position: 'relative',
-                    margin: 'auto'
+                    margin: 'auto',
+                    backdropFilter: 'blur(40px)'
                 }}
             >
                 {/* Progress bar */}
@@ -449,16 +473,14 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.25 }}
+                    className="gradient-text"
                     style={{
                         fontSize: titleSize,
                         fontWeight: '900',
-                        background: 'linear-gradient(135deg, #00ff88, var(--primary))',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
                         textAlign: 'center',
                         marginBottom: '0.75rem',
-                        fontFamily: 'ui-monospace, monospace',
-                        letterSpacing: '-0.02em',
+                        fontFamily: 'var(--font-mono)',
+                        letterSpacing: '-0.04em',
                         lineHeight: 1.15
                     }}
                 >
@@ -512,7 +534,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                                 transition: 'all 0.3s'
                             }}
                             onFocus={(e) => {
-                                e.currentTarget.style.borderColor = '#00ff88';
+                                e.currentTarget.style.borderColor = 'var(--primary)';
                                 e.currentTarget.style.boxShadow = '0 0 0 4px rgba(0, 255, 136, 0.12)';
                             }}
                             onBlur={(e) => {
@@ -533,14 +555,14 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                                     transition={{ delay: index * 0.1 }}
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
-                                    onClick={() => setUserGoal(option.value)}
+                                    onClick={() => setSelection([option.value])}
                                     style={{
-                                        background: userGoal === option.value
-                                            ? 'linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 204, 255, 0.15))'
-                                            : 'rgba(0, 255, 136, 0.03)',
-                                        border: userGoal === option.value
-                                            ? '2px solid #00ff88'
-                                            : '2px solid rgba(0, 255, 136, 0.2)',
+                                        background: selection.includes(option.value)
+                                            ? 'linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 204, 255, 0.15))'
+                                            : 'rgba(0, 212, 255, 0.03)',
+                                        border: selection.includes(option.value)
+                                            ? '2px solid var(--primary)'
+                                            : '2px solid rgba(0, 212, 255, 0.2)',
                                         borderRadius: '0.875rem',
                                         padding: '1.25rem 1.5rem',
                                         color: '#ffffff',
@@ -548,12 +570,12 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                                         fontFamily: 'ui-monospace, monospace',
                                         textAlign: 'left',
                                         transition: 'all 0.3s',
-                                        boxShadow: userGoal === option.value
-                                            ? '0 0 0 1px rgba(0, 255, 136, 0.2), 0 8px 24px rgba(0, 255, 136, 0.15)'
+                                        boxShadow: selection.includes(option.value)
+                                            ? '0 0 0 1px rgba(0, 212, 255, 0.2), 0 8px 24px rgba(0, 212, 255, 0.15)'
                                             : '0 2px 8px rgba(0, 0, 0, 0.1)'
                                     }}
                                 >
-                                    <div style={{ fontSize: '1.0625rem', fontWeight: '800', marginBottom: '0.375rem', color: userGoal === option.value ? '#00ff88' : '#ffffff' }}>
+                                    <div style={{ fontSize: '1.0625rem', fontWeight: '800', marginBottom: '0.375rem', color: selection.includes(option.value) ? 'var(--primary)' : '#ffffff' }}>
                                         {option.label}
                                     </div>
                                     <div style={{ fontSize: '0.875rem', color: '#94a3b8' }}>
@@ -609,7 +631,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                         disabled={!canProceed()}
                         style={{
                             flex: isMobile ? 'none' : (step > 0 ? 2 : 1),
-                            background: canProceed() ? 'linear-gradient(135deg, #00ff88, var(--primary))' : 'rgba(100, 100, 100, 0.2)',
+                            background: canProceed() ? 'linear-gradient(135deg, var(--color-low), var(--primary))' : 'rgba(100, 100, 100, 0.2)',
                             border: 'none',
                             color: canProceed() ? '#0a0a0f' : '#64748b',
                             padding: getResponsiveValue('0.875rem 1.5rem', '1.125rem 2rem', '1.25rem 2.5rem'),
@@ -632,14 +654,14 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                     {steps.map((_, i) => (
                         <motion.div
                             key={i}
-                            animate={{ width: i === step ? '2.5rem' : '0.625rem' }}
-                            transition={{ duration: 0.3 }}
+                            animate={{ width: i === step ? '3.5rem' : '0.75rem' }}
+                            transition={{ type: 'spring', damping: 20, stiffness: 200 }}
                             style={{
-                                height: '0.625rem',
-                                borderRadius: '0.3125rem',
-                                background: i === step ? 'linear-gradient(90deg, #00ff88, var(--primary))' : i < step ? 'rgba(0, 255, 136, 0.4)' : 'rgba(255, 255, 255, 0.15)',
-                                boxShadow: i === step ? '0 0 12px rgba(0, 255, 136, 0.4)' : 'none',
-                                cursor: i < step ? 'pointer' : 'default'
+                                height: '0.5rem',
+                                borderRadius: '1rem',
+                                background: i === step ? 'var(--primary)' : i < step ? 'rgba(0, 212, 255, 0.4)' : 'rgba(255, 255, 255, 0.1)',
+                                cursor: i < step ? 'pointer' : 'default',
+                                boxShadow: i === step ? '0 0 15px rgba(0, 212, 255, 0.3)' : 'none'
                             }}
                             onClick={() => i < step && setStep(i)}
                         />
@@ -671,9 +693,9 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                     height: rect.height + padding * 2,
                     borderRadius: '1rem',
                     boxShadow: `
-                        0 0 0 4px rgba(0, 255, 136, 0.3),
+                        0 0 0 4px var(--primary),
                         0 0 0 99999px rgba(0, 0, 0, 0.85),
-                        0 0 40px rgba(0, 255, 136, 0.5)
+                        0 0 40px var(--primary)
                     `,
                     pointerEvents: 'none',
                     zIndex: 10000,
@@ -687,7 +709,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                         position: 'absolute',
                         inset: -4,
                         borderRadius: '1rem',
-                        border: '2px solid rgba(0, 255, 136, 0.5)'
+                        border: '2px solid var(--primary)'
                     }}
                 />
             </motion.div>
@@ -704,15 +726,15 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                     position: 'fixed',
                     inset: 0,
                     background: isInteractiveTour
-                        ? 'rgba(0, 0, 0, 0.3)' // Lighter for interactive tour
-                        : 'radial-gradient(circle at center, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.98))',
-                    backdropFilter: isInteractiveTour ? 'blur(4px)' : 'blur(24px)',
+                        ? 'rgba(0, 0, 0, 0.4)'
+                        : 'radial-gradient(circle at center, rgba(5, 5, 10, 0.94), rgba(0, 0, 0, 0.99))',
+                    backdropFilter: isInteractiveTour ? 'blur(2px)' : 'blur(32px)',
                     zIndex: 10000,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    padding: isInteractiveTour ? '0' : (isMobile ? '1rem' : '2rem'),
-                    overflowY: isInteractiveTour ? 'hidden' : 'auto',
+                    padding: isInteractiveTour ? '0' : (isMobile ? '1rem' : '1.5rem'),
+                    overflow: 'hidden', // Let children handle their own scrolling
                     pointerEvents: isInteractiveTour ? 'none' : 'auto'
                 }}
             >
@@ -721,13 +743,13 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                     <motion.div
                         animate={{
                             background: [
-                                'radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.08) 0%, transparent 50%)',
-                                'radial-gradient(circle at 80% 50%, rgba(0, 204, 255, 0.08) 0%, transparent 50%)',
-                                'radial-gradient(circle at 50% 80%, rgba(0, 255, 136, 0.08) 0%, transparent 50%)',
-                                'radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.08) 0%, transparent 50%)'
+                                'radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.08) 0%, transparent 50%)',
+                                'radial-gradient(circle at 80% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%)',
+                                'radial-gradient(circle at 50% 80%, rgba(0, 212, 255, 0.08) 0%, transparent 50%)',
+                                'radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.08) 0%, transparent 50%)'
                             ]
                         }}
-                        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+                        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
                         style={{
                             position: 'absolute',
                             inset: 0,

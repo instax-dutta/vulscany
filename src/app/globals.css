@@ -8,6 +8,7 @@
   --color-background: oklch(0.05 0 0);
   --color-foreground: oklch(0.95 0 0);
   --color-primary: oklch(0.7 0.1 220);
+  --color-primary-low: rgba(0, 212, 255, 0.1);
   --color-card: oklch(0.1 0 0);
   --color-muted: oklch(0.2 0 0);
   --color-border: oklch(0.2 0 0);
@@ -17,15 +18,24 @@
 
   /* Severity Colors (Maintained for functionality but styled to match) */
   --color-critical: #ff0055;
+  --color-critical-bg: rgba(255, 0, 85, 0.05);
+  --color-critical-border: rgba(255, 0, 85, 0.2);
   --color-high: #ffaa00;
+  --color-high-bg: rgba(255, 170, 0, 0.05);
+  --color-high-border: rgba(255, 170, 0, 0.2);
   --color-medium: #ffc800;
+  --color-medium-bg: rgba(255, 200, 0, 0.05);
+  --color-medium-border: rgba(255, 200, 0, 0.2);
   --color-low: #00ff88;
+  --color-low-bg: rgba(0, 255, 136, 0.05);
+  --color-low-border: rgba(0, 255, 136, 0.2);
 }
 
 :root {
   --background: oklch(0.05 0 0);
   --foreground: oklch(0.95 0 0);
   --primary: oklch(0.7 0.1 220);
+  --primary-low: rgba(0, 212, 255, 0.1);
   --card: oklch(0.1 0 0);
   --border: oklch(0.2 0 0);
   --muted: oklch(0.2 0 0);
@@ -51,11 +61,62 @@ pre {
   font-family: var(--font-mono);
 }
 
-/* Glass morphism */
-.glass {
-  background: rgba(15, 15, 15, 0.6);
-  backdrop-filter: blur(12px);
+
+.glow-card {
+  position: relative;
+  background: var(--color-card);
   border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.glow-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 212, 255, 0.1) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.glow-card:hover::after {
+  opacity: 1;
+}
+
+/* Vibe Coder Utilities */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-6px) scale(1.01);
+}
+
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 2rem;
+  width: 100%;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.container-responsive {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+@media (max-width: 640px) {
+  .container-responsive {
+    padding: 0 1rem;
+  }
 }
 
 /* Gradient text - Aeglyn Cyan */
@@ -65,6 +126,8 @@ pre {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
+  font-weight: 900;
+  letter-spacing: -0.02em;
 }
 
 /* Digital Grid Background Utility */
@@ -72,22 +135,55 @@ pre {
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(to right, #80808012 1px, transparent 1px),
-    linear-gradient(to bottom, #80808012 1px, transparent 1px);
-  background-size: 40px 40px;
-  mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 70%, transparent 100%);
+    linear-gradient(to right, rgba(0, 212, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(circle at 50% 0%, black 20%, transparent 100%);
   pointer-events: none;
   z-index: -10;
 }
 
+/* Glass morphism - Premium Vibe */
+.glass {
+  background: rgba(10, 10, 15, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass:hover {
+  background: rgba(15, 15, 20, 0.8);
+  border-color: rgba(0, 212, 255, 0.4);
+  box-shadow: 0 12px 40px 0 rgba(0, 212, 255, 0.15);
+}
+
 /* Glow effects - Aeglyn Cyan */
 .glow-primary {
-  filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.4));
+  filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.3));
 }
 
 .glow-hover:hover {
-  box-shadow: 0 0 30px rgba(0, 212, 255, 0.25);
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
   transition: all 0.3s ease;
+}
+
+/* Hero Section Gradients */
+.hero-gradient {
+  background: radial-gradient(circle at 50% -20%, rgba(0, 212, 255, 0.15) 0%, transparent 50%);
+}
+
+/* Responsive Hide Utilities */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
 }
 
 /* Animations from landing */
