@@ -88,7 +88,7 @@ export function SecurityScoreWidget({ vulnerabilities, onScoreCalculated }: Secu
                 textAlign: 'center'
             }}
         >
-            <div style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: '#00d4ff', marginBottom: '1rem' }}>
+            <div style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--primary)', marginBottom: '1rem' }}>
                 SECURITY SCORE
             </div>
 
@@ -341,10 +341,10 @@ export function EducationPanel({ vulnerabilityType, isSimpleMode = true }: Educa
                     cursor: 'pointer'
                 }}
             >
-                <span style={{ fontSize: '0.75rem', color: '#00d4ff', fontWeight: '600' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: '600' }}>
                     📚 Learn More: {content.title}
                 </span>
-                <span style={{ color: '#00d4ff' }}>{expanded ? '−' : '+'}</span>
+                <span style={{ color: 'var(--primary)' }}>{expanded ? '−' : '+'}</span>
             </button>
 
             <AnimatePresence>
@@ -367,9 +367,9 @@ export function EducationPanel({ vulnerabilityType, isSimpleMode = true }: Educa
                                     style={{
                                         padding: '0.25rem 0.75rem',
                                         fontSize: '0.625rem',
-                                        background: mode === 'simple' ? '#00d4ff' : 'transparent',
-                                        color: mode === 'simple' ? '#fff' : '#00d4ff',
-                                        border: '1px solid #00d4ff',
+                                        background: mode === 'simple' ? 'var(--primary)' : 'transparent',
+                                        color: mode === 'simple' ? '#fff' : 'var(--primary)',
+                                        border: '1px solid var(--primary)',
                                         borderRadius: '0.25rem',
                                         cursor: 'pointer'
                                     }}
@@ -381,9 +381,9 @@ export function EducationPanel({ vulnerabilityType, isSimpleMode = true }: Educa
                                     style={{
                                         padding: '0.25rem 0.75rem',
                                         fontSize: '0.625rem',
-                                        background: mode === 'technical' ? '#00d4ff' : 'transparent',
-                                        color: mode === 'technical' ? '#fff' : '#00d4ff',
-                                        border: '1px solid #00d4ff',
+                                        background: mode === 'technical' ? 'var(--primary)' : 'transparent',
+                                        color: mode === 'technical' ? '#fff' : 'var(--primary)',
+                                        border: '1px solid var(--primary)',
                                         borderRadius: '0.25rem',
                                         cursor: 'pointer'
                                     }}
@@ -454,7 +454,7 @@ export function EducationPanel({ vulnerabilityType, isSimpleMode = true }: Educa
 
                             {/* Quick Fix Steps */}
                             <div style={{ marginTop: '1rem' }}>
-                                <div style={{ fontSize: '0.625rem', color: '#00d4ff', marginBottom: '0.5rem' }}>
+                                <div style={{ fontSize: '0.625rem', color: 'var(--primary)', marginBottom: '0.5rem' }}>
                                     ⚡ QUICK FIX STEPS
                                 </div>
                                 <ol style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.6875rem', color: '#aaa' }}>
@@ -478,7 +478,7 @@ export function EducationPanel({ vulnerabilityType, isSimpleMode = true }: Educa
                                             rel="noopener noreferrer"
                                             style={{
                                                 fontSize: '0.625rem',
-                                                color: '#00d4ff',
+                                                color: 'var(--primary)',
                                                 textDecoration: 'none',
                                                 background: 'rgba(0, 212, 255, 0.1)',
                                                 padding: '0.25rem 0.5rem',
@@ -831,7 +831,7 @@ export function SecurityTipBanner() {
                 padding: '0.75rem 1rem',
                 marginBottom: '1rem',
                 fontSize: '0.75rem',
-                color: '#00d4ff',
+                color: 'var(--primary)',
                 textAlign: 'center'
             }}
         >
@@ -912,7 +912,7 @@ jobs:
                 }}
                 onClick={e => e.stopPropagation()}
             >
-                <h2 style={{ fontSize: '1.25rem', color: '#00d4ff', marginBottom: '1rem' }}>
+                <h2 style={{ fontSize: '1.25rem', color: 'var(--primary)', marginBottom: '1rem' }}>
                     🎬 GitHub Action Setup
                 </h2>
 
@@ -945,7 +945,7 @@ jobs:
                             borderRadius: '0.25rem',
                             padding: '0.25rem 0.5rem',
                             fontSize: '0.625rem',
-                            color: copied ? '#000' : '#00d4ff',
+                            color: copied ? '#000' : 'var(--primary)',
                             cursor: 'pointer'
                         }}
                     >
@@ -954,7 +954,7 @@ jobs:
                 </div>
 
                 <div style={{ marginTop: '1.5rem', fontSize: '0.75rem', color: '#888' }}>
-                    <h3 style={{ color: '#00d4ff', marginBottom: '0.5rem' }}>Instructions:</h3>
+                    <h3 style={{ color: 'var(--primary)', marginBottom: '0.5rem' }}>Instructions:</h3>
                     <ol style={{ paddingLeft: '1.25rem', lineHeight: 1.6 }}>
                         <li>Create <code>.github/workflows/</code> directory in your repo</li>
                         <li>Create <code>vulscany.yml</code> file</li>
@@ -970,7 +970,7 @@ jobs:
                     style={{
                         display: 'inline-block',
                         marginTop: '1rem',
-                        background: '#00d4ff',
+                        background: 'var(--primary)',
                         color: '#000',
                         padding: '0.5rem 1rem',
                         borderRadius: '0.5rem',

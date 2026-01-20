@@ -171,8 +171,9 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-gray-950 text-gray-100 font-sans`}
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased font-sans selection:bg-primary/30`}
       >
+        <div className="digital-grid" />
         {children}
       </body>
     </html>
