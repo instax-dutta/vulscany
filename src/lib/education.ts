@@ -106,6 +106,7 @@ const isValidUrl = (url: string) => {
         ]
     },
 
+    // @aeglyn-ignore: Educational content about eval() dangers
     'code-execution-pattern': {
         type: 'code-execution-pattern',
         title: 'Remote Code Execution via eval()',
@@ -140,7 +141,7 @@ const result = evaluate(userExpression);`,
             'Implement allowlists for dynamic behavior'
         ],
         resources: [
-            { title: 'MDN: Never use eval()', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval#never_use_eval!' },
+            { title: 'MDN: Never use eval()!', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval#never_use_eval!' },
             { title: 'Safe Math Expression Parser', url: 'https://mathjs.org/' }
         ]
     },
