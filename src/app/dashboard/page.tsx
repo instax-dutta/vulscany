@@ -23,6 +23,8 @@ import {
     GitHubActionModal
 } from '@/components/DashboardFeatures';
 import { loadUserStats, saveUserStats, updateStatsAfterScan, updateStatsAfterFix, type UserStats } from '@/lib/security-score';
+import { ToastNotifications, useToast } from '@/components/ToastNotification';
+
 
 
 interface ScanResult {
@@ -84,6 +86,9 @@ export default function Dashboard() {
     const [showGitHubActionModal, setShowGitHubActionModal] = useState(false);
     const [simpleEducationMode, setSimpleEducationMode] = useState(true);
 
+    const { toasts, showToast, dismissToast, showSuccess, showAchievement, showSecurityWin } = useToast();
+
+
 
     // Check if user has completed onboarding
     useEffect(() => {
@@ -104,20 +109,8 @@ export default function Dashboard() {
     }, []);
 
 
-    useEffect(() => {
-        const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        });
+    // Lenis is handled by SmoothScroll at the root layout
 
-        function raf(time: number) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-        }
-        requestAnimationFrame(raf);
-
-        return () => lenis.destroy();
-    }, []);
 
     // Auto-select demo repo when demo data is injected
     useEffect(() => {
@@ -180,7 +173,9 @@ export default function Dashboard() {
 
             // Show cache notification if applicable
             if (data.cached) {
-                console.log(`[Dashboard] Loaded cached scan from ${data.cacheTimestamp}`);
+                showToast({ type: 'info', title: 'CACHE HIT', message: `Loaded scan from ${new Date(data.cacheTimestamp).toLocaleTimeString()}`, icon: '⚡' });
+            } else {
+                showSuccess('Scan Complete', `Found ${data.scanResult.vulnerabilities.length} issues in ${repo.name}`);
             }
         } catch (err) {
             updateRepoStatus(repo.id, 'pending');
@@ -313,8 +308,9 @@ export default function Dashboard() {
                     branch: data.branch
                 });
                 setShowPRSuccess(true);
+                showSecurityWin();
             } else {
-                alert(`Failed to create PR: ${data.error || 'Unknown error'}`);
+                showToast({ type: 'warning', title: 'PR FAILED', message: data.error || 'Unknown error', icon: '⚠️' });
             }
         } catch (error) {
             console.error('Auto-fix PR error:', error);
@@ -343,15 +339,15 @@ export default function Dashboard() {
     return (
         <div style={{ minHeight: '100vh', color: 'var(--foreground)' }}>
             {/* Header */}
-            <header className="nav-blur" style={{
+            <header className="nav-blur dashboard-header" style={{
                 position: 'sticky',
                 top: 0,
                 zIndex: 100,
                 padding: '1rem 2rem'
             }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1800px', margin: '0 auto' }}>
+                <div className="container-responsive" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-                        <h1 className="gradient-text" style={{
+                        <h1 className="gradient-text dashboard-title" style={{
                             fontSize: '1.5rem',
                             fontWeight: '900',
                             fontFamily: 'var(--font-mono)',
@@ -430,25 +426,23 @@ export default function Dashboard() {
             </header>
 
             {/* Security Tip Banner */}
-            <div style={{ padding: '0 2rem', maxWidth: '1800px', margin: '0 auto' }}>
+            <div className="container-responsive">
                 <SecurityTipBanner />
             </div>
 
             {/* Main Content */}
-            <main style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '1.5rem', padding: '1.5rem 2rem', maxWidth: '1800px', margin: '0 auto' }}>
+            <main className="dashboard-layout container-responsive dashboard-container" style={{ paddingBottom: '2rem' }}>
 
 
-                {/* Repository List / KB Sidebar */}
                 <div
                     data-onboarding="repo-section"
                     data-lenis-prevent
+                    className="glass"
                     style={{
-                        background: 'rgba(10, 10, 15, 0.6)',
-                        border: '2px solid rgba(0, 255, 136, 0.3)',
-                        borderRadius: '1rem',
                         padding: '1rem',
                         height: 'calc(100vh - 150px)',
-                        overflow: 'auto'
+                        overflow: 'auto',
+                        borderRadius: '1rem'
                     }}
                 >
                     {(
@@ -465,23 +459,24 @@ export default function Dashboard() {
                                         <button
                                             key={repo.id}
                                             onClick={() => batchMode ? toggleRepoSelection(repo.id) : scanRepo(repo)}
+                                            className="hover-lift"
                                             style={{
-                                                background: selectedRepos.has(repo.id) ? 'rgba(0, 255, 136, 0.2)' : 'rgba(10, 10, 15, 0.8)',
-                                                border: `2px solid ${repo.scanStatus === 'critical' ? '#ff0055' :
-                                                    repo.scanStatus === 'issues' ? '#ffaa00' :
-                                                        repo.scanStatus === 'safe' ? '#00ff88' :
-                                                            selectedRepos.has(repo.id) ? '#00ff88' :
-                                                                'rgba(0, 255, 136, 0.2)'
+                                                background: selectedRepos.has(repo.id) ? 'var(--primary-low)' : 'rgba(10, 10, 15, 0.8)',
+                                                border: `2px solid ${repo.scanStatus === 'critical' ? 'var(--color-critical)' :
+                                                    repo.scanStatus === 'issues' ? 'var(--color-high)' :
+                                                        repo.scanStatus === 'safe' ? 'var(--primary)' :
+                                                            selectedRepos.has(repo.id) ? 'var(--primary)' :
+                                                                'var(--border)'
                                                     }`,
                                                 borderRadius: '0.5rem',
                                                 padding: '0.75rem',
                                                 cursor: 'pointer',
                                                 textAlign: 'left',
-                                                transition: 'all 0.2s'
+                                                width: '100%'
                                             }}
                                         >
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                                                <span style={{ fontSize: '0.875rem', fontWeight: '700', color: '#00ff88', fontFamily: 'monospace' }}>
+                                                <span style={{ fontSize: '0.875rem', fontWeight: '700', color: 'var(--primary)', fontFamily: 'var(--font-mono)' }}>
                                                     {repo.name}
                                                 </span>
                                                 {repo.scanStatus !== 'pending' && (
@@ -1513,6 +1508,7 @@ export default function Dashboard() {
             </AnimatePresence>
 
             {/* GitHub Action Setup Modal */}
+            {/* GitHub Action Setup Modal */}
             <AnimatePresence>
                 {showGitHubActionModal && (
                     <GitHubActionModal
@@ -1521,6 +1517,7 @@ export default function Dashboard() {
                     />
                 )}
             </AnimatePresence>
+            <ToastNotifications toasts={toasts} onDismiss={dismissToast} />
         </div>
 
     );
