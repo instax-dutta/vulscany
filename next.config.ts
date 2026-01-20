@@ -45,7 +45,7 @@ const nextConfig: NextConfig = {
 
   /* Environment variables */
   env: {
-    NEXT_PUBLIC_SITE_URL: 'https://vullscanny.sdad.pro',
+    NEXT_PUBLIC_SITE_URL: 'https://app.example.com',
   },
 };
 

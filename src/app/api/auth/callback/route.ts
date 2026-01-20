@@ -39,18 +39,36 @@ export async function GET(request: NextRequest) {
             return NextResponse.redirect(new URL(`/?error=${tokenData.error}`, request.url));
         }
 
-        // ⚠️ PRIVACY: We DO NOT store this token in a database
-        // It's stored only in a session cookie (httpOnly, secure)
+        // Fetch user info from GitHub to create a session
+        const userResponse = await fetch('https://api.github.com/user', {
+            headers: {
+                'Authorization': `token ${tokenData.access_token}`,
+                'Accept': 'application/json',
+                'User-Agent': 'VulnScany/1.0.0'
+            }
+        });
+
+        const userData = await userResponse.json();
+
         const response = NextResponse.redirect(new URL('/dashboard', request.url));
 
-        // Set secure httpOnly cookie
-        response.cookies.set('github_token', tokenData.access_token, {
+        // Set secure httpOnly cookies with domain for cross-subdomain access
+        const cookieOptions = {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: 'lax' as const,
             maxAge: 60 * 60 * 2, // 2 hours
-            path: '/'
-        });
+            path: '/',
+            domain: '.example.com'
+        };
+
+        response.cookies.set('github_token', tokenData.access_token, cookieOptions);
+
+        response.cookies.set('session', JSON.stringify({
+            login: userData.login,
+            name: userData.name || userData.login,
+            avatar_url: userData.avatar_url,
+        }), cookieOptions);
 
         return response;
 

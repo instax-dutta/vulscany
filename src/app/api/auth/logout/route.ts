@@ -8,8 +8,18 @@ import { NextResponse } from 'next/server';
 export async function POST() {
     const response = NextResponse.json({ success: true });
 
-    // Clear the token cookie
-    response.cookies.delete('github_token');
+    // Clear the token and session cookies across the root domain using expired dates
+    const cookieOptions = {
+        domain: '.example.com',
+        path: '/',
+        expires: new Date(0),
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax' as const
+    };
+
+    response.cookies.set('github_token', '', cookieOptions);
+    response.cookies.set('session', '', cookieOptions);
 
     return response;
 }

@@ -11,22 +11,47 @@ export async function GET() {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore.get('session');
 
+        let response;
         if (!sessionCookie) {
-            return NextResponse.json({ user: null });
+            response = NextResponse.json({ user: null });
+        } else {
+            // Parse session data
+            const session = JSON.parse(sessionCookie.value);
+
+            // Return user data (without sensitive info)
+            response = NextResponse.json({
+                user: {
+                    login: session.login,
+                    name: session.name,
+                    avatar_url: session.avatar_url,
+                }
+            });
         }
 
-        // Parse session data
-        const session = JSON.parse(sessionCookie.value);
+        // Add CORS headers for the landing page
+        response.headers.set('Access-Control-Allow-Origin', 'https://example.com');
+        response.headers.set('Access-Control-Allow-Credentials', 'true');
+        response.headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+        response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-        // Return user data (without sensitive info)
-        return NextResponse.json({
-            user: {
-                login: session.login,
-                name: session.name,
-                avatar_url: session.avatar_url,
-            }
-        });
+        return response;
     } catch (error) {
-        return NextResponse.json({ user: null });
+        const response = NextResponse.json({ user: null });
+        response.headers.set('Access-Control-Allow-Origin', 'https://example.com');
+        response.headers.set('Access-Control-Allow-Credentials', 'true');
+        return response;
     }
+}
+
+// Handle preflight requests
+export async function OPTIONS() {
+    return new NextResponse(null, {
+        status: 204,
+        headers: {
+            'Access-Control-Allow-Origin': 'https://example.com',
+            'Access-Control-Allow-Credentials': 'true',
+            'Access-Control-Allow-Methods': 'GET, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+    });
 }
