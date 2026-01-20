@@ -185,6 +185,7 @@ function applyPatternFix(vulnerability: Vulnerability, content: string): string 
     }
 
     // Fix: eval() usage
+    // @vulscany-ignore: This code DETECTS and FIXES eval() usage, it doesn't use eval()
     if (type.includes('eval') || type.includes('code-execution')) {
         // Replace eval with safer alternatives (can't fully fix, add warning)
         if (fixed.includes('eval(')) {

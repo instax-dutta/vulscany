@@ -231,6 +231,10 @@ function scanFileContent(
             }
 
             if (p.pattern.test(cleanLine)) {
+                // Skip if this is in a string literal (educational/documentation)
+                const isInStringLiteral = isLineInStringContext(line, p.pattern);
+                if (isInStringLiteral) continue;
+
                 // Auto-FP reduction: Check for sanitization
                 const isAlreadySanitized = cleanLine.includes('sanitize') ||
                     cleanLine.includes('DOMPurify') ||
@@ -274,6 +278,44 @@ function scanFileContent(
     }
 
     return vulnerabilities;
+}
+
+/**
+ * Check if a pattern match is within a string literal context
+ * This prevents false positives from educational content and documentation
+ */
+function isLineInStringContext(line: string, pattern: RegExp): boolean {
+    const match = pattern.exec(line);
+    if (!match) return false;
+
+    const matchIndex = match.index;
+    let inString = false;
+    let stringChar = '';
+    let escaped = false;
+
+    for (let i = 0; i < matchIndex; i++) {
+        const char = line[i];
+
+        if (escaped) {
+            escaped = false;
+            continue;
+        }
+
+        if (char === '\\') {
+            escaped = true;
+            continue;
+        }
+
+        if ((char === '"' || char === "'" || char === '`') && !inString) {
+            inString = true;
+            stringChar = char;
+        } else if (char === stringChar && inString) {
+            inString = false;
+            stringChar = '';
+        }
+    }
+
+    return inString;
 }
 
 function extractSnippet(lines: string[], lineIndex: number, context: number = 2): string {

@@ -106,6 +106,7 @@ function checkCommonIssues(code: string): { errors: string[], warnings: string[]
         errors.push('Uses dangerouslySetInnerHTML without visible sanitization - security risk!');
     }
 
+    // @vulscany-ignore: This code VALIDATES against eval() usage, it doesn't use eval()
     // Check for eval (security risk)
     if (/\beval\(/.test(code)) {
         errors.push('Uses eval() - major security risk, must be removed');
