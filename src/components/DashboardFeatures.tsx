@@ -82,13 +82,13 @@ export function SecurityScoreWidget({ vulnerabilities, onScoreCalculated }: Secu
             animate={{ opacity: 1, scale: 1 }}
             style={{
                 background: 'rgba(10, 10, 15, 0.8)',
-                border: '2px solid rgba(0, 204, 255, 0.3)',
+                border: '2px solid rgba(0, 212, 255, 0.3)',
                 borderRadius: '1rem',
                 padding: '1.5rem',
                 textAlign: 'center'
             }}
         >
-            <div style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: '#00ccff', marginBottom: '1rem' }}>
+            <div style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: '#00d4ff', marginBottom: '1rem' }}>
                 SECURITY SCORE
             </div>
 
@@ -341,10 +341,10 @@ export function EducationPanel({ vulnerabilityType, isSimpleMode = true }: Educa
                     cursor: 'pointer'
                 }}
             >
-                <span style={{ fontSize: '0.75rem', color: '#0099ff', fontWeight: '600' }}>
+                <span style={{ fontSize: '0.75rem', color: '#00d4ff', fontWeight: '600' }}>
                     📚 Learn More: {content.title}
                 </span>
-                <span style={{ color: '#0099ff' }}>{expanded ? '−' : '+'}</span>
+                <span style={{ color: '#00d4ff' }}>{expanded ? '−' : '+'}</span>
             </button>
 
             <AnimatePresence>
@@ -367,9 +367,9 @@ export function EducationPanel({ vulnerabilityType, isSimpleMode = true }: Educa
                                     style={{
                                         padding: '0.25rem 0.75rem',
                                         fontSize: '0.625rem',
-                                        background: mode === 'simple' ? '#0099ff' : 'transparent',
-                                        color: mode === 'simple' ? '#fff' : '#0099ff',
-                                        border: '1px solid #0099ff',
+                                        background: mode === 'simple' ? '#00d4ff' : 'transparent',
+                                        color: mode === 'simple' ? '#fff' : '#00d4ff',
+                                        border: '1px solid #00d4ff',
                                         borderRadius: '0.25rem',
                                         cursor: 'pointer'
                                     }}
@@ -381,9 +381,9 @@ export function EducationPanel({ vulnerabilityType, isSimpleMode = true }: Educa
                                     style={{
                                         padding: '0.25rem 0.75rem',
                                         fontSize: '0.625rem',
-                                        background: mode === 'technical' ? '#0099ff' : 'transparent',
-                                        color: mode === 'technical' ? '#fff' : '#0099ff',
-                                        border: '1px solid #0099ff',
+                                        background: mode === 'technical' ? '#00d4ff' : 'transparent',
+                                        color: mode === 'technical' ? '#fff' : '#00d4ff',
+                                        border: '1px solid #00d4ff',
                                         borderRadius: '0.25rem',
                                         cursor: 'pointer'
                                     }}
@@ -454,7 +454,7 @@ export function EducationPanel({ vulnerabilityType, isSimpleMode = true }: Educa
 
                             {/* Quick Fix Steps */}
                             <div style={{ marginTop: '1rem' }}>
-                                <div style={{ fontSize: '0.625rem', color: '#00ccff', marginBottom: '0.5rem' }}>
+                                <div style={{ fontSize: '0.625rem', color: '#00d4ff', marginBottom: '0.5rem' }}>
                                     ⚡ QUICK FIX STEPS
                                 </div>
                                 <ol style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.6875rem', color: '#aaa' }}>
@@ -478,9 +478,9 @@ export function EducationPanel({ vulnerabilityType, isSimpleMode = true }: Educa
                                             rel="noopener noreferrer"
                                             style={{
                                                 fontSize: '0.625rem',
-                                                color: '#0099ff',
+                                                color: '#00d4ff',
                                                 textDecoration: 'none',
-                                                background: 'rgba(0, 153, 255, 0.1)',
+                                                background: 'rgba(0, 212, 255, 0.1)',
                                                 padding: '0.25rem 0.5rem',
                                                 borderRadius: '0.25rem'
                                             }}
@@ -825,13 +825,13 @@ export function SecurityTipBanner() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             style={{
-                background: 'rgba(0, 204, 255, 0.1)',
-                border: '1px solid rgba(0, 204, 255, 0.2)',
+                background: 'rgba(0, 212, 255, 0.1)',
+                border: '1px solid rgba(0, 212, 255, 0.2)',
                 borderRadius: '0.5rem',
                 padding: '0.75rem 1rem',
                 marginBottom: '1rem',
                 fontSize: '0.75rem',
-                color: '#00ccff',
+                color: '#00d4ff',
                 textAlign: 'center'
             }}
         >
@@ -850,10 +850,12 @@ interface GitHubActionModalProps {
 export function GitHubActionModal({ isOpen, onClose }: GitHubActionModalProps) {
     const [copied, setCopied] = useState(false);
 
-    const actionYaml = `# Add this to .github/workflows/vullscanny.yml
-name: 🛡️ VullScanny Security Scan
+    const actionYaml = `# Add this to .github/workflows/aeglyn.yml
+name: 🛡️ Aeglyn Security Scan
 
 on:
+  push:
+    branches: [main, master]
   pull_request:
     branches: [main, master]
 
@@ -865,10 +867,10 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
-      - name: Run VullScanny
+      - name: Run Aeglyn Scan
         run: |
-          # Your scan logic here
-          echo "Scanning for vulnerabilities..."`;
+          # The full logic is in the downloadable action file
+          echo "Scanning for web vulnerabilities..."`;
 
     const handleCopy = () => {
         navigator.clipboard.writeText(actionYaml);
@@ -900,7 +902,7 @@ jobs:
                 animate={{ scale: 1, opacity: 1 }}
                 style={{
                     background: '#0a0a0f',
-                    border: '2px solid rgba(0, 204, 255, 0.5)',
+                    border: '2px solid rgba(0, 212, 255, 0.5)',
                     borderRadius: '1rem',
                     padding: '2rem',
                     maxWidth: '600px',
@@ -910,7 +912,7 @@ jobs:
                 }}
                 onClick={e => e.stopPropagation()}
             >
-                <h2 style={{ fontSize: '1.25rem', color: '#00ccff', marginBottom: '1rem' }}>
+                <h2 style={{ fontSize: '1.25rem', color: '#00d4ff', marginBottom: '1rem' }}>
                     🎬 GitHub Action Setup
                 </h2>
 
@@ -938,12 +940,12 @@ jobs:
                             position: 'absolute',
                             top: '0.5rem',
                             right: '0.5rem',
-                            background: copied ? '#00ff88' : 'rgba(0, 204, 255, 0.2)',
+                            background: copied ? '#00ff88' : 'rgba(0, 212, 255, 0.2)',
                             border: 'none',
                             borderRadius: '0.25rem',
                             padding: '0.25rem 0.5rem',
                             fontSize: '0.625rem',
-                            color: copied ? '#000' : '#00ccff',
+                            color: copied ? '#000' : '#00d4ff',
                             cursor: 'pointer'
                         }}
                     >
@@ -952,23 +954,23 @@ jobs:
                 </div>
 
                 <div style={{ marginTop: '1.5rem', fontSize: '0.75rem', color: '#888' }}>
-                    <h3 style={{ color: '#00ccff', marginBottom: '0.5rem' }}>Instructions:</h3>
+                    <h3 style={{ color: '#00d4ff', marginBottom: '0.5rem' }}>Instructions:</h3>
                     <ol style={{ paddingLeft: '1.25rem', lineHeight: 1.6 }}>
                         <li>Create <code>.github/workflows/</code> directory in your repo</li>
-                        <li>Create <code>vullscanny.yml</code> file</li>
+                        <li>Create <code>aeglyn.yml</code> file</li>
                         <li>Paste the workflow content</li>
                         <li>Commit and push</li>
-                        <li>Open a Pull Request to see it in action!</li>
+                        <li>Scan triggers on every Push and Pull Request!</li>
                     </ol>
                 </div>
 
                 <a
-                    href="/vullscanny-action.yml"
+                    href="/aeglyn-action.yml"
                     download
                     style={{
                         display: 'inline-block',
                         marginTop: '1rem',
-                        background: '#00ccff',
+                        background: '#00d4ff',
                         color: '#000',
                         padding: '0.5rem 1rem',
                         borderRadius: '0.5rem',

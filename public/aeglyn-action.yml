@@ -1,19 +1,21 @@
-# VullScanny Security Scan GitHub Action
-# Add this file to your repository at .github/workflows/vullscanny.yml
+# Aeglyn Security Scan GitHub Action
+# Add this file to your repository at .github/workflows/aeglyn.yml
 # 
-# This action will automatically scan your React/Next.js code for security
-# vulnerabilities on every pull request and leave a comment with findings.
+# This action will automatically scan your web application code for security
+# vulnerabilities on every push and pull request.
 
-name: 🛡️ VullScanny Security Scan
+name: 🛡️ Aeglyn Security Scan
 
 on:
+  push:
+    branches: [main, master, develop]
   pull_request:
     branches: [main, master, develop]
     types: [opened, synchronize, reopened]
 
-# Prevent concurrent scans on the same PR
+# Prevent concurrent scans on the same branch/PR
 concurrency:
-  group: vullscanny-${{ github.event.pull_request.number }}
+  group: aeglyn-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -40,13 +42,17 @@ jobs:
             **/*.jsx
             **/*.ts
             **/*.tsx
+            **/*.vue
+            **/*.svelte
+            **/*.html
+            **/*.php
+            **/*.py
       
-      - name: 🛡️ Run VullScanny Scan
+      - name: 🛡️ Run Aeglyn Scan
         id: scan
         if: steps.changed-files.outputs.any_changed == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VULLSCANNY_API: https://vullscanny.sdad.pro/api
         run: |
           echo "Scanning changed files..."
           
@@ -63,36 +69,36 @@ jobs:
           for file in $FILES; do
             if [[ -f "$file" ]]; then
               echo "Scanning: $file"
-              content=$(cat "$file" | head -c 50000)
+              content=$(cat "$file" | head -c 100000)
               
-              # Check for dangerouslySetInnerHTML without sanitization
-              if echo "$content" | grep -q "dangerouslySetInnerHTML" && ! echo "$content" | grep -q "DOMPurify\|sanitize"; then
+              # 1. Unsafe HTML Rendering (React/Vue/Svelte/Angular)
+              if echo "$content" | grep -qE "dangerouslySetInnerHTML|v-html|\[innerHTML\]|@html" && ! echo "$content" | grep -q "DOMPurify\|sanitize\|escape"; then
                 ((HIGH++))
-                FINDINGS="$FINDINGS\n- **HIGH** ⚠️ \`$file\`: Unsanitized dangerouslySetInnerHTML detected"
+                FINDINGS="$FINDINGS\n- **HIGH** ⚠️ \`$file\`: Unsanitized HTML rendering detected"
               fi
               
-              # Check for eval usage
-              if echo "$content" | grep -qE "\beval\s*\("; then
+              # 2. Dangerous Code Execution (Eval/Function)
+              if echo "$content" | grep -qE "\beval\s*\(|\bnew\s+Function\s*\(" && ! echo "$file" | grep -q "\.test\.\|\.spec\.\|config"; then
                 ((CRITICAL++))
-                FINDINGS="$FINDINGS\n- **CRITICAL** 🔴 \`$file\`: eval() usage detected - major security risk"
+                FINDINGS="$FINDINGS\n- **CRITICAL** 🔴 \`$file\`: Dangerous dynamic execution (eval/Function)"
               fi
               
-              # Check for innerHTML
-              if echo "$content" | grep -qE "\.innerHTML\s*=" && ! echo "$content" | grep -q "DOMPurify\|sanitize"; then
-                ((HIGH++))
-                FINDINGS="$FINDINGS\n- **HIGH** ⚠️ \`$file\`: Unsanitized innerHTML assignment"
-              fi
-              
-              # Check for document.write
-              if echo "$content" | grep -q "document\.write"; then
+              # 3. Obfuscation (atob-based)
+              if echo "$content" | grep -qE "atob\s*\(\s*['\"\`][A-Za-z0-9+/=]{20,}"; then
                 ((MEDIUM++))
-                FINDINGS="$FINDINGS\n- **MEDIUM** 🟡 \`$file\`: document.write() usage"
+                FINDINGS="$FINDINGS\n- **MEDIUM** 🟡 \`$file\`: Suspicious obfuscated content"
+              fi
+              
+              # 4. Potential Secret Exposure
+              if echo "$content" | grep -iqE "(API_KEY|SECRET|PASSWORD|TOKEN|AWS_ACCESS_KEY)\s*[:=]\s*['\"\`][A-Za-z0-9_\-]{16,}"; then
+                ((CRITICAL++))
+                FINDINGS="$FINDINGS\n- **CRITICAL** 🔴 \`$file\`: Potential hardcoded secret exposure"
               fi
             fi
           done
           
           # Calculate score
-          SCORE=$((100 - (CRITICAL * 25) - (HIGH * 15) - (MEDIUM * 8) - (LOW * 3)))
+          SCORE=$((100 - (CRITICAL * 30) - (HIGH * 15) - (MEDIUM * 8)))
           if [ $SCORE -lt 0 ]; then SCORE=0; fi
           
           # Set outputs
@@ -100,7 +106,6 @@ jobs:
           echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
           echo "high=$HIGH" >> $GITHUB_OUTPUT
           echo "medium=$MEDIUM" >> $GITHUB_OUTPUT
-          echo "low=$LOW" >> $GITHUB_OUTPUT
           echo "findings<<EOF" >> $GITHUB_OUTPUT
           echo -e "$FINDINGS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -117,7 +122,7 @@ jobs:
           fi
       
       - name: 💬 Comment on PR
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: github.event_name == 'pull_request' && steps.changed-files.outputs.any_changed == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -125,24 +130,15 @@ jobs:
             const critical = '${{ steps.scan.outputs.critical }}';
             const high = '${{ steps.scan.outputs.high }}';
             const medium = '${{ steps.scan.outputs.medium }}';
-            const low = '${{ steps.scan.outputs.low }}';
             const findings = `${{ steps.scan.outputs.findings }}`;
             const status = '${{ steps.scan.outputs.status }}';
             
             let emoji = '✅';
-            let statusText = 'All Clear!';
-            if (status === 'critical') {
-              emoji = '🔴';
-              statusText = 'Critical Issues Found';
-            } else if (status === 'warning') {
-              emoji = '⚠️';
-              statusText = 'Security Warnings';
-            } else if (status === 'notice') {
-              emoji = '🟡';
-              statusText = 'Minor Issues';
-            }
+            if (status === 'critical') emoji = '🔴';
+            else if (status === 'warning') emoji = '⚠️';
+            else if (status === 'notice') emoji = '🟡';
             
-            const body = `## ${emoji} VullScanny Security Scan
+            const body = `## ${emoji} Aeglyn Security Scan
             
             ### Security Score: ${score}/100
             
@@ -151,28 +147,25 @@ jobs:
             | 🔴 Critical | ${critical} |
             | ⚠️ High | ${high} |
             | 🟡 Medium | ${medium} |
-            | 🟢 Low | ${low} |
             
-            ${findings ? `### Findings\n${findings}` : '### ✅ No security issues detected!'}
+            ${findings ? `### Findings\n${findings}` : '### ✅ No security issues detected in changed files!'}
             
             ---
             
             <details>
-            <summary>ℹ️ About VullScanny</summary>
+            <summary>ℹ️ About Aeglyn</summary>
             
-            [VullScanny](https://vullscanny.sdad.pro) is a privacy-first React security scanner.
-            Your code is never stored - all scans happen in real-time.
+            [Aeglyn](https://app.aeglyn.site) is a privacy-first web security scanner.
             
             **Quick Fixes:**
-            - For XSS issues: Use \`DOMPurify.sanitize()\`
-            - For eval: Replace with \`JSON.parse()\` or safe alternatives
-            - For innerHTML: Use React's controlled rendering
+            - For XSS: Use \`DOMPurify.sanitize()\`
+            - For secrets: Move to environment variables (\`.env\`)
+            - For eval: Use \`JSON.parse()\` or logic refactoring
             
             </details>
             
-            *Powered by [VullScanny](https://vullscanny.sdad.pro) 🛡️*`;
+            *Powered by [Aeglyn](https://app.aeglyn.site) 🛡️*`;
             
-            // Check for existing comment
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -180,7 +173,7 @@ jobs:
             });
             
             const botComment = comments.find(c => 
-              c.user.type === 'Bot' && c.body.includes('VullScanny Security Scan')
+              c.user.type === 'Bot' && c.body.includes('Aeglyn Security Scan')
             );
             
             if (botComment) {
@@ -199,9 +192,11 @@ jobs:
               });
             }
       
-      - name: ❌ Fail on Critical Issues
-        if: steps.scan.outputs.status == 'critical'
+      - name: 📊 Summary Report
+        if: always() && steps.changed-files.outputs.any_changed == 'true'
         run: |
-          echo "::error::Critical security vulnerabilities detected!"
-          echo "Please fix the issues before merging."
-          exit 1
+          echo "### Aeglyn Security Summary" >> $GITHUB_STEP_SUMMARY
+          echo "Score: ${{ steps.scan.outputs.score }}/100" >> $GITHUB_STEP_SUMMARY
+          echo "Critical: ${{ steps.scan.outputs.critical }}" >> $GITHUB_STEP_SUMMARY
+          echo "High: ${{ steps.scan.outputs.high }}" >> $GITHUB_STEP_SUMMARY
+          echo "Medium: ${{ steps.scan.outputs.medium }}" >> $GITHUB_STEP_SUMMARY

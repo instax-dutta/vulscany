@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { fetchUserRepositories } from '@/lib/github/client';
-import { detectReactProject } from '@/lib/github/react-detector';
+import { detectStack } from '@/lib/github/stack-detector';
 
 export async function GET(request: NextRequest) {
     const cookieStore = await cookies();
@@ -17,43 +17,43 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        console.log('[React Repos] Fetching all user repositories...');
+        console.log('[Webapp Repos] Fetching all user repositories...');
 
         // Fetch all repositories
         const allRepos = await fetchUserRepositories(token);
-        console.log(`[React Repos] Found ${allRepos.length} total repositories`);
+        console.log(`[Webapp Repos] Found ${allRepos.length} total repositories`);
 
-        // Filter React projects in parallel
-        console.log('[React Repos] Detecting React projects...');
+        // Filter Web application projects in parallel
+        console.log('[Webapp Repos] Detecting web application stacks...');
         const repoChecks = await Promise.all(
             allRepos.map(async (repo) => {
                 try {
-                    const reactInfo = await detectReactProject(token, repo.owner, repo.name);
+                    const stackInfo = await detectStack(token, repo.owner, repo.name);
                     return {
                         repo,
-                        isReact: reactInfo?.isReact || false
+                        isWebapp: !!stackInfo
                     };
                 } catch (error) {
-                    console.error(`[React Repos] Failed to check ${repo.owner}/${repo.name}:`, error);
+                    console.error(`[Webapp Repos] Failed to check ${repo.owner}/${repo.name}:`, error);
                     return {
                         repo,
-                        isReact: false
+                        isWebapp: false
                     };
                 }
             })
         );
 
-        // Filter to only React projects
-        const reactRepos = repoChecks
-            .filter(check => check.isReact)
+        // Filter to only web projects
+        const webappRepos = repoChecks
+            .filter(check => check.isWebapp)
             .map(check => check.repo);
 
-        console.log(`[React Repos] Found ${reactRepos.length} React projects out of ${allRepos.length} repositories`);
+        console.log(`[Webapp Repos] Found ${webappRepos.length} web applications out of ${allRepos.length} repositories`);
 
         return NextResponse.json({
-            repositories: reactRepos,
+            repositories: webappRepos,
             totalRepos: allRepos.length,
-            reactRepos: reactRepos.length
+            webappRepos: webappRepos.length
         });
 
     } catch (error: any) {

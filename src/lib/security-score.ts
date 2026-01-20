@@ -178,7 +178,7 @@ export function loadUserStats(): UserStats {
         return getDefaultStats();
     }
 
-    const stored = localStorage.getItem('vullscanny_user_stats');
+    const stored = localStorage.getItem('aeglyn_user_stats');
     if (stored) {
         try {
             return JSON.parse(stored);
@@ -194,7 +194,7 @@ export function loadUserStats(): UserStats {
  */
 export function saveUserStats(stats: UserStats): void {
     if (typeof window === 'undefined') return;
-    localStorage.setItem('vullscanny_user_stats', JSON.stringify(stats));
+    localStorage.setItem('aeglyn_user_stats', JSON.stringify(stats));
 }
 
 /**

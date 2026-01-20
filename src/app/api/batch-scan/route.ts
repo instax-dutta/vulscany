@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { scanRepository } from '@/lib/scanner';
-import { detectReactProject } from '@/lib/github/react-detector';
+import { detectStack } from '@/lib/github/stack-detector';
 
 interface BatchScanRequest {
     repositories: Array<{
@@ -39,20 +39,20 @@ export async function POST(request: NextRequest) {
         // Scan all repositories in parallel for speed
         const scanPromises = repositories.map(async (repo) => {
             try {
-                // Detect React project
-                const reactInfo = await detectReactProject(token, repo.owner, repo.name);
+                // Detect web app stack
+                const stackInfo = await detectStack(token, repo.owner, repo.name);
 
-                if (!reactInfo || !reactInfo.isReact) {
+                if (!stackInfo) {
                     return {
                         repoName: repo.name,
                         owner: repo.owner,
-                        error: 'Not a React project',
+                        error: 'Not a supported web application stack',
                         status: 'skipped'
                     };
                 }
 
-                // Scan for vulnerabilities with all 4 required arguments
-                const scanResults = await scanRepository(token, repo.owner, repo.name, reactInfo);
+                // Scan for vulnerabilities
+                const scanResults = await scanRepository(token, repo.owner, repo.name, stackInfo);
 
                 // Determine status
                 const criticalCount = scanResults.vulnerabilities.filter(v => v.severity === 'critical').length;
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
                     repoName: repo.name,
                     owner: repo.owner,
                     scanTimestamp: new Date().toISOString(),
-                    reactInfo,
+                    stackInfo,
                     vulnerabilities: scanResults.vulnerabilities,
                     status,
                     summary,

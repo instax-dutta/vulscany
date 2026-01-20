@@ -1,15 +1,10 @@
-/**
- * Vulnerability Scanner
- * Lightweight static analysis for React security issues
- */
-
 import { getFileContent, getDirectoryContents } from '../github/client';
-import type { ReactProjectInfo } from '../github/react-detector';
-import { isReactVersionVulnerable, detectHighRiskDependencies } from '../github/react-detector';
+import type { WebAppProjectInfo } from '../github/stack-detector';
+import { detectHighRiskDependencies } from '../github/stack-detector';
 
 export interface Vulnerability {
     id: string;
-    type: 'version' | 'dangerous-api' | 'ssr-injection' | 'markdown-xss' | 'dependency' | 'xss-vulnerable-attribute' | 'code-execution-pattern';
+    type: 'version' | 'dangerous-api' | 'ssr-injection' | 'markdown-xss' | 'dependency' | 'xss-vulnerable-attribute' | 'code-execution-pattern' | 'obfuscation' | 'secret-exposure';
     severity: 'low' | 'medium' | 'high' | 'critical';
     title: string;
     description: string;
@@ -23,7 +18,7 @@ export interface ScanResult {
     repoName: string;
     owner: string;
     scanTimestamp: string;
-    reactInfo: ReactProjectInfo;
+    stackInfo: WebAppProjectInfo;
     vulnerabilities: Vulnerability[];
     status: 'safe' | 'needs-attention' | 'high-risk';
     summary: string;
@@ -34,7 +29,7 @@ export interface ScanResult {
         advisoryCount: number;
         criticalThreats: number;
         recommendations: string[];
-        displayInUI?: boolean; // Controls UI display without affecting data gathering
+        displayInUI?: boolean;
     };
 }
 
@@ -45,28 +40,12 @@ export async function scanRepository(
     accessToken: string,
     owner: string,
     repo: string,
-    reactInfo: ReactProjectInfo
+    stackInfo: WebAppProjectInfo
 ): Promise<ScanResult> {
     const vulnerabilities: Vulnerability[] = [];
 
-    // 1. Check React version
-    if (reactInfo.reactVersion) {
-        const versionCheck = isReactVersionVulnerable(reactInfo.reactVersion);
-        if (versionCheck.isVulnerable) {
-            vulnerabilities.push({
-                id: `${repo}-version`,
-                type: 'version',
-                severity: 'medium',
-                title: 'Outdated React Version',
-                description: versionCheck.reason || 'Your React version may have security vulnerabilities',
-                file: 'package.json',
-                recommendation: `Update React to version ${versionCheck.recommendedVersion} or later`
-            });
-        }
-    }
-
-    // 2. Check dependencies
-    const depRisks = detectHighRiskDependencies(reactInfo.dependencies);
+    // 1. Check dependencies
+    const depRisks = detectHighRiskDependencies(stackInfo.dependencies);
     for (const risk of depRisks) {
         vulnerabilities.push({
             id: `${repo}-dep-${risk.package}`,
@@ -79,8 +58,8 @@ export async function scanRepository(
         });
     }
 
-    // 3. Scan source files for dangerous patterns
-    const sourceVulns = await scanSourceFiles(accessToken, owner, repo, reactInfo);
+    // 2. Scan source files for dangerous patterns
+    const sourceVulns = await scanSourceFiles(accessToken, owner, repo, stackInfo);
     vulnerabilities.push(...sourceVulns);
 
     // Determine status
@@ -91,7 +70,7 @@ export async function scanRepository(
         repoName: repo,
         owner,
         scanTimestamp: new Date().toISOString(),
-        reactInfo,
+        stackInfo,
         vulnerabilities,
         status,
         summary
@@ -99,23 +78,19 @@ export async function scanRepository(
 }
 
 /**
- * Scan source files for security patterns
- */
-/**
  * Scan source files for security patterns (Recursive)
  */
 async function scanSourceFiles(
     accessToken: string,
     owner: string,
     repo: string,
-    reactInfo: ReactProjectInfo
+    stackInfo: WebAppProjectInfo
 ): Promise<Vulnerability[]> {
     const vulnerabilities: Vulnerability[] = [];
-    const MAX_DEPTH = 5;
-    const MAX_FILES = 100; // Prevent scanning massive repos entirely
+    const MAX_DEPTH = 6;
+    const MAX_FILES = 150; // Increased for deeper scanning
     let scannedFileCount = 0;
 
-    // Queue for BFS traversal: { path: string, depth: number }
     const queue: { path: string, depth: number }[] = [{ path: '', depth: 0 }];
     const processedPaths = new Set<string>();
 
@@ -129,28 +104,25 @@ async function scanSourceFiles(
         const items = await getDirectoryContents(accessToken, owner, repo, path);
 
         for (const item of items) {
-            // SKIP ignored directories
             if (item.type === 'dir') {
-                if (['node_modules', '.git', 'dist', 'build', '.next', 'out', 'coverage', 'public', 'vendor'].includes(item.name)) continue;
-                if (item.name.startsWith('.')) continue; // skip hidden folders
+                if (['node_modules', '.git', 'dist', 'build', '.next', 'out', 'coverage', 'public', 'vendor', 'temp', 'tmp', '.agent'].includes(item.name)) continue;
+                if (item.name.startsWith('.')) continue;
                 queue.push({ path: item.path, depth: depth + 1 });
             }
-            // SCAN only relevant files
             else if (item.type === 'file') {
-                // Skip large files (>500KB) to avoid API timeouts and irrelevant scans
-                if (item.size > 500 * 1024) continue;
+                if (item.size > 800 * 1024) continue;
 
-                // SKIP test files and configs that are often noise
-                const isNoiseFile = item.name.match(/\.(test|spec|config|setup|stories)\.[tj]sx?$/) ||
-                    item.name.match(/^(jest|next|postcss|tailwind)\.config\.[tj]s$/);
+                // Expanded relevant file extensions
+                const isRelevantFile = item.name.match(/\.(jsx?|tsx?|vue|svelte|html|php|py|rb|go|rs|sh|ps1)$/);
 
-                if (isNoiseFile) continue;
+                const isNoiseFile = item.name.match(/\.(test|spec|config|setup|stories|d|min|map)\.[tj]sx?$/) ||
+                    item.name.match(/^(jest|next|postcss|tailwind|vite|webpack|babel|eslint|prettier)\.config\.[tj]s$/);
 
-                if (item.name.match(/\.(jsx?|tsx?)$/)) {
+                if (isRelevantFile && !isNoiseFile) {
                     scannedFileCount++;
                     const content = await getFileContent(accessToken, owner, repo, item.path);
                     if (content) {
-                        const fileVulns = scanFileContent(content.content, item.path, reactInfo);
+                        const fileVulns = scanFileContent(content.content, item.path, stackInfo);
                         vulnerabilities.push(...fileVulns);
                     }
                 }
@@ -162,192 +134,167 @@ async function scanSourceFiles(
 }
 
 /**
- * Scan individual file for vulnerabilities
+ * Scan individual file for vulnerabilities with multi-stack support
  */
 function scanFileContent(
     content: string,
     filePath: string,
-    reactInfo: ReactProjectInfo
+    stackInfo: WebAppProjectInfo
 ): Vulnerability[] {
     const vulnerabilities: Vulnerability[] = [];
     const lines = content.split('\n');
     let inBlockComment = false;
 
+    // Advanced Zero-day & Multi-Stack Patterns
+    const patterns = [
+        // 1. React dangerous API
+        {
+            stack: 'react',
+            pattern: /dangerouslySetInnerHTML\s*[:=]/,
+            type: 'dangerous-api',
+            severity: 'high',
+            title: 'Unsafe HTML Rendering (React)',
+            recommendation: 'Use DOMPurify.sanitize() before rendering'
+        },
+        // 2. Vue dangerous API
+        {
+            stack: 'vue',
+            pattern: /v-html\s*[:=]/,
+            type: 'dangerous-api',
+            severity: 'high',
+            title: 'Unsafe HTML Rendering (Vue)',
+            recommendation: 'Always sanitize data before using v-html'
+        },
+        // 3. Angular dangerous API
+        {
+            stack: 'angular',
+            pattern: /\[innerHTML\]\s*[:=]|bypassSecurityTrustHtml/,
+            type: 'dangerous-api',
+            severity: 'high',
+            title: 'Unsafe HTML Rendering (Angular)',
+            recommendation: 'Avoid bypassSecurityTrustHtml and use safer alternatives'
+        },
+        // 4. Svelte dangerous API
+        {
+            stack: 'svelte',
+            pattern: /\{@html\s+/,
+            type: 'dangerous-api',
+            severity: 'high',
+            title: 'Unsafe HTML Rendering (Svelte)',
+            recommendation: 'Ensure content is sanitized before using {@html}'
+        },
+        // 5. Generic Code Execution
+        {
+            pattern: /\beval\s*\(|\bnew\s+Function\s*\(|\bsetTimeout\s*\(\s*['"`]|\bsetInterval\s*\(\s*['"`]/,
+            type: 'code-execution-pattern',
+            severity: 'critical',
+            title: 'Dangerous Dynamic Execution',
+            recommendation: 'Never use eval() or string-based timers with user input'
+        },
+        // 6. Obfuscation detection
+        {
+            pattern: /atob\s*\(\s*['"`][A-Za-z0-9+/=]{20,}/,
+            type: 'obfuscation',
+            severity: 'medium',
+            title: 'Suspicious Base64 Content',
+            recommendation: 'Verify the source of obfuscated strings as they may hide malicious logic'
+        },
+        // 7. Secret exposure
+        {
+            pattern: /(API_KEY|SECRET|PASSWORD|TOKEN|AWS_ACCESS_KEY|PRIVATE_KEY)\s*[:=]\s*['"`][A-Za-z0-9_\-]{16,}/i,
+            type: 'secret-exposure',
+            severity: 'critical',
+            title: 'Potential Secret Exposure',
+            recommendation: 'Use environment variables for secrets, never hardcode them'
+        }
+    ];
+
     for (let i = 0; i < lines.length; i++) {
         let line = lines[i].trim();
         const lineNum = i + 1;
 
-        // Skip empty lines
-        if (!line) continue;
+        if (!line || line.includes('@aeglyn-ignore')) continue;
 
-        // Handle block comments
+        // Skip comments
         if (line.includes('/*')) inBlockComment = true;
-
-        let lineWithoutComments = line;
         if (inBlockComment) {
-            if (line.includes('*/')) {
-                inBlockComment = false;
-                lineWithoutComments = line.split('*/').pop() || '';
-            } else {
-                continue; // Inside block comment
-            }
+            if (line.includes('*/')) inBlockComment = false;
+            continue;
         }
+        if (line.startsWith('//') || line.startsWith('#') || line.startsWith('--')) continue;
 
-        // EXCLUSION 1: Check for manual override tag
-        if (line.includes('@vull-ignore')) continue;
+        const cleanLine = line.split('//')[0].split('/*')[0].trim();
 
-        // Handle single line comments
-        lineWithoutComments = lineWithoutComments.split('//')[0].split('#')[0].trim();
-        if (!lineWithoutComments) continue;
+        for (const p of patterns) {
+            if (p.stack && stackInfo.stack !== p.stack && stackInfo.stack !== 'other') {
+                continue;
+            }
 
-        // EXCLUSION 2: Simple heuristic to check if the dangerous term is inside a string literal
-        // (This prevents flagging descriptions or documentation)
-        const isLikelyStringLiteral = (term: string) => {
-            const doubleQuoteIndex = lineWithoutComments.indexOf(`"${term}"`);
-            const singleQuoteIndex = lineWithoutComments.indexOf(`'${term}'`);
-            const backtickIndex = lineWithoutComments.indexOf('`' + term + '`');
-            return doubleQuoteIndex !== -1 || singleQuoteIndex !== -1 || backtickIndex !== -1;
-        };
+            if (p.pattern.test(cleanLine)) {
+                // Auto-FP reduction: Check for sanitization
+                const isAlreadySanitized = cleanLine.includes('sanitize') ||
+                    cleanLine.includes('DOMPurify') ||
+                    cleanLine.includes('escape');
 
-        // 1. Check for dangerouslySetInnerHTML
-        const DANGER_API = 'dangerously' + 'SetInnerHTML';
-        if (lineWithoutComments.includes(DANGER_API)) { // @vull-ignore
-            // Check if it's likely a prop or usage, not just a string
-            const isUsage = new RegExp(DANGER_API + '\\s*[:=]').test(lineWithoutComments); // @vull-ignore
+                if (isAlreadySanitized && p.type === 'dangerous-api') continue;
 
-            // AUTO-FP REDUCTION: Check if it's already sanitized on the same line
-            const isAlreadySanitized = lineWithoutComments.includes('DOMPurify.sanitize') ||
-                lineWithoutComments.includes('sanitizeHtml(') ||
-                lineWithoutComments.includes('sanitize(');
-
-            if (isUsage && !isAlreadySanitized && !isLikelyStringLiteral(DANGER_API)) {
-                const snippet = extractSnippet(lines, i);
                 vulnerabilities.push({
-                    id: `${filePath}-${lineNum}-dangerous-html`,
-                    type: 'dangerous-api',
-                    severity: 'high',
-                    title: 'Unsafe HTML Rendering',
-                    description: 'Using ' + DANGER_API + ' can expose your app to XSS attacks if the content is not properly sanitized',
+                    id: `${filePath}-${lineNum}-${p.type}`,
+                    type: p.type as any,
+                    severity: p.severity as any,
+                    title: p.title,
+                    description: `Security pattern match: ${p.title} found in ${filePath}`,
                     file: filePath,
                     line: lineNum,
-                    snippet,
-                    recommendation: 'Use DOMPurify to sanitize HTML content, or avoid ' + DANGER_API + ' entirely'
+                    snippet: extractSnippet(lines, i),
+                    recommendation: p.recommendation
                 });
             }
         }
 
-        // 2. Check for potential SSR injection (Next.js specific)
-        if (reactInfo.hasNext && (lineWithoutComments.includes('getServerSideProps') || lineWithoutComments.includes('getStaticProps'))) {
-            // Check if there's unsanitized user input in the surrounding scope
-            const contextLines = lines.slice(Math.max(0, i - 2), Math.min(lines.length, i + 30));
-            const hasUserInput = contextLines.some(l => {
-                const clean = l.split('//')[0];
-                return clean.includes('params') || clean.includes('query') || clean.includes('req.');
-            });
-            const hasSanitization = contextLines.some(l => {
-                const clean = l.split('//')[0];
-                return clean.includes('sanitize') || clean.includes('escape') || clean.includes('DOMPurify') || clean.includes('encodeURI');
-            });
-
-            if (hasUserInput && !hasSanitization) {
-                // Verify it's actually an exported function or constant, not a mention
-                const isDefinition = /export\s+(async\s+)?(function|const)\s+(getServerSideProps|getStaticProps)/.test(lineWithoutComments);
-
-                if (isDefinition && !isLikelyStringLiteral('getServerSideProps') && !isLikelyStringLiteral('getStaticProps')) {
+        // Special check for SSR Injection in Next.js
+        if (stackInfo.stack === 'nextjs' && (cleanLine.includes('getServerSideProps') || cleanLine.includes('getStaticProps'))) {
+            if (/export\s+(async\s+)?(function|const)\s+(getServerSideProps|getStaticProps)/.test(cleanLine)) {
+                const context = lines.slice(Math.max(0, i - 1), Math.min(lines.length, i + 10)).join('\n');
+                if ((context.includes('params') || context.includes('query')) && !context.includes('sanitize')) {
                     vulnerabilities.push({
                         id: `${filePath}-${lineNum}-ssr-injection`,
                         type: 'ssr-injection',
                         severity: 'critical',
-                        title: 'Potential SSR Injection Risk',
-                        description: 'Server-side rendering with unsanitized user input can lead to injection vulnerabilities',
+                        title: 'Server-Side Injection Risk',
+                        description: 'Unsanitized parameters in SSR data fetching can lead to injection attacks',
                         file: filePath,
                         line: lineNum,
                         snippet: extractSnippet(lines, i),
-                        recommendation: 'Always sanitize user input before passing to props. Validate and escape all query parameters and URL params'
+                        recommendation: 'Always sanitize user-controlled parameters before using them in data fetching logic'
                     });
                 }
             }
-        }
-
-        // 3. Check for markdown rendering without sanitization
-        if (lineWithoutComments.match(/react-markdown|marked|markdown-it/)) {
-            // Only flag if it looks like an import or initialization and sanitization is not mentioned in the whole file
-            const hasSanitizeInFile = content.includes('sanitize') || content.includes('DOMPurify') || content.includes('rehype-sanitize');
-            if (!hasSanitizeInFile && !isLikelyStringLiteral('react-markdown')) {
-                vulnerabilities.push({
-                    id: `${filePath}-${lineNum}-markdown-xss`,
-                    type: 'markdown-xss',
-                    severity: 'high',
-                    title: 'Unsafe Markdown Rendering',
-                    description: 'Rendering markdown without sanitization can lead to XSS vulnerabilities',
-                    file: filePath,
-                    line: lineNum,
-                    snippet: extractSnippet(lines, i),
-                    recommendation: 'Use rehype-sanitize or similar plugins to sanitize markdown content'
-                });
-            }
-        }
-
-        // 4. Check for eval or Function constructor (red flag)
-        const EVAL_PATTERN = new RegExp('\\b' + 'eval\\(|new ' + 'Function\\('); // @vull-ignore
-        if (lineWithoutComments.match(EVAL_PATTERN) && !isLikelyStringLiteral('eval') && !isLikelyStringLiteral('Function')) { // @vull-ignore
-            // Ensure matches are actual calls, not just strings or words in comments (already handled by split('//'))
-            vulnerabilities.push({
-                id: `${filePath}-${lineNum}-eval`,
-                type: 'dangerous-api',
-                severity: 'critical',
-                title: 'Dangerous Code Execution',
-                description: 'Using code execution sinks like ' + 'eval()' + ' or ' + 'Function()' + ' constructor can execute arbitrary code', // @vull-ignore
-                file: filePath,
-                line: lineNum,
-                snippet: extractSnippet(lines, i),
-                recommendation: 'Remove the execution sink and find a safer alternative. Never execute user-provided code'
-            });
         }
     }
 
     return vulnerabilities;
 }
 
-/**
- * Extract code snippet around a line
- */
 function extractSnippet(lines: string[], lineIndex: number, context: number = 2): string {
     const start = Math.max(0, lineIndex - context);
     const end = Math.min(lines.length, lineIndex + context + 1);
     return lines.slice(start, end).join('\n');
 }
 
-/**
- * Determine overall status
- */
 function determineStatus(vulnerabilities: Vulnerability[]): 'safe' | 'needs-attention' | 'high-risk' {
     if (vulnerabilities.length === 0) return 'safe';
-
     const hasCritical = vulnerabilities.some(v => v.severity === 'critical');
     const hasHigh = vulnerabilities.some(v => v.severity === 'high');
-
     if (hasCritical) return 'high-risk';
     if (hasHigh || vulnerabilities.length > 3) return 'high-risk';
     return 'needs-attention';
 }
 
-/**
- * Generate summary
- */
 function generateSummary(vulnerabilities: Vulnerability[]): string {
-    if (vulnerabilities.length === 0) {
-        return 'Great! No obvious security issues detected. Keep your dependencies updated!';
-    }
-
+    if (vulnerabilities.length === 0) return 'Great! No security issues detected. Consider regular deep scans.';
     const critical = vulnerabilities.filter(v => v.severity === 'critical').length;
     const high = vulnerabilities.filter(v => v.severity === 'high').length;
-    const medium = vulnerabilities.filter(v => v.severity === 'medium').length;
-
-    const parts: string[] = [];
-    if (critical > 0) parts.push(`${critical} critical issue${critical > 1 ? 's' : ''}`);
-    if (high > 0) parts.push(`${high} high-risk issue${high > 1 ? 's' : ''}`);
-    if (medium > 0) parts.push(`${medium} medium-risk issue${medium > 1 ? 's' : ''}`);
-
-    return `Found ${parts.join(', ')}. Don't worry - we'll help you fix them!`;
+    const count = vulnerabilities.length;
+    return `Analysis complete: Found ${count} potential risks (${critical} critical, ${high} high). Security hardening recommended.`;
 }

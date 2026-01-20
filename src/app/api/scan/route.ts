@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { fetchUserRepositories } from '@/lib/github/client';
-import { detectReactProject } from '@/lib/github/react-detector';
+import { detectStack } from '@/lib/github/stack-detector';
 import { scanRepository } from '@/lib/scanner';
 
 export async function GET(request: NextRequest) {
@@ -71,24 +71,24 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        // Detect if it's a React project
-        const reactInfo = await detectReactProject(token, owner, repo);
+        // Detect stack
+        const stackInfo = await detectStack(token, owner, repo);
 
-        if (!reactInfo) {
+        if (!stackInfo) {
             return NextResponse.json({
-                error: 'Not a React project',
-                message: 'This repository does not appear to be a React project'
+                error: 'Not a Web application',
+                message: 'This repository does not appear to be a supported web application stack'
             }, { status: 400 });
         }
 
         // Scan the repository
-        const scanResult = await scanRepository(token, owner, repo, reactInfo);
+        const scanResult = await scanRepository(token, owner, repo, stackInfo);
 
         // Always gather threat intelligence for zero-day detection and effective scanning
         // This data is cached and used to enhance vulnerability detection
         try {
             const { analyzeRepositoryThreats } = await import('@/lib/threat-intel');
-            const dependencies = reactInfo.dependencies || {};
+            const dependencies = stackInfo.dependencies || {};
 
             if (Object.keys(dependencies).length > 0) {
                 const threatIntel = await analyzeRepositoryThreats(dependencies);
