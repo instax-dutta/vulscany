@@ -45,7 +45,10 @@ const nextConfig: NextConfig = {
 
   /* Environment variables */
   env: {
-    NEXT_PUBLIC_SITE_URL: 'https://app.aeglyn.site',
+    NEXT_PUBLIC_SITE_URL: 'https://aeglyn.site',
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
 };
 

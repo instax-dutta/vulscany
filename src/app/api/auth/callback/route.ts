@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
             sameSite: 'lax' as const,
             maxAge: 60 * 60 * 2, // 2 hours
             path: '/',
-            domain: '.aeglyn.site'
+            ...(process.env.NODE_ENV === 'production' ? { domain: '.aeglyn.site' } : {})
         };
 
         response.cookies.set('github_token', tokenData.access_token, cookieOptions);

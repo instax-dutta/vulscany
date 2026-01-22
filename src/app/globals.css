@@ -10,11 +10,22 @@
   --color-primary: oklch(0.7 0.1 220);
   --color-primary-low: rgba(0, 212, 255, 0.1);
   --color-card: oklch(0.1 0 0);
+  --color-card-foreground: oklch(0.95 0 0);
+  --color-popover: oklch(0.1 0 0);
+  --color-popover-foreground: oklch(0.95 0 0);
   --color-muted: oklch(0.2 0 0);
+  --color-muted-foreground: oklch(0.7 0 0);
   --color-border: oklch(0.2 0 0);
+  --color-input: oklch(0.2 0 0);
+  --color-ring: oklch(0.7 0.1 220);
 
   /* Secondary/Accent colors derived from landing */
+  --color-secondary: oklch(0.2 0 0);
+  --color-secondary-foreground: oklch(0.95 0 0);
   --color-accent: oklch(0.7 0.1 220);
+  --color-accent-foreground: oklch(0.95 0 0);
+  --color-destructive: oklch(0.6 0.2 25);
+  --color-destructive-foreground: oklch(0.95 0 0);
 
   /* Severity Colors (Maintained for functionality but styled to match) */
   --color-critical: #ff0055;
@@ -37,8 +48,20 @@
   --primary: oklch(0.7 0.1 220);
   --primary-low: rgba(0, 212, 255, 0.1);
   --card: oklch(0.1 0 0);
+  --card-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.1 0 0);
+  --popover-foreground: oklch(0.95 0 0);
+  --secondary: oklch(0.2 0 0);
+  --secondary-foreground: oklch(0.95 0 0);
   --border: oklch(0.2 0 0);
+  --input: oklch(0.2 0 0);
   --muted: oklch(0.2 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+  --accent: oklch(0.7 0.1 220);
+  --accent-foreground: oklch(0.95 0 0);
+  --destructive: oklch(0.6 0.2 25);
+  --destructive-foreground: oklch(0.95 0 0);
+  --ring: oklch(0.7 0.1 220);
 }
 
 * {

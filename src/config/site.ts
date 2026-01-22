@@ -11,7 +11,7 @@ export const SITE_CONFIG = {
             ? 'https://aeglyn.site'
             : 'http://localhost:3000',
         app: process.env.NODE_ENV === 'production'
-            ? 'https://app.aeglyn.site'
+            ? 'https://aeglyn.site'
             : 'http://localhost:3000',
     },
 
