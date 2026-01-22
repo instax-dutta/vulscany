@@ -1,357 +1,670 @@
-/**
- * Privacy Policy - VullScanny
- */
+import type { Metadata } from "next"
 
-'use client';
+export const metadata: Metadata = {
+    title: "Privacy Policy | Aeglyn - Privacy-First Code Security",
+    description: "Aeglyn's Privacy Policy: Learn how our privacy-first developer tool handles GitHub OAuth security, what data we collect, and what we never store. GDPR-compliant code scanning.",
+    keywords: [
+        "privacy policy",
+        "GitHub OAuth security",
+        "privacy-first developer tool",
+        "GDPR compliant code scanning",
+        "AI vulnerability scanner privacy",
+        "code security platform data",
+        "indie developer code scanning",
+        "no data logging",
+        "developer privacy",
+    ],
+    openGraph: {
+        title: "Privacy Policy | Aeglyn",
+        description: "Privacy-first code scanning: what we collect, what we don't store, and your GDPR rights",
+        url: "https://example.com/privacy",
+    },
+}
 
-import { useEffect } from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import Lenis from 'lenis';
-
-export default function PrivacyPolicy() {
-    useEffect(() => {
-        const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        });
-
-        function raf(time: number) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-        }
-        requestAnimationFrame(raf);
-
-        return () => lenis.destroy();
-    }, []);
-
+export default function PrivacyPage() {
     return (
-        <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0a0a0f, #1a0a2e)', color: '#fff' }}>
-
-            {/* Background Grid */}
-            <div style={{
-                position: 'fixed',
-                inset: 0,
-                backgroundImage: `linear-gradient(to right, rgba(0, 255, 136, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(0, 255, 136, 0.03) 1px, transparent 1px)`,
-                backgroundSize: '50px 50px',
-                opacity: 0.3,
-                pointerEvents: 'none'
-            }} />
-
-            {/* Header */}
-            <header style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(10, 10, 15, 0.95)', backdropFilter: 'blur(20px)', borderBottom: '2px solid rgba(0, 255, 136, 0.2)' }}>
-                <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
-                        <div style={{
-                            width: '32px',
-                            height: '32px',
-                            background: 'linear-gradient(135deg, #00ff88, #00ccff)',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}>🛡️</div>
-                        <span style={{ fontSize: '1.25rem', fontWeight: '900', background: 'linear-gradient(90deg, #00ff88, #00ccff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'monospace' }}>
-                            VullScanny
-                        </span>
-                    </Link>
-                    <Link href="/" style={{
-                        background: 'rgba(0, 255, 136, 0.1)',
-                        border: '2px solid #00ff88',
-                        color: '#00ff88',
-                        padding: '0.5rem 1rem',
-                        borderRadius: '0.5rem',
-                        fontSize: '0.875rem',
-                        fontWeight: '600',
-                        textDecoration: 'none',
-                        fontFamily: 'monospace'
-                    }}>
-                        ← Back to Home
-                    </Link>
-                </div>
-            </header>
-
-            {/* Content */}
-            <main style={{ maxWidth: '900px', margin: '0 auto', padding: '3rem 2rem', position: 'relative' }}>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    {/* Hero */}
-                    <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
-                        <div style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            background: 'rgba(0, 255, 136, 0.1)',
-                            border: '2px solid rgba(0, 255, 136, 0.3)',
-                            borderRadius: '9999px',
-                            padding: '0.5rem 1rem',
-                            marginBottom: '1.5rem',
-                            fontSize: '0.75rem',
-                            fontWeight: '600',
-                            color: '#00ff88'
-                        }}>
-                            <span>🔒</span> Privacy First
-                        </div>
-
-                        <h1 style={{
-                            fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-                            fontWeight: '900',
-                            marginBottom: '1rem',
-                            background: 'linear-gradient(90deg, #00ff88, #00ccff)',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent'
-                        }}>
+        <div className="min-h-screen py-20 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto">
+                <div className="space-y-8">
+                    {/* Header */}
+                    <div className="space-y-4 border-b border-border pb-8">
+                        <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-b from-foreground to-foreground/50 bg-clip-text text-transparent">
                             Privacy Policy
                         </h1>
-                        <p style={{ fontSize: '1.125rem', color: '#9ca3af' }}>
-                            How VullScanny protects your data
+                        <p className="text-muted-foreground text-lg">
+                            Last Updated: January 18, 2026
+                        </p>
+                        <p className="text-foreground/80 leading-relaxed">
+                            At Aeglyn, privacy isn't just a feature—it's our foundation. This Privacy Policy explains how our
+                            privacy-first code security platform collects, uses, and protects your data when you use our
+                            AI vulnerability scanner and developer tools.
                         </p>
                     </div>
 
-                    {/* TL;DR */}
-                    <div style={{
-                        background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 204, 255, 0.05))',
-                        border: '2px solid rgba(0, 255, 136, 0.3)',
-                        borderRadius: '1rem',
-                        padding: '2rem',
-                        marginBottom: '3rem'
-                    }}>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#00ff88', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <span>⚡</span> TL;DR
-                        </h2>
-                        <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#cbd5e1', lineHeight: 1.8, fontSize: '1rem' }}>
-                            <li><strong style={{ color: '#00ff88' }}>Zero Storage:</strong> Your code is never stored on our servers</li>
-                            <li><strong style={{ color: '#00ff88' }}>Temporary Access:</strong> OAuth tokens are session-only</li>
-                            <li><strong style={{ color: '#00ff88' }}>Real-time Scanning:</strong> All analysis happens in memory</li>
-                            <li><strong style={{ color: '#00ff88' }}>Read-Only:</strong> We only request read access to repositories</li>
-                        </ul>
+                    {/* Privacy Promise */}
+                    <div className="bg-primary/10 border border-primary/20 rounded-lg p-6 space-y-3">
+                        <h2 className="text-2xl font-bold text-foreground">Our Privacy Promise</h2>
+                        <p className="text-foreground/80 leading-relaxed">
+                            We built Aeglyn for developers who care about security <em>and</em> privacy. We process your code
+                            temporarily to provide vulnerability scanning, but we <strong>never store your source code</strong>
+                            permanently. Your code is yours, and it stays yours.
+                        </p>
                     </div>
 
-                    {/* Sections */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    {/* 1. Data Controller Information */}
+                    <section className="space-y-4">
+                        <h2 className="text-2xl font-bold text-foreground">1. Data Controller Information</h2>
+                        <p className="text-foreground/80 leading-relaxed">
+                            Aeglyn ("we", "us", or "our") is the data controller responsible for your personal information. For
+                            privacy-related inquiries, contact us at:
+                        </p>
+                        <div className="bg-muted/50 rounded-lg p-6 space-y-2">
+                            <p className="text-foreground">
+                                <strong>Privacy Contact:</strong>{" "}
+                                <a href="mailto:privacy@example.com" className="text-primary hover:underline">
+                                    privacy@example.com
+                                </a>
+                            </p>
+                            <p className="text-foreground">
+                                <strong>Data Protection Officer:</strong>{" "}
+                                <a href="mailto:dpo@example.com" className="text-primary hover:underline">
+                                    dpo@example.com
+                                </a>
+                            </p>
+                            <p className="text-foreground">
+                                <strong>Website:</strong>{" "}
+                                <a href="https://example.com" className="text-primary hover:underline">
+                                    https://example.com
+                                </a>
+                            </p>
+                        </div>
+                    </section>
 
-                        {/* Section 1 */}
-                        <div style={{
-                            background: 'rgba(10, 10, 15, 0.6)',
-                            border: '2px solid rgba(0, 255, 136, 0.2)',
-                            borderRadius: '1rem',
-                            padding: '2rem'
-                        }}>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#00ff88', marginBottom: '1rem' }}>
-                                1. What We Collect
-                            </h2>
-                            <div style={{ color: '#cbd5e1', lineHeight: 1.8, fontSize: '1rem' }}>
-                                <p style={{ marginBottom: '1rem' }}>
-                                    <strong style={{ color: '#e4e4e7' }}>GitHub Profile Information:</strong>
-                                </p>
-                                <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
-                                    <li>Username</li>
-                                    <li>Email address</li>
-                                    <li>Profile picture</li>
-                                    <li>Repository list (names only)</li>
+                    {/* 2. What Data We Collect */}
+                    <section className="space-y-4">
+                        <h2 className="text-2xl font-bold text-foreground">2. What Data We Collect</h2>
+                        <p className="text-foreground/80 leading-relaxed">
+                            Our privacy-first developer tool collects minimal data necessary to provide our code security platform:
+                        </p>
+
+                        <div className="space-y-4">
+                            <div className="border border-border rounded-lg p-5 space-y-2">
+                                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                                    <span className="text-green-500">✓</span> Account Information
+                                </h3>
+                                <ul className="list-disc list-inside space-y-1 text-foreground/80 ml-6">
+                                    <li>GitHub username and profile information (via OAuth)</li>
+                                    <li>Email address (from GitHub or provided separately)</li>
+                                    <li>Account creation and last login timestamps</li>
+                                    <li>Subscription tier and billing information (for paid plans)</li>
                                 </ul>
-                                <p style={{ marginBottom: '1rem' }}>
-                                    <strong style={{ color: '#e4e4e7' }}>During Scans:</strong>
-                                </p>
-                                <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
-                                    <li>package.json contents (to detect React)</li>
-                                    <li>Source file contents (analyzed in memory)</li>
-                                    <li>Scan results (temporarily, for display)</li>
+                            </div>
+
+                            <div className="border border-border rounded-lg p-5 space-y-2">
+                                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                                    <span className="text-green-500">✓</span> GitHub OAuth Security Data
+                                </h3>
+                                <ul className="list-disc list-inside space-y-1 text-foreground/80 ml-6">
+                                    <li>OAuth access tokens (encrypted and stored securely)</li>
+                                    <li>Repository access permissions you grant us</li>
+                                    <li>GitHub user ID and organization memberships</li>
+                                    <li>Token expiration and refresh data</li>
                                 </ul>
-                                <p style={{ marginBottom: '1rem' }}>
-                                    <strong style={{ color: '#e4e4e7' }}>Cached Data (Performance Optimization):</strong>
+                                <p className="text-sm text-muted-foreground mt-2">
+                                    <strong>Note:</strong> OAuth tokens are encrypted at rest and in transit. We never log or expose
+                                    these tokens in plain text.
                                 </p>
-                                <ul style={{ marginLeft: '1.5rem' }}>
-                                    <li>Scan metadata (vulnerability counts, types, severity)</li>
-                                    <li>Repository metadata (name, owner, React version)</li>
-                                    <li>Threat intelligence data (public CVE information)</li>
-                                    <li>⚠️ <strong>Never cached:</strong> Source code, file contents, or GitHub tokens</li>
-                                    <li>🕐 Cache duration: 1 hour maximum</li>
+                            </div>
+
+                            <div className="border border-border rounded-lg p-5 space-y-2">
+                                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                                    <span className="text-green-500">✓</span> Repository Metadata
+                                </h3>
+                                <ul className="list-disc list-inside space-y-1 text-foreground/80 ml-6">
+                                    <li>Repository names, descriptions, and languages</li>
+                                    <li>Repository visibility (public/private)</li>
+                                    <li>File paths and directory structures (not file contents)</li>
+                                    <li>Commit hashes and branch names for scanned versions</li>
+                                    <li>Repository size and last updated timestamps</li>
+                                </ul>
+                            </div>
+
+                            <div className="border border-border rounded-lg p-5 space-y-2">
+                                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                                    <span className="text-green-500">✓</span> Scan Results and Metadata
+                                </h3>
+                                <ul className="list-disc list-inside space-y-1 text-foreground/80 ml-6">
+                                    <li>Vulnerability findings (type, severity, location)</li>
+                                    <li>AI-generated explanations and remediation suggestions</li>
+                                    <li>Scan timestamps and duration</li>
+                                    <li>Historical scan trends and statistics</li>
+                                    <li>User actions on findings (dismissed, resolved, etc.)</li>
+                                </ul>
+                            </div>
+
+                            <div className="border border-border rounded-lg p-5 space-y-2">
+                                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                                    <span className="text-green-500">✓</span> Usage and Analytics Data
+                                </h3>
+                                <ul className="list-disc list-inside space-y-1 text-foreground/80 ml-6">
+                                    <li>Feature usage patterns (which tools you use most)</li>
+                                    <li>API request counts and rate limit tracking</li>
+                                    <li>Error logs and debugging information (anonymized)</li>
+                                    <li>Performance metrics (scan speed, response times)</li>
+                                    <li>Browser type, device type, and general location (country-level)</li>
                                 </ul>
                             </div>
                         </div>
+                    </section>
 
-                        {/* Section 2 */}
-                        <div style={{
-                            background: 'rgba(10, 10, 15, 0.6)',
-                            border: '2px solid rgba(0, 204, 255, 0.2)',
-                            borderRadius: '1rem',
-                            padding: '2rem'
-                        }}>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#00ccff', marginBottom: '1rem' }}>
-                                2. What We DON'T Store
-                            </h2>
-                            <div style={{ color: '#cbd5e1', lineHeight: 1.8, fontSize: '1rem' }}>
-                                <ul style={{ marginLeft: '1.5rem' }}>
-                                    <li>❌ Your source code</li>
-                                    <li>❌ Repository contents</li>
-                                    <li>❌ GitHub access tokens (beyond session)</li>
-                                    <li>❌ Scan results (cleared on logout)</li>
-                                    <li>❌ Personal files or documents</li>
-                                    <li>❌ Any sensitive information</li>
-                                </ul>
-                            </div>
+                    {/* 3. What We DON'T Store */}
+                    <section className="space-y-4">
+                        <h2 className="text-2xl font-bold text-foreground">3. What We DON'T Store</h2>
+                        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-6 space-y-3">
+                            <p className="text-foreground/80 leading-relaxed">
+                                This is what makes us a <strong>privacy-first code security platform</strong>:
+                            </p>
+                            <ul className="space-y-2 text-foreground/80">
+                                <li className="flex items-start gap-3">
+                                    <span className="text-red-500 text-xl">✗</span>
+                                    <span>
+                                        <strong>Your Source Code:</strong> We process your code in-memory during scans but never store it
+                                        permanently. Once the scan completes, your code is immediately discarded.
+                                    </span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <span className="text-red-500 text-xl">✗</span>
+                                    <span>
+                                        <strong>AI Prompts or Queries:</strong> We don't log the specific code snippets sent to our AI
+                                        models for analysis.
+                                    </span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <span className="text-red-500 text-xl">✗</span>
+                                    <span>
+                                        <strong>OAuth Tokens Long-Term:</strong> Tokens are encrypted and rotated regularly. When you
+                                        revoke access or delete your account, tokens are immediately invalidated.
+                                    </span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <span className="text-red-500 text-xl">✗</span>
+                                    <span>
+                                        <strong>Secrets or Credentials:</strong> If our scanner detects API keys, passwords, or tokens in
+                                        your code, we alert you but never store the actual secret values.
+                                    </span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <span className="text-red-500 text-xl">✗</span>
+                                    <span>
+                                        <strong>Unnecessary Personal Data:</strong> We don't collect browsing history, social media
+                                        activity, or any data unrelated to providing our code security service.
+                                    </span>
+                                </li>
+                            </ul>
                         </div>
+                    </section>
 
-                        {/* Section 3 */}
-                        <div style={{
-                            background: 'rgba(10, 10, 15, 0.6)',
-                            border: '2px solid rgba(0, 255, 136, 0.2)',
-                            borderRadius: '1rem',
-                            padding: '2rem'
-                        }}>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#00ff88', marginBottom: '1rem' }}>
-                                3. How We Use Data
-                            </h2>
-                            <div style={{ color: '#cbd5e1', lineHeight: 1.8, fontSize: '1rem' }}>
-                                <p style={{ marginBottom: '1rem' }}>
-                                    We use collected data <strong style={{ color: '#e4e4e7' }}>only</strong> for:
+                    {/* 4. How We Use Your Data */}
+                    <section className="space-y-4">
+                        <h2 className="text-2xl font-bold text-foreground">4. How We Use Your Data</h2>
+                        <p className="text-foreground/80 leading-relaxed">
+                            We use collected data exclusively to provide and improve our AI vulnerability scanner:
+                        </p>
+                        <ul className="list-disc list-inside space-y-2 text-foreground/80 ml-4">
+                            <li>
+                                <strong>Service Delivery:</strong> Authenticate users, scan repositories, generate vulnerability
+                                reports, and provide AI-powered security insights
+                            </li>
+                            <li>
+                                <strong>Security:</strong> Detect and prevent fraud, abuse, and unauthorized access
+                            </li>
+                            <li>
+                                <strong>Communication:</strong> Send scan results, security alerts, and important service updates
+                            </li>
+                            <li>
+                                <strong>Improvement:</strong> Analyze usage patterns to enhance our AI models and developer tools
+                            </li>
+                            <li>
+                                <strong>Compliance:</strong> Meet legal obligations and respond to lawful requests
+                            </li>
+                            <li>
+                                <strong>Support:</strong> Respond to your questions and troubleshoot issues
+                            </li>
+                        </ul>
+                        <p className="text-foreground/80 leading-relaxed mt-4">
+                            We <strong>never</strong> sell your data to third parties or use it for advertising purposes.
+                        </p>
+                    </section>
+
+                    {/* 5. GitHub API Integration */}
+                    <section className="space-y-4">
+                        <h2 className="text-2xl font-bold text-foreground">5. GitHub API Integration</h2>
+                        <p className="text-foreground/80 leading-relaxed">
+                            Our GitHub OAuth security integration is central to how Aeglyn works:
+                        </p>
+                        <div className="space-y-3">
+                            <h3 className="text-xl font-semibold text-foreground">OAuth Permissions</h3>
+                            <p className="text-foreground/80 leading-relaxed">
+                                When you connect your GitHub account, we request the following permissions:
+                            </p>
+                            <ul className="list-disc list-inside space-y-2 text-foreground/80 ml-4">
+                                <li><code className="text-primary">repo</code> - Read access to your repositories for scanning</li>
+                                <li><code className="text-primary">user:email</code> - Access to your email for account management</li>
+                                <li><code className="text-primary">read:org</code> - Read organization membership (for team features)</li>
+                            </ul>
+                        </div>
+                        <div className="space-y-3">
+                            <h3 className="text-xl font-semibold text-foreground">GitHub API Usage</h3>
+                            <p className="text-foreground/80 leading-relaxed">
+                                We use GitHub's API to:
+                            </p>
+                            <ul className="list-disc list-inside space-y-2 text-foreground/80 ml-4">
+                                <li>Fetch repository contents temporarily for vulnerability scanning</li>
+                                <li>Read repository metadata and file structures</li>
+                                <li>Access commit history for tracking scan coverage</li>
+                                <li>Verify repository access permissions</li>
+                            </ul>
+                            <p className="text-foreground/80 leading-relaxed mt-3">
+                                All GitHub API requests are made on your behalf using your OAuth token. We comply with GitHub's API
+                                terms and rate limits.
+                            </p>
+                        </div>
+                        <div className="space-y-3">
+                            <h3 className="text-xl font-semibold text-foreground">Revoking Access</h3>
+                            <p className="text-foreground/80 leading-relaxed">
+                                You can revoke Aeglyn's access to your GitHub account at any time:
+                            </p>
+                            <ol className="list-decimal list-inside space-y-2 text-foreground/80 ml-4">
+                                <li>Go to GitHub Settings → Applications → Authorized OAuth Apps</li>
+                                <li>Find "Aeglyn" and click "Revoke"</li>
+                                <li>Alternatively, disconnect from your Aeglyn account settings</li>
+                            </ol>
+                            <p className="text-foreground/80 leading-relaxed mt-3">
+                                Revoking access will prevent future scans but won't delete your Aeglyn account or historical scan
+                                results. To delete all data, see Section 9.
+                            </p>
+                        </div>
+                    </section>
+
+                    {/* 6. Data Retention */}
+                    <section className="space-y-4">
+                        <h2 className="text-2xl font-bold text-foreground">6. Data Retention</h2>
+                        <p className="text-foreground/80 leading-relaxed">
+                            We retain data only as long as necessary for our privacy-first developer tool to function:
+                        </p>
+                        <div className="space-y-3">
+                            <table className="w-full border border-border rounded-lg overflow-hidden">
+                                <thead className="bg-muted">
+                                    <tr>
+                                        <th className="text-left p-4 font-semibold">Data Type</th>
+                                        <th className="text-left p-4 font-semibold">Retention Period</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-border">
+                                    <tr>
+                                        <td className="p-4">Source Code</td>
+                                        <td className="p-4 text-foreground/80">
+                                            <strong className="text-green-500">0 seconds</strong> - Processed in-memory only
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td className="p-4">OAuth Tokens</td>
+                                        <td className="p-4 text-foreground/80">Until revoked or account deleted</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="p-4">Scan Results</td>
+                                        <td className="p-4 text-foreground/80">Until you delete them or close your account</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="p-4">Account Data</td>
+                                        <td className="p-4 text-foreground/80">Until account deletion + 30 days for backups</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="p-4">Usage Analytics</td>
+                                        <td className="p-4 text-foreground/80">Aggregated data retained indefinitely (anonymized)</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="p-4">Error Logs</td>
+                                        <td className="p-4 text-foreground/80">90 days (anonymized after 30 days)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    {/* 7. GDPR and Your Rights */}
+                    <section className="space-y-4">
+                        <h2 className="text-2xl font-bold text-foreground">7. GDPR and Your Rights</h2>
+                        <p className="text-foreground/80 leading-relaxed">
+                            Aeglyn is GDPR-compliant. If you're in the EU/EEA, you have the following rights:
+                        </p>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="border border-border rounded-lg p-4 space-y-2">
+                                <h3 className="font-semibold text-foreground">Right to Access</h3>
+                                <p className="text-sm text-foreground/80">
+                                    Request a copy of all personal data we hold about you
                                 </p>
-                                <ul style={{ marginLeft: '1.5rem' }}>
-                                    <li>Authenticating your GitHub account</li>
-                                    <li>Fetching your repository list</li>
-                                    <li>Scanning selected repositories for vulnerabilities</li>
-                                    <li>Displaying scan results to you</li>
-                                    <li>Generating AI-powered fix suggestions</li>
-                                </ul>
-                                <p style={{ marginTop: '1rem', color: '#9ca3af', fontSize: '0.9375rem' }}>
-                                    All processing happens in real-time. Nothing is saved to disk.
+                            </div>
+                            <div className="border border-border rounded-lg p-4 space-y-2">
+                                <h3 className="font-semibold text-foreground">Right to Rectification</h3>
+                                <p className="text-sm text-foreground/80">
+                                    Correct inaccurate or incomplete data
+                                </p>
+                            </div>
+                            <div className="border border-border rounded-lg p-4 space-y-2">
+                                <h3 className="font-semibold text-foreground">Right to Erasure</h3>
+                                <p className="text-sm text-foreground/80">
+                                    Request deletion of your personal data ("right to be forgotten")
+                                </p>
+                            </div>
+                            <div className="border border-border rounded-lg p-4 space-y-2">
+                                <h3 className="font-semibold text-foreground">Right to Restriction</h3>
+                                <p className="text-sm text-foreground/80">
+                                    Limit how we process your data
+                                </p>
+                            </div>
+                            <div className="border border-border rounded-lg p-4 space-y-2">
+                                <h3 className="font-semibold text-foreground">Right to Portability</h3>
+                                <p className="text-sm text-foreground/80">
+                                    Receive your data in a machine-readable format
+                                </p>
+                            </div>
+                            <div className="border border-border rounded-lg p-4 space-y-2">
+                                <h3 className="font-semibold text-foreground">Right to Object</h3>
+                                <p className="text-sm text-foreground/80">
+                                    Object to processing based on legitimate interests
                                 </p>
                             </div>
                         </div>
+                        <p className="text-foreground/80 leading-relaxed mt-4">
+                            To exercise any of these rights, contact us at{" "}
+                            <a href="mailto:privacy@example.com" className="text-primary hover:underline">
+                                privacy@example.com
+                            </a>
+                            . We'll respond within 30 days.
+                        </p>
+                    </section>
 
-                        {/* Section 4 */}
-                        <div style={{
-                            background: 'rgba(10, 10, 15, 0.6)',
-                            border: '2px solid rgba(0, 204, 255, 0.2)',
-                            borderRadius: '1rem',
-                            padding: '2rem'
-                        }}>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#00ccff', marginBottom: '1rem' }}>
-                                4. Third-Party Services
-                            </h2>
-                            <div style={{ color: '#cbd5e1', lineHeight: 1.8, fontSize: '1rem' }}>
-                                <p style={{ marginBottom: '1rem' }}>We use the following services:</p>
-                                <ul style={{ marginLeft: '1.5rem' }}>
-                                    <li><strong style={{ color: '#e4e4e7' }}>GitHub API:</strong> For authentication and repository access</li>
-                                    <li><strong style={{ color: '#e4e4e7' }}>AI Services:</strong> For vulnerability analysis (code snippets only, not full files)</li>
-                                </ul>
-                                <p style={{ marginTop: '1rem', color: '#9ca3af', fontSize: '0.9375rem' }}>
-                                    These services have their own privacy policies. We send minimal data required for functionality.
+                    {/* 8. Data Security */}
+                    <section className="space-y-4">
+                        <h2 className="text-2xl font-bold text-foreground">8. Data Security</h2>
+                        <p className="text-foreground/80 leading-relaxed">
+                            Security is at the core of our code security platform. We protect your data with:
+                        </p>
+                        <ul className="list-disc list-inside space-y-2 text-foreground/80 ml-4">
+                            <li>
+                                <strong>Encryption:</strong> All data encrypted in transit (TLS 1.3) and at rest (AES-256)
+                            </li>
+                            <li>
+                                <strong>Token Security:</strong> OAuth tokens encrypted with separate keys, rotated regularly
+                            </li>
+                            <li>
+                                <strong>Access Controls:</strong> Role-based access, principle of least privilege
+                            </li>
+                            <li>
+                                <strong>Infrastructure:</strong> Hosted on secure, SOC 2 compliant cloud providers
+                            </li>
+                            <li>
+                                <strong>Monitoring:</strong> 24/7 security monitoring and intrusion detection
+                            </li>
+                            <li>
+                                <strong>Audits:</strong> Regular security audits and penetration testing
+                            </li>
+                            <li>
+                                <strong>Incident Response:</strong> Documented procedures for security breaches
+                            </li>
+                        </ul>
+                        <p className="text-foreground/80 leading-relaxed mt-4">
+                            While we implement industry-standard security measures, no system is 100% secure. If you discover a
+                            security vulnerability, please report it responsibly to{" "}
+                            <a href="mailto:security@example.com" className="text-primary hover:underline">
+                                security@example.com
+                            </a>
+                            .
+                        </p>
+                    </section>
+
+                    {/* 9. Third-Party Services */}
+                    <section className="space-y-4">
+                        <h2 className="text-2xl font-bold text-foreground">9. Third-Party Services</h2>
+                        <p className="text-foreground/80 leading-relaxed">
+                            Aeglyn integrates with select third-party services to provide our AI vulnerability scanner:
+                        </p>
+                        <div className="space-y-3">
+                            <div className="border border-border rounded-lg p-4">
+                                <h3 className="font-semibold text-foreground mb-2">GitHub</h3>
+                                <p className="text-sm text-foreground/80">
+                                    For OAuth authentication and repository access. See{" "}
+                                    <a
+                                        href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement"
+                                        className="text-primary hover:underline"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        GitHub's Privacy Policy
+                                    </a>
+                                    .
+                                </p>
+                            </div>
+                            <div className="border border-border rounded-lg p-4">
+                                <h3 className="font-semibold text-foreground mb-2">Cloud Infrastructure</h3>
+                                <p className="text-sm text-foreground/80">
+                                    We use secure cloud providers for hosting and data storage. All providers are SOC 2 compliant and
+                                    GDPR-ready.
+                                </p>
+                            </div>
+                            <div className="border border-border rounded-lg p-4">
+                                <h3 className="font-semibold text-foreground mb-2">AI Model Providers</h3>
+                                <p className="text-sm text-foreground/80">
+                                    Our AI models may use third-party inference APIs. Code snippets sent to AI providers are anonymized
+                                    and not stored by them.
+                                </p>
+                            </div>
+                            <div className="border border-border rounded-lg p-4">
+                                <h3 className="font-semibold text-foreground mb-2">Analytics</h3>
+                                <p className="text-sm text-foreground/80">
+                                    We use privacy-focused analytics (no cookies, no tracking across sites) to understand feature usage
+                                    and improve our developer tool.
                                 </p>
                             </div>
                         </div>
+                        <p className="text-foreground/80 leading-relaxed mt-4">
+                            We carefully vet all third-party services and ensure they meet our privacy standards. We never share
+                            your source code with third parties.
+                        </p>
+                    </section>
 
-                        {/* Section 5 */}
-                        <div style={{
-                            background: 'rgba(10, 10, 15, 0.6)',
-                            border: '2px solid rgba(0, 255, 136, 0.2)',
-                            borderRadius: '1rem',
-                            padding: '2rem'
-                        }}>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#00ff88', marginBottom: '1rem' }}>
-                                5. Data Security
-                            </h2>
-                            <div style={{ color: '#cbd5e1', lineHeight: 1.8, fontSize: '1rem' }}>
-                                <ul style={{ marginLeft: '1.5rem' }}>
-                                    <li>All connections use HTTPS encryption</li>
-                                    <li>Tokens are stored in secure, HTTP-only cookies</li>
-                                    <li>Session data expires after logout</li>
-                                    <li>No persistent storage of sensitive information</li>
-                                    <li>Regular security audits of our codebase</li>
-                                </ul>
-                            </div>
+                    {/* 10. Cookies and Tracking */}
+                    <section className="space-y-4">
+                        <h2 className="text-2xl font-bold text-foreground">10. Cookies and Tracking</h2>
+                        <p className="text-foreground/80 leading-relaxed">
+                            As a privacy-first developer tool, we minimize cookie usage:
+                        </p>
+                        <div className="space-y-3">
+                            <h3 className="text-lg font-semibold text-foreground">Essential Cookies</h3>
+                            <p className="text-foreground/80 leading-relaxed">
+                                Required for authentication and basic functionality:
+                            </p>
+                            <ul className="list-disc list-inside space-y-1 text-foreground/80 ml-4">
+                                <li>Session cookies (expire when you close your browser)</li>
+                                <li>Authentication tokens (encrypted, httpOnly, secure)</li>
+                                <li>CSRF protection tokens</li>
+                            </ul>
                         </div>
-
-                        {/* Section 6 */}
-                        <div style={{
-                            background: 'rgba(10, 10, 15, 0.6)',
-                            border: '2px solid rgba(0, 204, 255, 0.2)',
-                            borderRadius: '1rem',
-                            padding: '2rem'
-                        }}>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#00ccff', marginBottom: '1rem' }}>
-                                6. Your Rights
-                            </h2>
-                            <div style={{ color: '#cbd5e1', lineHeight: 1.8, fontSize: '1rem' }}>
-                                <p style={{ marginBottom: '1rem' }}>You have the right to:</p>
-                                <ul style={{ marginLeft: '1.5rem' }}>
-                                    <li>Disconnect your GitHub account at any time</li>
-                                    <li>Revoke access via GitHub settings</li>
-                                    <li>Request deletion of any stored data (minimal as it is)</li>
-                                    <li>Know exactly what data we process</li>
-                                </ul>
-                            </div>
+                        <div className="space-y-3">
+                            <h3 className="text-lg font-semibold text-foreground">Analytics Cookies</h3>
+                            <p className="text-foreground/80 leading-relaxed">
+                                We use minimal, privacy-focused analytics:
+                            </p>
+                            <ul className="list-disc list-inside space-y-1 text-foreground/80 ml-4">
+                                <li>No third-party tracking (no Google Analytics, Facebook Pixel, etc.)</li>
+                                <li>No cross-site tracking or fingerprinting</li>
+                                <li>Aggregated, anonymized usage data only</li>
+                            </ul>
                         </div>
+                        <p className="text-foreground/80 leading-relaxed mt-4">
+                            You can disable cookies in your browser settings, but this may affect functionality.
+                        </p>
+                    </section>
 
-                        {/* Section 7 */}
-                        <div style={{
-                            background: 'rgba(10, 10, 15, 0.6)',
-                            border: '2px solid rgba(0, 255, 136, 0.2)',
-                            borderRadius: '1rem',
-                            padding: '2rem'
-                        }}>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#00ff88', marginBottom: '1rem' }}>
-                                7. Contact
-                            </h2>
-                            <div style={{ color: '#cbd5e1', lineHeight: 1.8, fontSize: '1rem' }}>
-                                <p>
-                                    Questions about privacy? Contact us at:{' '}
-                                    <a href="mailto:contact@sdad.pro" style={{ color: '#00ff88', textDecoration: 'none' }}>
-                                        contact@sdad.pro
+                    {/* 11. Children's Privacy */}
+                    <section className="space-y-4">
+                        <h2 className="text-2xl font-bold text-foreground">11. Children's Privacy</h2>
+                        <p className="text-foreground/80 leading-relaxed">
+                            Aeglyn is not intended for users under 18. We do not knowingly collect data from children. If you
+                            believe we've inadvertently collected data from a minor, contact us immediately at{" "}
+                            <a href="mailto:privacy@example.com" className="text-primary hover:underline">
+                                privacy@example.com
+                            </a>
+                            , and we'll delete it promptly.
+                        </p>
+                    </section>
+
+                    {/* 12. International Data Transfers */}
+                    <section className="space-y-4">
+                        <h2 className="text-2xl font-bold text-foreground">12. International Data Transfers</h2>
+                        <p className="text-foreground/80 leading-relaxed">
+                            Aeglyn operates globally. Your data may be transferred to and processed in countries other than your own.
+                            We ensure adequate protection through:
+                        </p>
+                        <ul className="list-disc list-inside space-y-2 text-foreground/80 ml-4">
+                            <li>Standard Contractual Clauses (SCCs) for EU data transfers</li>
+                            <li>GDPR-compliant data processing agreements with all vendors</li>
+                            <li>Encryption in transit and at rest for all cross-border transfers</li>
+                            <li>Regular compliance audits and certifications</li>
+                        </ul>
+                    </section>
+
+                    {/* 13. Changes to This Privacy Policy */}
+                    <section className="space-y-4">
+                        <h2 className="text-2xl font-bold text-foreground">13. Changes to This Privacy Policy</h2>
+                        <p className="text-foreground/80 leading-relaxed">
+                            We may update this Privacy Policy to reflect changes in our practices or legal requirements. We'll notify
+                            you of material changes via:
+                        </p>
+                        <ul className="list-disc list-inside space-y-2 text-foreground/80 ml-4">
+                            <li>Email notification to your registered address</li>
+                            <li>In-app notification when you next log in</li>
+                            <li>Updates to this page with a new "Last Updated" date</li>
+                        </ul>
+                        <p className="text-foreground/80 leading-relaxed mt-4">
+                            Continued use of Aeglyn after changes constitutes acceptance of the updated Privacy Policy. We encourage
+                            you to review this page periodically.
+                        </p>
+                    </section>
+
+                    {/* 14. Contact for Data Requests */}
+                    <section className="space-y-4">
+                        <h2 className="text-2xl font-bold text-foreground">14. Contact for Data Requests</h2>
+                        <p className="text-foreground/80 leading-relaxed">
+                            To exercise your privacy rights or request data deletion, contact us:
+                        </p>
+                        <div className="bg-muted/50 rounded-lg p-6 space-y-4">
+                            <div>
+                                <h3 className="font-semibold text-foreground mb-2">Data Access Request</h3>
+                                <p className="text-foreground/80">
+                                    Email{" "}
+                                    <a href="mailto:privacy@example.com" className="text-primary hover:underline">
+                                        privacy@example.com
+                                    </a>{" "}
+                                    with subject "Data Access Request"
+                                </p>
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-foreground mb-2">Data Deletion Request</h3>
+                                <p className="text-foreground/80">
+                                    Email{" "}
+                                    <a href="mailto:privacy@example.com" className="text-primary hover:underline">
+                                        privacy@example.com
+                                    </a>{" "}
+                                    with subject "Data Deletion Request" or delete your account in settings
+                                </p>
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-foreground mb-2">GDPR Complaints</h3>
+                                <p className="text-foreground/80">
+                                    Contact our Data Protection Officer at{" "}
+                                    <a href="mailto:dpo@example.com" className="text-primary hover:underline">
+                                        dpo@example.com
+                                    </a>
+                                </p>
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-foreground mb-2">General Privacy Questions</h3>
+                                <p className="text-foreground/80">
+                                    Email{" "}
+                                    <a href="mailto:support@example.com" className="text-primary hover:underline">
+                                        support@example.com
                                     </a>
                                 </p>
                             </div>
                         </div>
+                        <p className="text-foreground/80 leading-relaxed mt-4">
+                            We'll respond to all requests within 30 days. For urgent matters, please mark your email as "Urgent."
+                        </p>
+                    </section>
 
+                    {/* 15. Your Privacy Controls */}
+                    <section className="space-y-4">
+                        <h2 className="text-2xl font-bold text-foreground">15. Your Privacy Controls</h2>
+                        <p className="text-foreground/80 leading-relaxed">
+                            You have full control over your data in Aeglyn:
+                        </p>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="border border-border rounded-lg p-4 space-y-2">
+                                <h3 className="font-semibold text-foreground">Account Settings</h3>
+                                <p className="text-sm text-foreground/80">
+                                    Update your profile, email preferences, and notification settings
+                                </p>
+                            </div>
+                            <div className="border border-border rounded-lg p-4 space-y-2">
+                                <h3 className="font-semibold text-foreground">Repository Access</h3>
+                                <p className="text-sm text-foreground/80">
+                                    Choose which repositories Aeglyn can scan
+                                </p>
+                            </div>
+                            <div className="border border-border rounded-lg p-4 space-y-2">
+                                <h3 className="font-semibold text-foreground">Scan History</h3>
+                                <p className="text-sm text-foreground/80">
+                                    View and delete individual scan results
+                                </p>
+                            </div>
+                            <div className="border border-border rounded-lg p-4 space-y-2">
+                                <h3 className="font-semibold text-foreground">Data Export</h3>
+                                <p className="text-sm text-foreground/80">
+                                    Download all your data in JSON format
+                                </p>
+                            </div>
+                            <div className="border border-border rounded-lg p-4 space-y-2">
+                                <h3 className="font-semibold text-foreground">OAuth Management</h3>
+                                <p className="text-sm text-foreground/80">
+                                    Revoke GitHub access at any time
+                                </p>
+                            </div>
+                            <div className="border border-border rounded-lg p-4 space-y-2">
+                                <h3 className="font-semibold text-foreground">Account Deletion</h3>
+                                <p className="text-sm text-foreground/80">
+                                    Permanently delete your account and all associated data
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Footer Note */}
+                    <div className="border-t border-border pt-8 mt-12">
+                        <p className="text-sm text-muted-foreground text-center">
+                            At Aeglyn, we're committed to being the most privacy-first code security platform for developers.
+                            Your code is yours, your data is protected, and your privacy is non-negotiable.
+                        </p>
+                        <p className="text-sm text-muted-foreground text-center mt-4">
+                            Questions? Reach out to{" "}
+                            <a href="mailto:privacy@example.com" className="text-primary hover:underline">
+                                privacy@example.com
+                            </a>
+                        </p>
                     </div>
-
-                    {/* Last Updated */}
-                    <div style={{
-                        marginTop: '3rem',
-                        padding: '1.5rem',
-                        background: 'rgba(0, 204, 255, 0.05)',
-                        border: '1px solid rgba(0, 204, 255, 0.2)',
-                        borderRadius: '0.75rem',
-                        textAlign: 'center',
-                        color: '#9ca3af',
-                        fontSize: '0.875rem',
-                        fontFamily: 'monospace'
-                    }}>
-                        Last Updated: December 15, 2025
-                    </div>
-
-                    {/* CTA */}
-                    <div style={{ marginTop: '3rem', textAlign: 'center' }}>
-                        <Link href="/" style={{
-                            display: 'inline-block',
-                            background: 'linear-gradient(135deg, #00ff88, #00ccff)',
-                            border: 'none',
-                            color: '#0a0a0f',
-                            padding: '1rem 2rem',
-                            borderRadius: '0.75rem',
-                            fontSize: '1rem',
-                            fontWeight: '700',
-                            textDecoration: 'none',
-                            boxShadow: '0 10px 40px rgba(0, 255, 136, 0.3)'
-                        }}>
-                            Start Scanning →
-                        </Link>
-                    </div>
-
-                </motion.div>
-            </main>
-
-            {/* Footer */}
-            <footer style={{ borderTop: '1px solid rgba(0, 255, 136, 0.2)', marginTop: '4rem', padding: '2rem' }}>
-                <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center', color: '#666', fontSize: '0.875rem' }}>
-                    <p>© 2025 VullScanny • Your Privacy Matters</p>
                 </div>
-            </footer>
+            </div>
         </div>
-    );
+    )
 }

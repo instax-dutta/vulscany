@@ -11,7 +11,7 @@ export const SITE_CONFIG = {
             ? 'https://example.com'
             : 'http://localhost:3000',
         app: process.env.NODE_ENV === 'production'
-            ? 'https://app.example.com'
+            ? 'https://example.com'
             : 'http://localhost:3000',
     },
 

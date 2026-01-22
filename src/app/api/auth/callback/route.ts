@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
             sameSite: 'lax' as const,
             maxAge: 60 * 60 * 2, // 2 hours
             path: '/',
-            domain: '.example.com'
+            ...(process.env.NODE_ENV === 'production' ? { domain: '.example.com' } : {})
         };
 
         response.cookies.set('github_token', tokenData.access_token, cookieOptions);

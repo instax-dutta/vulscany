@@ -14,7 +14,7 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const siteUrl = 'https://app.example.com';
+const siteUrl = 'https://example.com';
 const siteName = 'Aeglyn';
 const siteDescription = 'Aeglyn is a GDPR-compliant, real-time AI code scan tool with no data logging. Secure your vibe coding with zero-knowledge static analysis and local-only secrets scanning.';
 

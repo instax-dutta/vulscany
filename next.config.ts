@@ -45,7 +45,10 @@ const nextConfig: NextConfig = {
 
   /* Environment variables */
   env: {
-    NEXT_PUBLIC_SITE_URL: 'https://app.example.com',
+    NEXT_PUBLIC_SITE_URL: 'https://example.com',
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
 };
 

@@ -1,72 +1,63 @@
-/**
- * Aeglyn App Root - Redirect Handler
- * 
- * This is the application root. Since we have a dedicated landing page at example.com,
- * this route redirects users appropriately:
- * - Authenticated users → /dashboard
- * - Unauthenticated users → https://example.com (landing page)
- */
+"use client"
 
-'use client';
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { Navbar } from "@/components/landing/Navbar"
+import { Hero } from "@/components/landing/Hero"
+import { WhySection } from "@/components/landing/WhySection"
+import { FeaturesSection } from "@/components/landing/FeaturesSection"
+import { RoadmapSection } from "@/components/landing/RoadmapSection"
+import { PricingSection } from "@/components/landing/PricingSection"
+import { FoundersSection } from "@/components/landing/FoundersSection"
+import { Footer } from "@/components/landing/Footer"
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-
-export default function Home() {
-  const router = useRouter();
+export default function LandingPage() {
+  const router = useRouter()
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
   useEffect(() => {
-    // Check if user is authenticated by looking for session cookie
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/session');
-        const session = await response.json();
+        const response = await fetch("/api/auth/session")
+        const session = await response.json()
 
         if (session?.user) {
-          // User is authenticated, go to dashboard
-          router.push('/dashboard');
+          // User is authenticated, redirect to dashboard
+          router.push("/dashboard")
         } else {
-          // User is not authenticated, redirect to landing page
-          window.location.href = 'https://example.com';
+          setIsCheckingAuth(false)
         }
       } catch (error) {
-        // On error, redirect to landing page
-        window.location.href = 'https://example.com';
+        setIsCheckingAuth(false)
       }
-    };
+    }
 
-    checkAuth();
-  }, [router]);
+    checkAuth()
+  }, [router])
 
-  // Show loading state while redirecting
-  return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: '#0a0a0f',
-      color: '#00d4ff'
-    }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{
-          width: '40px',
-          height: '40px',
-          border: '3px solid rgba(0, 212, 255, 0.3)',
-          borderTop: '3px solid #00d4ff',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-          margin: '0 auto 1rem'
-        }} />
-        <p style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}>
-          Redirecting...
-        </p>
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f] text-[#00d4ff]">
+        <div className="text-center">
+          <div className="w-10 h-10 border-3 border-[rgba(0,212,255,0.3)] border-t-[#00d4ff] rounded-full animate-spin mx-auto mb-4" />
+          <p className="font-mono text-sm uppercase tracking-widest opacity-70">Detecting Reality...</p>
+        </div>
       </div>
-      <style jsx>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+    )
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-grow">
+        <Hero />
+        <WhySection />
+        <FeaturesSection />
+        <RoadmapSection />
+        <PricingSection />
+        <FoundersSection />
+      </main>
+      <Footer />
     </div>
-  );
+  )
 }
