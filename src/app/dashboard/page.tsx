@@ -359,9 +359,9 @@ export default function Dashboard() {
                         <button
                             onClick={() => setBatchMode(!batchMode)}
                             style={{
-                                background: batchMode ? 'linear-gradient(135deg, #ff0055, #ff5500)' : 'rgba(0, 255, 136, 0.1)',
-                                border: `2px solid ${batchMode ? '#ff0055' : '#00ff88'}`,
-                                color: batchMode ? '#fff' : '#00ff88',
+                                background: batchMode ? 'linear-gradient(135deg, #ff0055, #ff5500)' : 'rgba(255, 255, 255, 0.1)',
+                                border: `2px solid ${batchMode ? '#ff0055' : 'var(--primary)'}`,
+                                color: batchMode ? '#fff' : 'var(--primary)',
                                 padding: '0.5rem 1rem',
                                 borderRadius: '0.5rem',
                                 fontSize: '0.75rem',
@@ -378,7 +378,7 @@ export default function Dashboard() {
                                 onClick={scanBatch}
                                 disabled={scanning}
                                 style={{
-                                    background: 'linear-gradient(135deg, #00ff88, var(--primary))',
+                                    background: 'linear-gradient(135deg, var(--primary), var(--primary))',
                                     border: 'none',
                                     color: '#0a0a0f',
                                     padding: '0.5rem 1rem',
@@ -447,7 +447,7 @@ export default function Dashboard() {
                 >
                     {(
                         <>
-                            <h3 style={{ fontSize: '0.875rem', color: '#00ff88', fontFamily: 'monospace', marginBottom: '1rem' }}>
+                            <h3 style={{ fontSize: '0.875rem', color: 'var(--primary)', fontFamily: 'monospace', marginBottom: '1rem' }}>
                                 REPOSITORIES ({repositories.length})
                             </h3>
 
@@ -540,7 +540,7 @@ export default function Dashboard() {
                         style={{
                             width: '100%',
                             marginTop: '1rem',
-                            background: 'rgba(0, 212, 255, 0.1)',
+                            background: 'rgba(255, 255, 255,0.1)',
                             border: '2px solid rgba(0, 212, 255, 0.3)',
                             color: 'var(--primary)',
                             padding: '0.75rem',
@@ -562,7 +562,7 @@ export default function Dashboard() {
                     data-lenis-prevent
                     style={{
                         background: 'rgba(10, 10, 15, 0.6)',
-                        border: '2px solid rgba(0, 255, 136, 0.3)',
+                        border: '2px solid rgba(255, 255, 255, 0.3)',
                         borderRadius: '1rem',
                         padding: '1.5rem',
                         height: 'calc(100vh - 150px)',
@@ -572,7 +572,7 @@ export default function Dashboard() {
                     {scanning && !currentResult ? (
                         <div style={{ textAlign: 'center', padding: '3rem' }}>
                             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
-                            <div style={{ fontSize: '1rem', color: '#00ff88', fontFamily: 'monospace' }}>SCANNING...</div>
+                            <div style={{ fontSize: '1rem', color: 'var(--primary)', fontFamily: 'monospace' }}>SCANNING...</div>
                         </div>
                     ) : null}
 
@@ -583,9 +583,9 @@ export default function Dashboard() {
                                 <>
                                     <div style={{ marginBottom: '1rem', borderBottom: '2px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
                                         <div style={{
-                                            background: 'rgba(0, 255, 136, 0.2)',
-                                            border: '2px solid #00ff88',
-                                            color: '#00ff88',
+                                            background: 'rgba(255, 255, 255, 0.2)',
+                                            border: '2px solid var(--primary)',
+                                            color: 'var(--primary)',
                                             padding: '0.5rem 1rem',
                                             borderRadius: '0.5rem',
                                             fontSize: '0.75rem',
@@ -640,17 +640,17 @@ export default function Dashboard() {
                             <div
                                 data-onboarding="scan-results"
                                 style={{
-                                    background: currentResult.status === 'safe' ? 'rgba(0, 255, 136, 0.1)' :
+                                    background: currentResult.status === 'safe' ? 'rgba(255, 255, 255, 0.1)' :
                                         currentResult.status === 'high-risk' ? 'rgba(255, 0, 85, 0.1)' :
                                             'rgba(255, 170, 0, 0.1)',
-                                    border: `2px solid ${currentResult.status === 'safe' ? '#00ff88' :
+                                    border: `2px solid ${currentResult.status === 'safe' ? 'var(--primary)' :
                                         currentResult.status === 'high-risk' ? '#ff0055' : '#ffaa00'
                                         }`,
                                     borderRadius: '1rem',
                                     padding: '1.5rem',
                                     marginBottom: '1.5rem'
                                 }}>
-                                <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: '#00ff88', fontFamily: 'monospace', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: 'var(--primary)', fontFamily: 'monospace', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                     {currentResult.repoName}
                                     {(currentResult as any)._cached && (
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -706,7 +706,7 @@ export default function Dashboard() {
                                             textAlign: 'center'
                                         }}>
                                             <div style={{ fontSize: '0.625rem', color: '#666', marginBottom: '0.25rem', fontFamily: 'monospace' }}>{stat.label}</div>
-                                            <div style={{ fontSize: '1rem', fontWeight: '700', color: '#00ff88', fontFamily: 'monospace' }}>{stat.value}</div>
+                                            <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--primary)', fontFamily: 'monospace' }}>{stat.value}</div>
                                         </div>
                                     ))}
                                 </div>
@@ -754,7 +754,7 @@ export default function Dashboard() {
                                                 width: '100%',
                                                 background: generatingPR
                                                     ? 'linear-gradient(90deg, #666, #888)'
-                                                    : 'linear-gradient(90deg, #00ff88, var(--primary))',
+                                                    : 'linear-gradient(90deg, var(--primary), var(--primary))',
                                                 border: 'none',
                                                 color: generatingPR ? '#ccc' : '#0a0a0f',
                                                 padding: '0.75rem',
@@ -769,7 +769,7 @@ export default function Dashboard() {
                                                 gap: '0.5rem',
                                                 boxShadow: generatingPR
                                                     ? 'none'
-                                                    : '0 4px 15px rgba(0, 255, 136, 0.3)',
+                                                    : '0 4px 15px rgba(255, 255, 255, 0.3)',
                                                 transition: 'all 0.3s ease'
                                             }}
                                         >
@@ -859,7 +859,7 @@ export default function Dashboard() {
                                                 rehypePlugins={[rehypeSanitize]}
                                                 components={{
                                                     h1: ({ node, ...props }) => <h1 style={{ color: '#ff0055', fontSize: '1.25rem', fontWeight: '900', marginBottom: '1rem', borderBottom: '1px solid rgba(255,0,85,0.2)', paddingBottom: '0.5rem' }} {...props} />,
-                                                    h2: ({ node, ...props }) => <h2 style={{ color: '#00ff88', fontSize: '1.1rem', fontWeight: '800', marginTop: '1.5rem', marginBottom: '0.75rem' }} {...props} />,
+                                                    h2: ({ node, ...props }) => <h2 style={{ color: 'var(--primary)', fontSize: '1.1rem', fontWeight: '800', marginTop: '1.5rem', marginBottom: '0.75rem' }} {...props} />,
                                                     h3: ({ node, ...props }) => <h3 style={{ color: 'var(--primary)', fontSize: '1rem', fontWeight: '700', marginTop: '1rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }} {...props} />,
                                                     p: ({ node, ...props }) => <p style={{ marginBottom: '1rem' }} {...props} />,
                                                     ul: ({ node, ...props }) => <ul style={{ paddingLeft: '1.5rem', marginBottom: '1rem' }} {...props} />,
@@ -899,8 +899,8 @@ export default function Dashboard() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     style={{
-                                        background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.05), rgba(0, 212, 255, 0.05))',
-                                        border: '2px solid rgba(0, 255, 136, 0.3)',
+                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255,0.05))',
+                                        border: '2px solid rgba(255, 255, 255, 0.3)',
                                         borderRadius: '1rem',
                                         padding: '1.5rem',
                                         marginBottom: '1.5rem'
@@ -909,7 +909,7 @@ export default function Dashboard() {
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                             <div style={{ fontSize: '1.5rem' }}>🛡️</div>
-                                            <h3 style={{ fontSize: '1rem', fontWeight: '900', color: '#00ff88', fontFamily: 'monospace' }}>
+                                            <h3 style={{ fontSize: '1rem', fontWeight: '900', color: 'var(--primary)', fontFamily: 'monospace' }}>
                                                 THREAT INTELLIGENCE
                                             </h3>
                                         </div>
@@ -917,11 +917,11 @@ export default function Dashboard() {
                                             background: currentResult.threatIntelligence.riskLevel === 'CRITICAL' ? 'rgba(255, 0, 85, 0.2)' :
                                                 currentResult.threatIntelligence.riskLevel === 'HIGH' ? 'rgba(255, 170, 0, 0.2)' :
                                                     currentResult.threatIntelligence.riskLevel === 'MEDIUM' ? 'rgba(255, 200, 0, 0.2)' :
-                                                        'rgba(0, 255, 136, 0.2)',
+                                                        'rgba(255, 255, 255, 0.2)',
                                             border: `2px solid ${currentResult.threatIntelligence.riskLevel === 'CRITICAL' ? '#ff0055' :
                                                 currentResult.threatIntelligence.riskLevel === 'HIGH' ? '#ffaa00' :
                                                     currentResult.threatIntelligence.riskLevel === 'MEDIUM' ? '#ffc800' :
-                                                        '#00ff88'}`,
+                                                        'var(--primary)'}`,
                                             borderRadius: '0.5rem',
                                             padding: '0.5rem 1rem',
                                             fontFamily: 'monospace',
@@ -930,7 +930,7 @@ export default function Dashboard() {
                                             color: currentResult.threatIntelligence.riskLevel === 'CRITICAL' ? '#ff0055' :
                                                 currentResult.threatIntelligence.riskLevel === 'HIGH' ? '#ffaa00' :
                                                     currentResult.threatIntelligence.riskLevel === 'MEDIUM' ? '#ffc800' :
-                                                        '#00ff88'
+                                                        'var(--primary)'
                                         }}>
                                             {currentResult.threatIntelligence.riskLevel} RISK
                                         </div>
@@ -940,7 +940,7 @@ export default function Dashboard() {
                                     <div style={{ marginBottom: '1.5rem' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                                             <span style={{ fontSize: '0.75rem', color: '#666', fontFamily: 'monospace' }}>RISK SCORE</span>
-                                            <span style={{ fontSize: '1.25rem', fontWeight: '900', color: '#00ff88', fontFamily: 'monospace' }}>
+                                            <span style={{ fontSize: '1.25rem', fontWeight: '900', color: 'var(--primary)', fontFamily: 'monospace' }}>
                                                 {currentResult.threatIntelligence.riskScore}/100
                                             </span>
                                         </div>
@@ -959,8 +959,8 @@ export default function Dashboard() {
                                                     height: '100%',
                                                     background: currentResult.threatIntelligence.riskScore >= 75 ? 'linear-gradient(90deg, #ff0055, #ff5500)' :
                                                         currentResult.threatIntelligence.riskScore >= 50 ? 'linear-gradient(90deg, #ffaa00, #ffc800)' :
-                                                            currentResult.threatIntelligence.riskScore >= 25 ? 'linear-gradient(90deg, #ffc800, #00ff88)' :
-                                                                'linear-gradient(90deg, #00ff88, var(--primary))'
+                                                            currentResult.threatIntelligence.riskScore >= 25 ? 'linear-gradient(90deg, #ffc800, var(--primary))' :
+                                                                'linear-gradient(90deg, var(--primary), var(--primary))'
                                                 }}
                                             />
                                         </div>
@@ -1006,7 +1006,7 @@ export default function Dashboard() {
                                     {/* Recommendations */}
                                     {currentResult.threatIntelligence.recommendations.length > 0 && (
                                         <div>
-                                            <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#00ff88', marginBottom: '0.5rem', fontFamily: 'monospace' }}>
+                                            <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--primary)', marginBottom: '0.5rem', fontFamily: 'monospace' }}>
                                                 SECURITY RECOMMENDATIONS
                                             </div>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -1017,7 +1017,7 @@ export default function Dashboard() {
                                                         padding: '0.5rem',
                                                         background: 'rgba(0, 0, 0, 0.2)',
                                                         borderRadius: '0.375rem',
-                                                        borderLeft: '3px solid #00ff88'
+                                                        borderLeft: '3px solid var(--primary)'
                                                     }}>
                                                         {rec}
                                                     </div>
@@ -1064,7 +1064,7 @@ export default function Dashboard() {
                                                         onClick={() => getAiFix(vuln, currentRepoKey!)}
                                                         disabled={loadingAnalysis[vulnKey]}
                                                         style={{
-                                                            background: 'linear-gradient(135deg, #00ff88, var(--primary))',
+                                                            background: 'linear-gradient(135deg, var(--primary), var(--primary))',
                                                             border: 'none',
                                                             color: '#0a0a0f',
                                                             padding: '0.5rem 1rem',
@@ -1151,14 +1151,14 @@ export default function Dashboard() {
 
                                                 {vuln.aiAnalysis && aiExpanded[vulnKey] && (
                                                     <div style={{
-                                                        background: 'rgba(0, 255, 136, 0.05)',
-                                                        border: '2px solid rgba(0, 255, 136, 0.3)',
+                                                        background: 'rgba(255, 255, 255, 0.05)',
+                                                        border: '2px solid rgba(255, 255, 255, 0.3)',
                                                         borderRadius: '0.5rem',
                                                         padding: '1rem',
                                                         marginTop: '1rem'
                                                     }}>
                                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                                            <div style={{ fontSize: '0.875rem', fontWeight: '700', color: '#00ff88' }}>
+                                                            <div style={{ fontSize: '0.875rem', fontWeight: '700', color: 'var(--primary)' }}>
                                                                 AI ANALYSIS & VIBE PROMPT
                                                             </div>
                                                             {vuln.aiAnalysis.vibePrompt && (
@@ -1171,9 +1171,9 @@ export default function Dashboard() {
                                                                     }}
                                                                     id={`copy-${vulnKey}`}
                                                                     style={{
-                                                                        background: 'rgba(0, 255, 136, 0.2)',
-                                                                        border: '1px solid #00ff88',
-                                                                        color: '#00ff88',
+                                                                        background: 'rgba(255, 255, 255, 0.2)',
+                                                                        border: '1px solid var(--primary)',
+                                                                        color: 'var(--primary)',
                                                                         padding: '0.25rem 0.5rem',
                                                                         borderRadius: '0.3rem',
                                                                         fontSize: '0.625rem',
@@ -1194,10 +1194,10 @@ export default function Dashboard() {
                                                                 padding: '0.75rem',
                                                                 borderRadius: '0.4rem',
                                                                 marginBottom: '1rem',
-                                                                borderLeft: '3px solid #00ff88'
+                                                                borderLeft: '3px solid var(--primary)'
                                                             }}>
                                                                 <div style={{ fontSize: '0.625rem', color: '#666', marginBottom: '0.25rem', fontFamily: 'monospace' }}>TARGETED AI FIX PROMPT:</div>
-                                                                <div style={{ fontSize: '0.75rem', color: '#00ff88', fontFamily: 'monospace', whiteSpace: 'pre-wrap', maxHeight: '150px', overflow: 'auto' }}>
+                                                                <div style={{ fontSize: '0.75rem', color: 'var(--primary)', fontFamily: 'monospace', whiteSpace: 'pre-wrap', maxHeight: '150px', overflow: 'auto' }}>
                                                                     {vuln.aiAnalysis.vibePrompt}
                                                                 </div>
                                                             </div>
@@ -1208,10 +1208,10 @@ export default function Dashboard() {
                                                                 rehypePlugins={[rehypeSanitize]}
                                                                 components={{
                                                                     h1: ({ node, ...props }) => <h1 style={{ color: 'var(--primary)', fontSize: '1.25rem', fontWeight: '900', marginBottom: '1rem' }} {...props} />,
-                                                                    h2: ({ node, ...props }) => <h2 style={{ color: '#00ff88', fontSize: '1.1rem', fontWeight: '800', marginTop: '1.5rem', marginBottom: '0.75rem' }} {...props} />,
+                                                                    h2: ({ node, ...props }) => <h2 style={{ color: 'var(--primary)', fontSize: '1.1rem', fontWeight: '800', marginTop: '1.5rem', marginBottom: '0.75rem' }} {...props} />,
                                                                     h3: ({ node, ...props }) => <h3 style={{ color: '#ffaa00', fontSize: '1rem', fontWeight: '700', marginTop: '1rem', marginBottom: '0.5rem' }} {...props} />,
                                                                     p: ({ node, ...props }) => <p style={{ marginBottom: '0.75rem' }} {...props} />,
-                                                                    a: ({ node, ...props }) => <a style={{ color: '#00ff88', textDecoration: 'underline' }} {...props} />,
+                                                                    a: ({ node, ...props }) => <a style={{ color: 'var(--primary)', textDecoration: 'underline' }} {...props} />,
                                                                     code: ({ node, ...props }) => <code style={{ background: 'rgba(0,0,0,0.3)', padding: '0.2rem', borderRadius: '4px', color: '#ffaa00' }} {...props} />,
                                                                     pre: ({ node, ...props }) => (
                                                                         <pre style={{
@@ -1251,12 +1251,12 @@ export default function Dashboard() {
                                                                     style={{
                                                                         width: '100%',
                                                                         background: copiedFix[vulnKey]
-                                                                            ? 'linear-gradient(90deg, #00ff88, #00ffcc)'
-                                                                            : 'linear-gradient(90deg, rgba(0, 255, 136, 0.1), rgba(0, 204, 255, 0.1))',
+                                                                            ? 'linear-gradient(90deg, var(--primary), var(--primary))'
+                                                                            : 'linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(0, 204, 255, 0.1))',
                                                                         border: copiedFix[vulnKey]
-                                                                            ? '2px solid #00ff88'
-                                                                            : '1px solid rgba(0, 255, 136, 0.3)',
-                                                                        color: copiedFix[vulnKey] ? '#0a0a0f' : '#00ff88',
+                                                                            ? '2px solid var(--primary)'
+                                                                            : '1px solid rgba(255, 255, 255, 0.3)',
+                                                                        color: copiedFix[vulnKey] ? '#0a0a0f' : 'var(--primary)',
                                                                         padding: '0.75rem 1rem',
                                                                         borderRadius: '0.5rem',
                                                                         fontSize: '0.8125rem',
@@ -1269,19 +1269,19 @@ export default function Dashboard() {
                                                                         gap: '0.5rem',
                                                                         transition: 'all 0.3s ease',
                                                                         boxShadow: copiedFix[vulnKey]
-                                                                            ? '0 4px 15px rgba(0, 255, 136, 0.4)'
+                                                                            ? '0 4px 15px rgba(255, 255, 255, 0.4)'
                                                                             : '0 2px 8px rgba(0, 0, 0, 0.2)'
                                                                     }}
                                                                     onMouseEnter={(e: any) => {
                                                                         if (!copiedFix[vulnKey]) {
-                                                                            e.currentTarget.style.borderColor = '#00ff88';
+                                                                            e.currentTarget.style.borderColor = 'var(--primary)';
                                                                             e.currentTarget.style.transform = 'translateY(-2px)';
-                                                                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 255, 136, 0.3)';
+                                                                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 255, 255, 0.3)';
                                                                         }
                                                                     }}
                                                                     onMouseLeave={(e: any) => {
                                                                         if (!copiedFix[vulnKey]) {
-                                                                            e.currentTarget.style.borderColor = 'rgba(0, 255, 136, 0.3)';
+                                                                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
                                                                             e.currentTarget.style.transform = 'translateY(0)';
                                                                             e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.2)';
                                                                         }
@@ -1324,14 +1324,14 @@ export default function Dashboard() {
                                 </div>
                             ) : (
                                 <div style={{
-                                    background: 'rgba(0, 255, 136, 0.1)',
-                                    border: '2px solid #00ff88',
+                                    background: 'rgba(255, 255, 255, 0.1)',
+                                    border: '2px solid var(--primary)',
                                     borderRadius: '1rem',
                                     padding: '3rem',
                                     textAlign: 'center'
                                 }}>
                                     <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>✓</div>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#00ff88', fontFamily: 'monospace' }}>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: '900', color: 'var(--primary)', fontFamily: 'monospace' }}>
                                         ALL CLEAR
                                     </div>
                                 </div>
@@ -1372,12 +1372,12 @@ export default function Dashboard() {
                             onClick={(e) => e.stopPropagation()}
                             style={{
                                 background: 'linear-gradient(135deg, rgba(10, 10, 15, 0.95), rgba(0, 20, 30, 0.95))',
-                                border: '2px solid #00ff88',
+                                border: '2px solid var(--primary)',
                                 borderRadius: '1rem',
                                 padding: '2.5rem',
                                 maxWidth: '550px',
                                 width: '100%',
-                                boxShadow: '0 20px 60px rgba(0, 255, 136, 0.3)'
+                                boxShadow: '0 20px 60px rgba(255, 255, 255, 0.3)'
                             }}
                         >
                             <div style={{ textAlign: 'center' }}>
@@ -1396,7 +1396,7 @@ export default function Dashboard() {
                                     style={{
                                         fontSize: '2rem',
                                         fontWeight: '900',
-                                        background: 'linear-gradient(90deg, #00ff88, var(--primary))',
+                                        background: 'linear-gradient(90deg, var(--primary), var(--primary))',
                                         WebkitBackgroundClip: 'text',
                                         WebkitTextFillColor: 'transparent',
                                         marginBottom: '1.5rem',
@@ -1420,14 +1420,14 @@ export default function Dashboard() {
                                         Your security fixes have been committed to:
                                     </p>
                                     <div style={{
-                                        background: 'rgba(0, 255, 136, 0.1)',
-                                        border: '1px solid rgba(0, 255, 136, 0.3)',
+                                        background: 'rgba(255, 255, 255, 0.1)',
+                                        border: '1px solid rgba(255, 255, 255, 0.3)',
                                         padding: '1rem',
                                         borderRadius: '0.5rem',
                                         marginBottom: '2rem'
                                     }}>
                                         <code style={{
-                                            color: '#00ff88',
+                                            color: 'var(--primary)',
                                             fontFamily: 'monospace',
                                             fontSize: '0.875rem',
                                             wordBreak: 'break-all'
@@ -1447,7 +1447,7 @@ export default function Dashboard() {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         style={{
-                                            background: 'linear-gradient(90deg, #00ff88, var(--primary))',
+                                            background: 'linear-gradient(90deg, var(--primary), var(--primary))',
                                             color: '#0a0a0f',
                                             padding: '1rem 2rem',
                                             borderRadius: '0.5rem',
@@ -1455,7 +1455,7 @@ export default function Dashboard() {
                                             fontWeight: '800',
                                             textDecoration: 'none',
                                             fontFamily: 'monospace',
-                                            boxShadow: '0 4px 15px rgba(0, 255, 136, 0.4)',
+                                            boxShadow: '0 4px 15px rgba(255, 255, 255, 0.4)',
                                             display: 'block',
                                             transition: 'transform 0.2s ease',
                                             textAlign: 'center'

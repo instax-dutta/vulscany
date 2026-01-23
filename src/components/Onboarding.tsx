@@ -258,7 +258,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                 borderRadius: '1.5rem',
                 padding: isMobile ? '1.5rem' : '2rem',
                 maxWidth: isMobile ? '340px' : '440px',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 212, 255, 0.1)'
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 255, 255, 0.1)'
             }}
         >
             {/* Arrow pointer towards highlighted area - only show if we have a target */}
@@ -272,7 +272,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                     height: 0,
                     borderLeft: '10px solid transparent',
                     borderRight: '10px solid transparent',
-                    borderBottom: '10px solid rgba(0, 255, 136, 0.3)',
+                    borderBottom: '10px solid rgba(255, 255, 255, 0.3)',
                 }} />
             )}
 
@@ -340,16 +340,16 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                     onClick={handleNext}
                     style={{
                         flex: isMobile ? 'none' : (step > 0 ? 2 : 1),
-                        background: 'linear-gradient(135deg, #00ff88, var(--primary))',
+                        background: '#ffffff',
                         border: 'none',
-                        color: '#0a0a0f',
+                        color: '#000000',
                         padding: '0.875rem 1.5rem',
                         borderRadius: '0.75rem',
                         fontSize: '0.875rem',
                         fontWeight: '900',
                         cursor: 'pointer',
                         fontFamily: 'ui-monospace, monospace',
-                        boxShadow: '0 4px 20px rgba(0, 255, 136, 0.3)'
+                        boxShadow: '0 4px 20px rgba(255, 255, 255, 0.2)'
                     }}
                 >
                     {step === steps.length - 1 ? '🚀 GET STARTED' : 'NEXT →'}
@@ -364,7 +364,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                             width: i === step ? '2rem' : '0.5rem',
                             height: '0.5rem',
                             borderRadius: '0.25rem',
-                            background: i === step ? 'linear-gradient(90deg, #00ff88, var(--primary))' : 'rgba(255, 255, 255, 0.2)',
+                            background: i === step ? 'linear-gradient(90deg, var(--primary), var(--primary))' : 'rgba(255, 255, 255, 0.2)',
                             transition: 'all 0.3s'
                         }}
                     />
@@ -396,7 +396,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                     width: modalWidth,
                     maxHeight: '92vh',
                     overflowY: 'auto',
-                    boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.05), 0 30px 60px -12px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 212, 255, 0.1)',
+                    boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.05), 0 30px 60px -12px rgba(0, 0, 0, 0.7), 0 0 40px rgba(255, 255, 255, 0.1)',
                     position: 'relative',
                     margin: 'auto',
                     backdropFilter: 'blur(40px)'
@@ -409,7 +409,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                     left: 0,
                     right: 0,
                     height: '3px',
-                    background: 'linear-gradient(90deg, rgba(0, 255, 136, 0.15), rgba(0, 204, 255, 0.15))',
+                    background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(0, 204, 255, 0.15))',
                     borderRadius: '1.75rem 1.75rem 0 0',
                     overflow: 'hidden'
                 }}>
@@ -419,8 +419,8 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                         transition={{ duration: 0.7, ease: [0.4, 0.0, 0.2, 1] }}
                         style={{
                             height: '100%',
-                            background: 'linear-gradient(90deg, #00ff88, var(--primary))',
-                            boxShadow: '0 0 20px rgba(0, 255, 136, 0.6)'
+                            background: 'linear-gradient(90deg, var(--primary), var(--primary))',
+                            boxShadow: '0 0 20px rgba(255, 255, 255, 0.6)'
                         }}
                     />
                 </div>
@@ -462,7 +462,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                         textAlign: 'center',
                         marginTop: '1rem',
                         marginBottom: isMobile ? '1.25rem' : '1.75rem',
-                        filter: 'drop-shadow(0 4px 24px rgba(0, 255, 136, 0.25))'
+                        filter: 'drop-shadow(0 4px 24px rgba(255, 255, 255, 0.25))'
                     }}
                 >
                     {currentStep.emoji}
@@ -523,8 +523,8 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                             }}
                             style={{
                                 width: '100%',
-                                background: 'rgba(0, 255, 136, 0.03)',
-                                border: '2px solid rgba(0, 255, 136, 0.25)',
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                border: '2px solid rgba(255, 255, 255, 0.25)',
                                 borderRadius: '0.875rem',
                                 padding: '1.125rem 1.5rem',
                                 fontSize: '1.125rem',
@@ -535,11 +535,11 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                             }}
                             onFocus={(e) => {
                                 e.currentTarget.style.borderColor = 'var(--primary)';
-                                e.currentTarget.style.boxShadow = '0 0 0 4px rgba(0, 255, 136, 0.12)';
+                                e.currentTarget.style.boxShadow = '0 0 0 4px rgba(255, 255, 255, 0.12)';
                             }}
                             onBlur={(e) => {
-                                e.currentTarget.style.borderColor = 'rgba(0, 255, 136, 0.25)';
-                                e.currentTarget.style.boxShadow = '0 0 0 0 rgba(0, 255, 136, 0)';
+                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+                                e.currentTarget.style.boxShadow = '0 0 0 0 rgba(255, 255, 255, 0)';
                             }}
                         />
                     )}
@@ -558,11 +558,11 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                                     onClick={() => setSelection([option.value])}
                                     style={{
                                         background: selection.includes(option.value)
-                                            ? 'linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 204, 255, 0.15))'
-                                            : 'rgba(0, 212, 255, 0.03)',
+                                            ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(0, 204, 255, 0.15))'
+                                            : 'rgba(255, 255, 255, 0.03)',
                                         border: selection.includes(option.value)
                                             ? '2px solid var(--primary)'
-                                            : '2px solid rgba(0, 212, 255, 0.2)',
+                                            : '2px solid rgba(255, 255, 255, 0.2)',
                                         borderRadius: '0.875rem',
                                         padding: '1.25rem 1.5rem',
                                         color: '#ffffff',
@@ -571,7 +571,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                                         textAlign: 'left',
                                         transition: 'all 0.3s',
                                         boxShadow: selection.includes(option.value)
-                                            ? '0 0 0 1px rgba(0, 212, 255, 0.2), 0 8px 24px rgba(0, 212, 255, 0.15)'
+                                            ? '0 0 0 1px rgba(255, 255, 255, 0.2), 0 8px 24px rgba(255, 255, 255, 0.15)'
                                             : '0 2px 8px rgba(0, 0, 0, 0.1)'
                                     }}
                                 >
@@ -640,7 +640,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                             fontWeight: '900',
                             cursor: canProceed() ? 'pointer' : 'not-allowed',
                             fontFamily: 'ui-monospace, monospace',
-                            boxShadow: canProceed() ? '0 4px 20px rgba(0, 255, 136, 0.3)' : 'none',
+                            boxShadow: canProceed() ? '0 4px 20px rgba(255, 255, 255, 0.3)' : 'none',
                             opacity: canProceed() ? 1 : 0.5,
                             transition: 'all 0.3s'
                         }}
@@ -659,9 +659,9 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                             style={{
                                 height: '0.5rem',
                                 borderRadius: '1rem',
-                                background: i === step ? 'var(--primary)' : i < step ? 'rgba(0, 212, 255, 0.4)' : 'rgba(255, 255, 255, 0.1)',
+                                background: i === step ? 'var(--primary)' : i < step ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.1)',
                                 cursor: i < step ? 'pointer' : 'default',
-                                boxShadow: i === step ? '0 0 15px rgba(0, 212, 255, 0.3)' : 'none'
+                                boxShadow: i === step ? '0 0 15px rgba(255, 255, 255, 0.3)' : 'none'
                             }}
                             onClick={() => i < step && setStep(i)}
                         />
@@ -743,10 +743,10 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                     <motion.div
                         animate={{
                             background: [
-                                'radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.08) 0%, transparent 50%)',
-                                'radial-gradient(circle at 80% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%)',
-                                'radial-gradient(circle at 50% 80%, rgba(0, 212, 255, 0.08) 0%, transparent 50%)',
-                                'radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.08) 0%, transparent 50%)'
+                                'radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 50%)',
+                                'radial-gradient(circle at 80% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%)',
+                                'radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%)',
+                                'radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 50%)'
                             ]
                         }}
                         transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}

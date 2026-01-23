@@ -58,7 +58,7 @@ export function PricingSection() {
                                         </li>
                                     ))}
                                 </ul>
-                                <a href="/dashboard">
+                                <a href="https://app.example.com" target="_blank" rel="noopener noreferrer">
                                     <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
                                         Get Started
                                     </Button>
@@ -85,7 +85,7 @@ export function PricingSection() {
                                         </li>
                                     ))}
                                 </ul>
-                                <a href="/dashboard">
+                                <a href="https://app.example.com" target="_blank" rel="noopener noreferrer">
                                     <Button variant="outline" className="w-full border-border hover:bg-white/5 bg-transparent">
                                         Get Started
                                     </Button>
