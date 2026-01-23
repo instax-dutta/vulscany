@@ -24,7 +24,7 @@ export function GitHubAuthButton() {
         <Button
             onClick={handleAuth}
             disabled={isLoading}
-            className="h-12 px-8 bg-primary text-primary-foreground hover:bg-primary/90 font-bold flex items-center gap-2 text-base"
+            className="h-12 px-8 bg-white text-black hover:bg-white/90 font-bold flex items-center gap-2 text-base transition-all duration-300 shadow-lg shadow-white/10"
         >
             {isLoading ? (
                 <>

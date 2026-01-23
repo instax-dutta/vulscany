@@ -16,7 +16,7 @@ export function FeaturesSection() {
                     {[
                         {
                             title: "GitHub-Only Login",
-                            desc: "No password hassles. Anti-abuse locked down via your existing identity.",
+                            desc: "Seamless authentication with your GitHub account. No passwords to remember.",
                             icon: Github,
                         },
                         {
@@ -52,7 +52,7 @@ export function FeaturesSection() {
                             <CardContent className="p-6 space-y-4">
                                 <div className="w-10 h-10 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden">
                                     {feature.logo ? (
-                                        <img src="https://mirror.sdad.pro/aeglyn-logo-nobg.png" alt="Logo" className="w-6 h-6 object-contain" />
+                                        <img src="https://mirror.sdad.pro/aeglyn-logo-nobg.png" alt="Logo" className="w-6 h-6 object-contain invert brightness-200" />
                                     ) : (
                                         feature.icon && <feature.icon className="w-5 h-5 text-primary" />
                                     )}

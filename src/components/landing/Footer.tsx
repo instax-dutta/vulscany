@@ -9,7 +9,7 @@ export function Footer() {
                         <img
                             src="https://mirror.sdad.pro/aeglyn-logo-nobg.png"
                             alt="Aeglyn Logo"
-                            className="w-5 h-5 object-contain"
+                            className="w-5 h-5 object-contain invert brightness-200"
                         />
                         <span className="font-mono font-bold tracking-tighter opacity-80">AEGLYN</span>
                     </div>

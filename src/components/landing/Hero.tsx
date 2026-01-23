@@ -30,17 +30,6 @@ export function Hero() {
                     </a>
                 </div>
 
-                {/* Secondary CTA */}
-                <p className="text-sm text-muted-foreground mb-6">
-                    Already have access?{" "}
-                    <a
-                        href="/dashboard"
-                        className="text-primary hover:underline font-medium"
-                    >
-                        Launch App →
-                    </a>
-                </p>
-
                 <p className="text-xs font-mono text-muted-foreground">GDPR compliant real-time vibe code security checker.</p>
 
                 {/* Subtle glow effect */}

@@ -82,7 +82,7 @@ export function SecurityScoreWidget({ vulnerabilities, onScoreCalculated }: Secu
             animate={{ opacity: 1, scale: 1 }}
             style={{
                 background: 'rgba(10, 10, 15, 0.8)',
-                border: '2px solid rgba(0, 212, 255, 0.3)',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
                 borderRadius: '1rem',
                 padding: '1.5rem',
                 textAlign: 'center'
@@ -149,7 +149,7 @@ export function SecurityScoreWidget({ vulnerabilities, onScoreCalculated }: Secu
                 <div style={{ color: '#ff0055' }}>🔴 CRIT: {score.breakdown.critical}</div>
                 <div style={{ color: '#ff6600' }}>⚠️ HIGH: {score.breakdown.high}</div>
                 <div style={{ color: '#ffaa00' }}>🟡 MED: {score.breakdown.medium}</div>
-                <div style={{ color: '#88ff00' }}>🟢 LOW: {score.breakdown.low}</div>
+                <div style={{ color: 'var(--primary)' }}>🟢 LOW: {score.breakdown.low}</div>
             </div>
         </motion.div>
     );
@@ -210,7 +210,7 @@ export function AchievementsPanel({ stats }: AchievementsPanelProps) {
                         {/* Earned */}
                         {earned.length > 0 && (
                             <div style={{ marginBottom: '1rem' }}>
-                                <div style={{ fontSize: '0.625rem', color: '#00ff88', marginBottom: '0.5rem' }}>
+                                <div style={{ fontSize: '0.625rem', color: 'var(--primary)', marginBottom: '0.5rem' }}>
                                     ✅ EARNED
                                 </div>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -219,8 +219,8 @@ export function AchievementsPanel({ stats }: AchievementsPanelProps) {
                                             key={a.id}
                                             title={`${a.name}: ${a.description}`}
                                             style={{
-                                                background: 'rgba(0, 255, 136, 0.1)',
-                                                border: '1px solid rgba(0, 255, 136, 0.3)',
+                                                background: 'rgba(255, 255, 255, 0.1)',
+                                                border: '1px solid rgba(255, 255, 255, 0.3)',
                                                 borderRadius: '0.5rem',
                                                 padding: '0.5rem',
                                                 fontSize: '1.25rem',
@@ -321,8 +321,8 @@ export function EducationPanel({ vulnerabilityType, isSimpleMode = true }: Educa
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             style={{
-                background: 'rgba(0, 153, 255, 0.05)',
-                border: '1px solid rgba(0, 153, 255, 0.2)',
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
                 borderRadius: '0.5rem',
                 marginTop: '0.75rem',
                 overflow: 'hidden'
@@ -335,7 +335,7 @@ export function EducationPanel({ vulnerabilityType, isSimpleMode = true }: Educa
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    background: 'rgba(0, 153, 255, 0.1)',
+                    background: 'rgba(255, 255, 255, 0.1)',
                     border: 'none',
                     padding: '0.75rem',
                     cursor: 'pointer'
@@ -436,12 +436,12 @@ export function EducationPanel({ vulnerabilityType, isSimpleMode = true }: Educa
                                     {content.examples.vulnerable}
                                 </pre>
 
-                                <div style={{ fontSize: '0.625rem', color: '#00ff88', marginTop: '0.75rem', marginBottom: '0.5rem' }}>
+                                <div style={{ fontSize: '0.625rem', color: 'var(--primary)', marginTop: '0.75rem', marginBottom: '0.5rem' }}>
                                     ✅ SECURE CODE
                                 </div>
                                 <pre style={{
-                                    background: 'rgba(0, 255, 136, 0.1)',
-                                    border: '1px solid rgba(0, 255, 136, 0.3)',
+                                    background: 'rgba(255, 255, 255, 0.1)',
+                                    border: '1px solid rgba(255, 255, 255, 0.3)',
                                     borderRadius: '0.25rem',
                                     padding: '0.5rem',
                                     fontSize: '0.625rem',
@@ -480,7 +480,7 @@ export function EducationPanel({ vulnerabilityType, isSimpleMode = true }: Educa
                                                 fontSize: '0.625rem',
                                                 color: 'var(--primary)',
                                                 textDecoration: 'none',
-                                                background: 'rgba(0, 212, 255, 0.1)',
+                                                background: 'rgba(255, 255, 255, 0.1)',
                                                 padding: '0.25rem 0.5rem',
                                                 borderRadius: '0.25rem'
                                             }}
@@ -562,7 +562,7 @@ export function CommunityPatternsPanel({ onPatternSubmit }: CommunityPatternsPan
             animate={{ opacity: 1, y: 0 }}
             style={{
                 background: 'rgba(10, 10, 15, 0.8)',
-                border: '2px solid rgba(136, 255, 0, 0.3)',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
                 borderRadius: '1rem',
                 padding: '1rem',
                 marginTop: '1rem'
@@ -574,15 +574,15 @@ export function CommunityPatternsPanel({ onPatternSubmit }: CommunityPatternsPan
                 alignItems: 'center',
                 marginBottom: '1rem'
             }}>
-                <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: '#88ff00' }}>
+                <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--primary)' }}>
                     🗃️ COMMUNITY PATTERNS
                 </span>
                 <button
                     onClick={() => setShowSubmit(!showSubmit)}
                     style={{
-                        background: 'rgba(136, 255, 0, 0.15)',
-                        border: '1px solid rgba(136, 255, 0, 0.3)',
-                        color: '#88ff00',
+                        background: 'rgba(255, 255, 255, 0.15)',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        color: 'var(--primary)',
                         padding: '0.25rem 0.5rem',
                         borderRadius: '0.25rem',
                         fontSize: '0.625rem',
@@ -601,14 +601,14 @@ export function CommunityPatternsPanel({ onPatternSubmit }: CommunityPatternsPan
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         style={{
-                            background: 'rgba(136, 255, 0, 0.05)',
-                            border: '1px solid rgba(136, 255, 0, 0.2)',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
                             borderRadius: '0.5rem',
                             padding: '1rem',
                             marginBottom: '1rem'
                         }}
                     >
-                        <div style={{ fontSize: '0.625rem', color: '#88ff00', marginBottom: '0.75rem' }}>
+                        <div style={{ fontSize: '0.625rem', color: 'var(--primary)', marginBottom: '0.75rem' }}>
                             📝 SUBMIT NEW PATTERN
                         </div>
 
@@ -726,7 +726,7 @@ export function CommunityPatternsPanel({ onPatternSubmit }: CommunityPatternsPan
                             disabled={!formData.name || !formData.pattern}
                             style={{
                                 width: '100%',
-                                background: formData.name && formData.pattern ? '#88ff00' : 'rgba(136, 255, 0, 0.3)',
+                                background: formData.name && formData.pattern ? 'var(--primary)' : 'rgba(255, 255, 255, 0.3)',
                                 border: 'none',
                                 borderRadius: '0.25rem',
                                 padding: '0.5rem',
@@ -767,7 +767,7 @@ export function CommunityPatternsPanel({ onPatternSubmit }: CommunityPatternsPan
                                 background: 'none',
                                 border: 'none',
                                 cursor: hasVotedFor(p.id) ? 'default' : 'pointer',
-                                color: hasVotedFor(p.id) ? '#88ff00' : '#666'
+                                color: hasVotedFor(p.id) ? 'var(--primary)' : '#666'
                             }}
                         >
                             <span style={{ fontSize: '0.875rem' }}>▲</span>
@@ -825,8 +825,8 @@ export function SecurityTipBanner() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             style={{
-                background: 'rgba(0, 212, 255, 0.1)',
-                border: '1px solid rgba(0, 212, 255, 0.2)',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
                 borderRadius: '0.5rem',
                 padding: '0.75rem 1rem',
                 marginBottom: '1rem',
@@ -902,7 +902,7 @@ jobs:
                 animate={{ scale: 1, opacity: 1 }}
                 style={{
                     background: '#0a0a0f',
-                    border: '2px solid rgba(0, 212, 255, 0.5)',
+                    border: '2px solid rgba(255, 255, 255, 0.5)',
                     borderRadius: '1rem',
                     padding: '2rem',
                     maxWidth: '600px',
@@ -940,7 +940,7 @@ jobs:
                             position: 'absolute',
                             top: '0.5rem',
                             right: '0.5rem',
-                            background: copied ? '#00ff88' : 'rgba(0, 212, 255, 0.2)',
+                            background: copied ? 'var(--primary)' : 'rgba(255, 255, 255, 0.2)',
                             border: 'none',
                             borderRadius: '0.25rem',
                             padding: '0.25rem 0.5rem',

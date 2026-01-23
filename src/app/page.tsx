@@ -15,36 +15,11 @@ export default function LandingPage() {
   const router = useRouter()
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
+  // Removed auto-redirect to dashboard to avoid "initial loading screen" flash
+  // and ensure the landing page is always accessible first.
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch("/api/auth/session")
-        const session = await response.json()
-
-        if (session?.user) {
-          // User is authenticated, redirect to dashboard
-          router.push("/dashboard")
-        } else {
-          setIsCheckingAuth(false)
-        }
-      } catch (error) {
-        setIsCheckingAuth(false)
-      }
-    }
-
-    checkAuth()
-  }, [router])
-
-  if (isCheckingAuth) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f] text-[#00d4ff]">
-        <div className="text-center">
-          <div className="w-10 h-10 border-3 border-[rgba(0,212,255,0.3)] border-t-[#00d4ff] rounded-full animate-spin mx-auto mb-4" />
-          <p className="font-mono text-sm uppercase tracking-widest opacity-70">Detecting Reality...</p>
-        </div>
-      </div>
-    )
-  }
+    setIsCheckingAuth(false)
+  }, [])
 
   return (
     <div className="flex flex-col min-h-screen">

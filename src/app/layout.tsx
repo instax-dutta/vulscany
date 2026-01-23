@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import SmoothScroll from "@/components/SmoothScroll";
 
 const inter = Inter({
-  variable: "--font-inter",
+  variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
 });
@@ -104,8 +105,6 @@ export const metadata: Metadata = {
   },
 };
 
-import SmoothScroll from "@/components/SmoothScroll";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -113,70 +112,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <meta name="theme-color" content="#00d4ff" />
-        <meta name="color-scheme" content="dark" />
-
-        {/* Additional SEO meta tags */}
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta name="application-name" content="Aeglyn" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Aeglyn" />
-        <meta name="mobile-web-app-capable" content="yes" />
-
-        {/* Structured Data for SEO */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'SoftwareApplication',
-              name: 'Aeglyn',
-              applicationCategory: 'DeveloperApplication',
-              operatingSystem: 'Web',
-              offers: {
-                '@type': 'Offer',
-                price: '0',
-                priceCurrency: 'USD'
-              },
-              description: siteDescription,
-              url: siteUrl,
-              image: `${siteUrl}/og-image.png`,
-              author: [
-                {
-                  '@type': 'Person',
-                  name: 'Sai Dutta Abhishek Dash'
-                },
-                {
-                  '@type': 'Person',
-                  name: 'Tejes Munde'
-                }
-              ],
-              publisher: {
-                '@type': 'Organization',
-                name: 'Aeglyn powered by VulkanorAI',
-                url: siteUrl
-              },
-              featureList: [
-                'GitHub OAuth Integration',
-                'React Vulnerability Detection',
-                'AI-Powered Fix Suggestions',
-                'Privacy-First Architecture',
-                'Zero Data Storage',
-                'GDPR Compliant',
-                'Real-time Security Scanning'
-              ]
-            }).replace(/</g, '\\u003c')
-          }}
-        />
-      </head>
-      <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased font-sans selection:bg-primary/30`}
-      >
-        <div className="digital-grid" />
+      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased text-foreground selection:bg-primary/30 min-h-screen flex flex-col`}>
         <SmoothScroll>
+          {/* Subtle Grid Background */}
+          <div className="landing-grid" />
           {children}
         </SmoothScroll>
       </body>
