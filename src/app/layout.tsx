@@ -17,24 +17,24 @@ const jetbrainsMono = JetBrains_Mono({
 
 const siteUrl = 'https://aeglyn.site';
 const siteName = 'Aeglyn';
-const siteDescription = 'Aeglyn is a GDPR-compliant, real-time AI code scan tool with no data logging. Secure your vibe coding with zero-knowledge static analysis and local-only secrets scanning.';
+const siteDescription = 'Aeglyn is a GDPR compliant AI vulnerability detection tool with zero-knowledge security. Real-time AI code security with no data logging for vibe coders and indie developers.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Aeglyn | Privacy-First AI Code Security Scanner 2026',
+    default: 'Aeglyn | Zero-Log AI Vulnerability Scanner 2026',
     template: `%s | ${siteName}`
   },
   description: siteDescription,
   keywords: [
-    'privacy-first vibe coding security scanner 2026',
-    'AI code scan tool no data logging vibe coders',
-    'GDPR compliant real-time vibe code security checker',
-    'on-device AI vulnerability scan for no-code startups',
-    'zero-knowledge static analysis tool vibe coding 2026',
-    'local-only secrets scanner for vibe script kiddies',
-    'privacy-first GitHub Copilot security linter 2026',
-    'end-to-end encrypted code review tool vibe hackers',
+    'zero-log AI vulnerability scanner 2026',
+    'real-time AI code security no logging',
+    'privacy-first SAST AI tool',
+    'fast developer AI security scanner no slowdown',
+    'GDPR compliant AI vulnerability detection',
+    'offline AI code scanner no data upload',
+    'instant AI security feedback IDE plugin 2026',
+    'zero-knowledge AI app sec pipeline',
     'Aeglyn',
     'security scanner',
     'vibe coding',

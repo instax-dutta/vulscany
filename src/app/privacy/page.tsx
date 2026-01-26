@@ -4,15 +4,14 @@ export const metadata: Metadata = {
     title: "Privacy Policy | Aeglyn - Privacy-First Code Security",
     description: "Aeglyn's Privacy Policy: Learn how our privacy-first developer tool handles GitHub OAuth security, what data we collect, and what we never store. GDPR-compliant code scanning.",
     keywords: [
-        "privacy policy",
-        "GitHub OAuth security",
-        "privacy-first developer tool",
-        "GDPR compliant code scanning",
-        "AI vulnerability scanner privacy",
-        "code security platform data",
-        "indie developer code scanning",
-        "no data logging",
-        "developer privacy",
+        "zero-log AI vulnerability scanner 2026",
+        "GDPR compliant AI vulnerability detection",
+        "zero-knowledge AI app sec pipeline",
+        "offline AI code scanner no data upload",
+        "real-time AI code security no logging",
+        "privacy-first SAST AI tool",
+        "vibe coders privacy",
+        "Aeglyn privacy",
     ],
     openGraph: {
         title: "Privacy Policy | Aeglyn",
@@ -162,14 +161,14 @@ export default function PrivacyPage() {
                         <h2 className="text-2xl font-bold text-foreground">3. What We DON'T Store</h2>
                         <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-6 space-y-3">
                             <p className="text-foreground/80 leading-relaxed">
-                                This is what makes us a <strong>privacy-first code security platform</strong>:
+                                This is what makes us a <strong>Zero-Log AI Vulnerability Scanner 2026</strong> with a <strong>Zero-Knowledge AI app sec pipeline</strong>:
                             </p>
                             <ul className="space-y-2 text-foreground/80">
                                 <li className="flex items-start gap-3">
                                     <span className="text-red-500 text-xl">✗</span>
                                     <span>
-                                        <strong>Your Source Code:</strong> We process your code in-memory during scans but never store it
-                                        permanently. Once the scan completes, your code is immediately discarded.
+                                        <strong>Your Source Code (Offline processing):</strong> We process your code in-memory during scans but never store it
+                                        permanently. Our <strong>offline AI code scanner</strong> ensures no file ever persists on our cloud. Once the scan completes, your code is immediately discarded.
                                     </span>
                                 </li>
                                 <li className="flex items-start gap-3">

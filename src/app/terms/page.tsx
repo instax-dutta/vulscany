@@ -4,15 +4,14 @@ export const metadata: Metadata = {
     title: "Terms of Service | Aeglyn - Privacy-First Code Security Platform",
     description: "Terms of Service for Aeglyn, the privacy-first AI vulnerability scanner for indie developers. Learn about GitHub OAuth security, API usage, and developer tool policies.",
     keywords: [
-        "terms of service",
-        "GitHub OAuth security",
-        "AI vulnerability scanner terms",
-        "privacy-first developer tool",
-        "code security platform",
+        "zero-log AI vulnerability scanner 2026",
+        "real-time AI code security no logging",
+        "GDPR compliant AI vulnerability detection",
+        "zero-knowledge AI app sec pipeline",
+        "privacy-first SAST AI tool",
+        "vibe coders security scanner",
         "indie developer code scanning",
-        "developer SaaS terms",
-        "API usage policy",
-        "code scanning legal",
+        "Aeglyn terms",
     ],
     openGraph: {
         title: "Terms of Service | Aeglyn",
@@ -35,8 +34,8 @@ export default function TermsPage() {
                             Last Updated: January 18, 2026
                         </p>
                         <p className="text-foreground/80">
-                            Welcome to Aeglyn, the privacy-first code security platform for indie developers, agencies, and solopreneurs.
-                            By using our AI vulnerability scanner and GitHub OAuth security tools, you agree to these terms.
+                            Welcome to Aeglyn, the <strong>Zero-Log AI Vulnerability Scanner</strong> built for vibe coders, indie developers, and solopreneurs.
+                            By using our real-time AI code security platform and GDPR-compliant GitHub integration, you agree to these terms.
                         </p>
                     </div>
 

@@ -442,7 +442,7 @@ export default function Dashboard() {
                             <span className="text-[10px] font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">{filteredRepositories.length}</span>
                         </div>
 
-                        <div className="space-y-1">
+                        <div className="space-y-1" data-onboarding="repo-section">
                             {loading ? (
                                 <div className="flex items-center justify-center py-8">
                                     <RefreshCw className="w-5 h-5 text-white/20 animate-spin" />
@@ -622,7 +622,7 @@ export default function Dashboard() {
 
                                         {/* AIPR Generation Prompt Area */}
                                         {currentResult.vulnerabilities.length > 0 && (
-                                            <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-2xl p-6 relative overflow-hidden group">
+                                            <div data-onboarding="auto-fix-area" className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-2xl p-6 relative overflow-hidden group">
                                                 <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                                                     <div className="space-y-1">
                                                         <div className="flex items-center gap-2 text-primary">
