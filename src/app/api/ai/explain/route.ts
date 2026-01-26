@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import * as OllamaAI from '@/lib/ai/ollama';
 import * as MistralAI from '@/lib/ai/mistral';
+import { ExplainRequestSchema, sanitizeInput } from '@/lib/validators/api-validators';
 
 export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
@@ -17,26 +18,37 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const { fileName, codeSnippet, issueType, vulnerableCode, techStack } = await request.json();
+        const body = await request.json();
 
-        if (!fileName || !issueType) {
-            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        // Validate and sanitize input
+        const validationResult = ExplainRequestSchema.safeParse(body);
+        if (!validationResult.success) {
+            return NextResponse.json({
+                error: 'Invalid request data',
+                details: validationResult.error.format()
+            }, { status: 400 });
         }
+
+        const { fileName, codeSnippet, issueType, vulnerableCode, techStack } = validationResult.data;
+
+        // Sanitize code snippets to prevent prompt injection
+        const safeCodeSnippet = sanitizeInput(codeSnippet);
+        const safeVulnerableCode = vulnerableCode ? sanitizeInput(vulnerableCode) : undefined;
 
         // Generate the high-quality vibe prompt
         const { generateSingleFixPrompt } = await import('@/lib/ai/prompts');
         const vibePrompt = generateSingleFixPrompt(
-            { title: issueType, file: fileName, snippet: codeSnippet, description: '', recommendation: '' },
+            { title: issueType, file: fileName, snippet: safeCodeSnippet, description: '', recommendation: '' },
             techStack || { hasNext: false, hasTypeScript: false }
         );
 
         // Try Ollama first
-        let explanation = await OllamaAI.explainVulnerability(fileName, codeSnippet, issueType);
+        let explanation = await OllamaAI.explainVulnerability(fileName, safeCodeSnippet, issueType);
 
         // Fallback to Mistral if Ollama fails
         if (!explanation) {
             console.log('[AI] Ollama failed, falling back to Mistral');
-            explanation = await MistralAI.explainVulnerability(fileName, codeSnippet, issueType);
+            explanation = await MistralAI.explainVulnerability(fileName, safeCodeSnippet, issueType);
         }
 
         if (!explanation) {
@@ -48,17 +60,17 @@ export async function POST(request: NextRequest) {
 
         // Generate fix suggestion if vulnerable code is provided
         let fixSuggestion = null;
-        if (vulnerableCode) {
+        if (safeVulnerableCode) {
             fixSuggestion = await OllamaAI.generateFixSuggestion(
                 fileName,
-                vulnerableCode,
+                safeVulnerableCode,
                 explanation.summary
             );
 
             if (!fixSuggestion) {
                 fixSuggestion = await MistralAI.generateFixSuggestion(
                     fileName,
-                    vulnerableCode,
+                    safeVulnerableCode,
                     explanation.summary
                 );
             }
