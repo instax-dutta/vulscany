@@ -11,6 +11,30 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Lenis from 'lenis';
 import ReactMarkdown from 'react-markdown';
+import {
+    LayoutDashboard,
+    Shield,
+    Zap,
+    Cpu,
+    History,
+    Trophy,
+    BookOpen,
+    Users,
+    Settings,
+    Search,
+    Github,
+    LogOut,
+    Menu,
+    X,
+    ChevronRight,
+    AlertTriangle,
+    CheckCircle2,
+    ExternalLink,
+    RefreshCw,
+    Play,
+    Terminal,
+    Box
+} from "lucide-react";
 import rehypeSanitize from 'rehype-sanitize';
 import type { Vulnerability } from '@/lib/scanner';
 import Onboarding from '@/components/Onboarding';
@@ -27,12 +51,23 @@ import { ToastNotifications, useToast } from '@/components/ToastNotification';
 
 
 
+interface ExtendedVulnerability extends Vulnerability {
+    aiAnalysis?: {
+        explanation?: {
+            technicalDetails?: string;
+            rootCause?: string;
+            impact?: string;
+        };
+        fixSuggestion?: string;
+    };
+}
+
 interface ScanResult {
     repoName: string;
     owner: string;
     scanTimestamp: string;
     stackInfo: any;
-    vulnerabilities: Vulnerability[];
+    vulnerabilities: ExtendedVulnerability[];
     status: 'safe' | 'needs-attention' | 'high-risk';
     summary: string;
     threatIntelligence?: {
@@ -42,6 +77,7 @@ interface ScanResult {
         advisoryCount: number;
         criticalThreats: number;
         recommendations: string[];
+        displayInUI?: boolean;
     };
 }
 
@@ -64,7 +100,7 @@ export default function Dashboard() {
     const [scanning, setScanning] = useState(false);
     const [scanResults, setScanResults] = useState<Record<string, ScanResult>>({});
     const [currentRepoKey, setCurrentRepoKey] = useState<string | null>(null);
-    const [aiExpanded, setAiExpanded] = useState<Record<string, boolean>>({});
+    const [expandedVulns, setExpandedVulns] = useState<Record<string, boolean>>({});
     const [codeExpanded, setCodeExpanded] = useState<Record<string, boolean>>({});
     const [loadingAnalysis, setLoadingAnalysis] = useState<Record<string, boolean>>({});
 
@@ -86,6 +122,7 @@ export default function Dashboard() {
     const [showGitHubActionModal, setShowGitHubActionModal] = useState(false);
     const [simpleEducationMode, setSimpleEducationMode] = useState(true);
 
+    const [sidebarSearch, setSidebarSearch] = useState('');
     const { toasts, showToast, dismissToast, showSuccess, showAchievement, showSecurityWin } = useToast();
 
 
@@ -211,7 +248,7 @@ export default function Dashboard() {
         setSelectedRepos(new Set());
     };
 
-    const getAiFix = async (vuln: Vulnerability, repoKey: string) => {
+    const getAiFix = async (vuln: ExtendedVulnerability, repoKey: string) => {
         const vulnId = `${repoKey}-${vuln.id}`;
         setLoadingAnalysis(prev => ({ ...prev, [vulnId]: true }));
         const currentRepo = scanResults[repoKey];
@@ -244,7 +281,7 @@ export default function Dashboard() {
                     )
                 }
             }));
-            setAiExpanded(prev => ({ ...prev, [vulnId]: true }));
+            setExpandedVulns(prev => ({ ...prev, [vulnId]: true }));
         } catch (err) {
             console.error(err);
         } finally {
@@ -321,6 +358,12 @@ export default function Dashboard() {
     };
 
 
+    // Navigation for results
+    const filteredRepositories = repositories.filter(repo =>
+        repo.name.toLowerCase().includes(sidebarSearch.toLowerCase()) ||
+        repo.owner.toLowerCase().includes(sidebarSearch.toLowerCase())
+    );
+
     const navigateResults = (direction: 'next' | 'prev') => {
         const keys = Object.keys(displayScanResults);
         const currentIndex = keys.indexOf(currentRepoKey!);
@@ -337,1179 +380,578 @@ export default function Dashboard() {
     const scannedCount = repositories.filter(r => r.scanStatus !== 'pending').length;
 
     return (
-        <div style={{ minHeight: '100vh', color: 'var(--foreground)' }}>
-            {/* Header */}
-            <header className="nav-blur dashboard-header" style={{
-                position: 'sticky',
-                top: 0,
-                zIndex: 100,
-                padding: '1rem 2rem'
-            }}>
-                <div className="container-responsive" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-                        <h1 className="gradient-text dashboard-title" style={{
-                            fontSize: '1.5rem',
-                            fontWeight: '900',
-                            fontFamily: 'var(--font-mono)',
-                            letterSpacing: '-0.05em'
-                        }}>
-                            AEGLYN
-                        </h1>
+        <div className="flex h-screen w-full bg-[#000] text-foreground overflow-hidden font-sans">
+            {/* Sidebar */}
+            <aside className="w-72 border-r border-white/10 flex flex-col bg-[#050505] z-50">
+                {/* Brand & Profile */}
+                <div className="p-4 border-b border-white/5 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-white flex items-center justify-center rounded-md">
+                            <Shield className="w-5 h-5 text-black" />
+                        </div>
+                        <span className="font-mono font-bold tracking-tighter text-lg text-white">AEGLYN</span>
+                    </div>
+                    {userName && (
+                        <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-white/5 border border-white/10">
+                            <div className="w-4 h-4 rounded-full bg-primary" />
+                            <span className="text-[10px] font-mono text-white/60">{userName}</span>
+                        </div>
+                    )}
+                </div>
 
+                {/* Sidebar Navigation / Search */}
+                <div className="px-4 py-4 space-y-4 flex-grow overflow-y-auto custom-scrollbar">
+                    {/* Search Component */}
+                    <div className="relative group">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-primary transition-colors" />
+                        <input
+                            type="text"
+                            placeholder="Find repository..."
+                            className="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-10 pr-4 text-xs font-mono focus:outline-none focus:border-primary/50 transition-all"
+                            value={sidebarSearch}
+                            onChange={(e) => setSidebarSearch(e.target.value)}
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-white/20 border border-white/10 px-1 rounded">/</div>
+                    </div>
+
+                    {/* Achievements Summary Area */}
+                    {userStats && (
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between px-1">
+                                <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest leading-none">Status</span>
+                                <Trophy className="w-3 h-3 text-yellow-500/50" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="bg-white/5 border border-white/10 rounded-lg p-2 text-center">
+                                    <div className="text-xs font-bold text-white mb-0.5">{userStats.totalScans}</div>
+                                    <div className="text-[8px] text-white/40 uppercase">Scans</div>
+                                </div>
+                                <div className="bg-white/5 border border-white/10 rounded-lg p-2 text-center">
+                                    <div className="text-xs font-bold text-primary mb-0.5">{userStats.vulnerabilitiesFixed}</div>
+                                    <div className="text-[8px] text-white/40 uppercase">Fixed</div>
+                                </div>
+                            </div>
+                            <AchievementsPanel stats={userStats} />
+                        </div>
+                    )}
+
+                    {/* Repo List */}
+                    <div className="space-y-3 pt-2">
+                        <div className="flex items-center justify-between px-1">
+                            <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest leading-none">Projects</span>
+                            <span className="text-[10px] font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">{filteredRepositories.length}</span>
+                        </div>
+
+                        <div className="space-y-1">
+                            {loading ? (
+                                <div className="flex items-center justify-center py-8">
+                                    <RefreshCw className="w-5 h-5 text-white/20 animate-spin" />
+                                </div>
+                            ) : filteredRepositories.length === 0 ? (
+                                <div className="text-center py-8 text-[10px] font-mono text-white/20">No repositories found</div>
+                            ) : (
+                                filteredRepositories.map(repo => {
+                                    const isActive = currentRepoKey === `${repo.owner}/${repo.name}`;
+                                    return (
+                                        <button
+                                            key={repo.id}
+                                            onClick={() => batchMode ? toggleRepoSelection(repo.id) : scanRepo(repo)}
+                                            className={`w-full group text-left px-3 py-2 rounded-lg transition-all border flex items-center justify-between ${isActive
+                                                ? 'bg-white/10 border-white/20 text-white'
+                                                : 'bg-transparent border-transparent text-white/50 hover:bg-white/5 hover:text-white/80'
+                                                } ${selectedRepos.has(repo.id) ? 'ring-1 ring-primary/50' : ''}`}
+                                        >
+                                            <div className="flex items-center gap-2.5 min-w-0">
+                                                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${repo.scanStatus === 'critical' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' :
+                                                    repo.scanStatus === 'issues' ? 'bg-amber-500' :
+                                                        repo.scanStatus === 'safe' ? 'bg-emerald-500' :
+                                                            'bg-white/20'
+                                                    }`} />
+                                                <span className="text-xs font-medium truncate leading-none pt-0.5">{repo.name}</span>
+                                            </div>
+                                            {repo.issueCount !== undefined && repo.issueCount > 0 && (
+                                                <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded-md ${repo.scanStatus === 'critical' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
+                                                    }`}>
+                                                    {repo.issueCount}
+                                                </span>
+                                            )}
+                                        </button>
+                                    );
+                                })
+                            )}
+                        </div>
+                    </div>
+
+                    <CommunityPatternsPanel onPatternSubmit={() => { }} />
+                </div>
+
+                {/* Sidebar Bottom */}
+                <div className="p-4 border-t border-white/5 space-y-2">
+                    <button
+                        onClick={() => setShowGitHubActionModal(true)}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-mono text-primary bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-lg transition-all"
+                    >
+                        <Play className="w-3 h-3" />
+                        <span>Setup CI/CD</span>
+                    </button>
+
+                    <button
+                        onClick={() => { fetch('/api/auth/logout', { method: 'POST' }); router.push('/'); }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-mono text-red-500/60 hover:text-red-500 hover:bg-red-500/5 rounded-lg transition-all"
+                    >
+                        <LogOut className="w-3 h-3" />
+                        <span>Sign Out</span>
+                    </button>
+                </div>
+            </aside>
+
+            {/* Main Content Area */}
+            <main className="flex-1 flex flex-col min-w-0 bg-[#000] relative">
+                {/* Top Sticky Nav */}
+                <nav className="h-14 border-b border-white/5 bg-black/50 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-40">
+                    <div className="flex items-center gap-2 text-xs font-mono">
+                        <span className="text-white/40">Projects</span>
+                        <ChevronRight className="w-3 h-3 text-white/20" />
+                        {currentRepoKey ? (
+                            <>
+                                <span className="text-white/60">{currentRepoKey.split('/')[0]}</span>
+                                <ChevronRight className="w-3 h-3 text-white/20" />
+                                <span className="text-white font-bold">{currentRepoKey.split('/')[1]}</span>
+                            </>
+                        ) : (
+                            <span className="text-white/60">Overview</span>
+                        )}
+                    </div>
+
+                    <div className="flex items-center gap-4">
                         <button
                             onClick={() => setBatchMode(!batchMode)}
-                            style={{
-                                background: batchMode ? 'linear-gradient(135deg, #ff0055, #ff5500)' : 'rgba(255, 255, 255, 0.1)',
-                                border: `2px solid ${batchMode ? '#ff0055' : 'var(--primary)'}`,
-                                color: batchMode ? '#fff' : 'var(--primary)',
-                                padding: '0.5rem 1rem',
-                                borderRadius: '0.5rem',
-                                fontSize: '0.75rem',
-                                fontWeight: '700',
-                                cursor: 'pointer',
-                                fontFamily: 'monospace'
-                            }}
+                            className={`px-3 py-1.5 text-[10px] font-bold font-mono rounded-lg border transition-all ${batchMode
+                                ? 'bg-primary text-black border-primary'
+                                : 'bg-white/5 text-white/60 border-white/10 hover:border-white/20'
+                                }`}
                         >
-                            {batchMode ? '⚡ BATCH MODE' : '🎯 SINGLE MODE'}
+                            {batchMode ? 'BATCH ACTIVE' : 'BATCH MODE'}
                         </button>
-
                         {batchMode && selectedRepos.size > 0 && (
                             <button
                                 onClick={scanBatch}
                                 disabled={scanning}
-                                style={{
-                                    background: 'linear-gradient(135deg, var(--primary), var(--primary))',
-                                    border: 'none',
-                                    color: '#0a0a0f',
-                                    padding: '0.5rem 1rem',
-                                    borderRadius: '0.5rem',
-                                    fontSize: '0.75rem',
-                                    fontWeight: '900',
-                                    cursor: scanning ? 'not-allowed' : 'pointer',
-                                    fontFamily: 'monospace',
-                                    opacity: scanning ? 0.5 : 1
-                                }}
+                                className="px-3 py-1.5 text-[10px] font-bold font-mono rounded-lg bg-white text-black hover:bg-white/90 transition-all disabled:opacity-50"
                             >
-                                SCAN {selectedRepos.size} REPOS
+                                SCAN {selectedRepos.size}
                             </button>
                         )}
-
-
                     </div>
+                </nav>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{
-                            fontSize: '0.75rem',
-                            color: 'var(--primary)',
-                            fontFamily: 'monospace'
-                        }}>
-                            {scannedCount}/{repositories.length} SCANNED
-                        </div>
-                        <button
-                            onClick={() => { fetch('/api/auth/logout', { method: 'POST' }); router.push('/'); }}
-                            style={{
-                                background: 'rgba(255, 0, 85, 0.15)',
-                                border: '2px solid rgba(255, 0, 85, 0.5)',
-                                color: '#ff0055',
-                                padding: '0.5rem 1rem',
-                                borderRadius: '0.5rem',
-                                fontSize: '0.75rem',
-                                fontWeight: '700',
-                                cursor: 'pointer',
-                                fontFamily: 'monospace'
-                            }}
-                        >
-                            LOGOUT
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            {/* Security Tip Banner */}
-            <div className="container-responsive">
-                <SecurityTipBanner />
-            </div>
-
-            {/* Main Content */}
-            <main className="dashboard-layout container-responsive dashboard-container" style={{ paddingBottom: '2rem' }}>
+                <div className="flex-1 overflow-y-auto custom-scrollbar">
+                    <div className="max-w-6xl mx-auto p-8 space-y-8">
+                        <SecurityTipBanner />
 
 
-                <div
-                    data-onboarding="repo-section"
-                    data-lenis-prevent
-                    className="glass"
-                    style={{
-                        padding: '1rem',
-                        height: 'calc(100vh - 150px)',
-                        overflow: 'auto',
-                        borderRadius: '1rem'
-                    }}
-                >
-                    {(
-                        <>
-                            <h3 style={{ fontSize: '0.875rem', color: 'var(--primary)', fontFamily: 'monospace', marginBottom: '1rem' }}>
-                                REPOSITORIES ({repositories.length})
-                            </h3>
-
-                            {loading ? (
-                                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--primary)' }}>Loading...</div>
-                            ) : (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                    {repositories.map(repo => (
-                                        <button
-                                            key={repo.id}
-                                            onClick={() => batchMode ? toggleRepoSelection(repo.id) : scanRepo(repo)}
-                                            className="hover-lift"
-                                            style={{
-                                                background: selectedRepos.has(repo.id) ? 'var(--primary-low)' : 'rgba(10, 10, 15, 0.8)',
-                                                border: `2px solid ${repo.scanStatus === 'critical' ? 'var(--color-critical)' :
-                                                    repo.scanStatus === 'issues' ? 'var(--color-high)' :
-                                                        repo.scanStatus === 'safe' ? 'var(--primary)' :
-                                                            selectedRepos.has(repo.id) ? 'var(--primary)' :
-                                                                'var(--border)'
-                                                    }`,
-                                                borderRadius: '0.5rem',
-                                                padding: '0.75rem',
-                                                cursor: 'pointer',
-                                                textAlign: 'left',
-                                                width: '100%'
-                                            }}
-                                        >
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                                                <span style={{ fontSize: '0.875rem', fontWeight: '700', color: 'var(--primary)', fontFamily: 'var(--font-mono)' }}>
-                                                    {repo.name}
-                                                </span>
-                                                {repo.scanStatus !== 'pending' && (
-                                                    <span style={{ fontSize: '0.75rem', color: 'var(--primary)', fontFamily: 'monospace' }}>
-                                                        {repo.scanStatus === 'scanning' ? '⏳' :
-                                                            repo.scanStatus === 'safe' ? '✓' :
-                                                                repo.scanStatus === 'issues' ? '⚠' :
-                                                                    '⚠⚠'}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            {repo.issueCount !== undefined && (
-                                                <div style={{ fontSize: '0.625rem', color: '#666', fontFamily: 'monospace' }}>
-                                                    {repo.issueCount} {repo.issueCount === 1 ? 'issue' : 'issues'}
-                                                </div>
-                                            )}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </>
-                    )}
-
-                    {/* Security Score Widget - show when we have a current result */}
-                    {currentResult && currentResult.vulnerabilities && currentResult.vulnerabilities.length >= 0 && (
-                        <div style={{ marginTop: '1rem' }}>
-                            <SecurityScoreWidget
-                                vulnerabilities={currentResult.vulnerabilities}
-                                onScoreCalculated={(score) => {
-                                    // Update user stats when score is calculated
-                                    if (userStats) {
-                                        const updated = updateStatsAfterScan(
-                                            userStats,
-                                            currentResult.repoName,
-                                            score,
-                                            currentResult.vulnerabilities.length
-                                        );
-                                        setUserStats(updated);
-                                        saveUserStats(updated);
-                                    }
-                                }}
-                            />
-                        </div>
-                    )}
-
-                    {/* Achievements Panel */}
-                    {userStats && (
-                        <AchievementsPanel stats={userStats} />
-                    )}
-
-                    {/* Community Patterns */}
-                    <CommunityPatternsPanel
-                        onPatternSubmit={() => {
-                            // Could refresh patterns or show toast
-                        }}
-                    />
-
-                    {/* GitHub Action Setup Button */}
-                    <button
-                        onClick={() => setShowGitHubActionModal(true)}
-                        style={{
-                            width: '100%',
-                            marginTop: '1rem',
-                            background: 'rgba(255, 255, 255,0.1)',
-                            border: '2px solid rgba(0, 212, 255, 0.3)',
-                            color: 'var(--primary)',
-                            padding: '0.75rem',
-                            borderRadius: '0.5rem',
-                            fontSize: '0.75rem',
-                            fontWeight: '700',
-                            cursor: 'pointer',
-                            fontFamily: 'monospace',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        🎬 SETUP GITHUB ACTION
-                    </button>
-                </div>
-
-
-                {/* Results Panel / KB Content */}
-                <div
-                    data-lenis-prevent
-                    style={{
-                        background: 'rgba(10, 10, 15, 0.6)',
-                        border: '2px solid rgba(255, 255, 255, 0.3)',
-                        borderRadius: '1rem',
-                        padding: '1.5rem',
-                        height: 'calc(100vh - 150px)',
-                        overflow: 'auto'
-                    }}
-                >
-                    {scanning && !currentResult ? (
-                        <div style={{ textAlign: 'center', padding: '3rem' }}>
-                            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
-                            <div style={{ fontSize: '1rem', color: 'var(--primary)', fontFamily: 'monospace' }}>SCANNING...</div>
-                        </div>
-                    ) : null}
-
-                    {currentResult && (
-                        <>
-                            {/* Navigation */}
-                            {Object.keys(displayScanResults).length > 1 && (
-                                <>
-                                    <div style={{ marginBottom: '1rem', borderBottom: '2px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
-                                        <div style={{
-                                            background: 'rgba(255, 255, 255, 0.2)',
-                                            border: '2px solid var(--primary)',
-                                            color: 'var(--primary)',
-                                            padding: '0.5rem 1rem',
-                                            borderRadius: '0.5rem',
-                                            fontSize: '0.75rem',
-                                            fontFamily: 'monospace',
-                                            fontWeight: '800',
-                                            textAlign: 'center'
-                                        }}>
-                                            🔍 SCAN RESULTS
+                        {/* Results Panel */}
+                        <div data-onboarding="results-panel" className="space-y-6">
+                            {scanning && !currentResult ? (
+                                <div className="flex flex-col items-center justify-center py-20 bg-white/[0.02] border border-white/5 rounded-2xl">
+                                    <div className="relative">
+                                        <div className="w-16 h-16 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <Search className="w-6 h-6 text-primary" />
                                         </div>
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                                        <button
-                                            onClick={() => navigateResults('prev')}
-                                            style={{
-                                                background: 'rgba(0, 212, 255, 0.2)',
-                                                border: '2px solid var(--primary)',
-                                                color: 'var(--primary)',
-                                                padding: '0.5rem 1rem',
-                                                borderRadius: '0.5rem',
-                                                fontSize: '0.75rem',
-                                                cursor: 'pointer',
-                                                fontFamily: 'monospace',
-                                                fontWeight: '700'
-                                            }}
-                                        >
-                                            ← PREV
-                                        </button>
-                                        <span style={{ fontSize: '0.75rem', color: 'var(--primary)', fontFamily: 'monospace' }}>
-                                            {Object.keys(displayScanResults).indexOf(currentRepoKey!) + 1} / {Object.keys(displayScanResults).length}
-                                        </span>
-                                        <button
-                                            onClick={() => navigateResults('next')}
-                                            style={{
-                                                background: 'rgba(0, 212, 255, 0.2)',
-                                                border: '2px solid var(--primary)',
-                                                color: 'var(--primary)',
-                                                padding: '0.5rem 1rem',
-                                                borderRadius: '0.5rem',
-                                                fontSize: '0.75rem',
-                                                cursor: 'pointer',
-                                                fontFamily: 'monospace',
-                                                fontWeight: '700'
-                                            }}
-                                        >
-                                            NEXT →
-                                        </button>
+                                    <div className="mt-6 text-sm font-mono text-white/40 tracking-widest uppercase">Analyzing codebase...</div>
+                                    <div className="mt-2 text-[10px] font-mono text-primary/60 animate-pulse">Running advanced security heuristics</div>
+                                </div>
+                            ) : null}
+
+                            {currentResult && (
+                                <>
+                                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                        {/* Sub-header with Stats */}
+                                        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/5">
+                                            <div>
+                                                <h2 className="text-3xl font-bold text-white tracking-tight mb-2">
+                                                    {currentRepoKey?.split('/')[1] || 'Scan Results'}
+                                                </h2>
+                                                <div className="flex items-center gap-4 text-xs font-mono text-white/40">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                                        <span>Last scan: {currentResult._cached ? new Date(currentResult._cacheTimestamp).toLocaleTimeString() : 'Just now'}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <Box className="w-3 h-3" />
+                                                        <span>{currentResult.vulnerabilities.length} Issues Detected</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-3">
+                                                <SecurityScoreWidget
+                                                    vulnerabilities={currentResult.vulnerabilities}
+                                                    onScoreCalculated={(score) => {
+                                                        if (userStats) {
+                                                            const updated = updateStatsAfterScan(
+                                                                userStats,
+                                                                currentResult!.repoName,
+                                                                score,
+                                                                currentResult!.vulnerabilities.length
+                                                            );
+                                                            setUserStats(updated);
+                                                            saveUserStats(updated);
+                                                        }
+                                                    }}
+                                                />
+                                                <button
+                                                    onClick={() => generateMasterFix(currentRepoKey!)}
+                                                    disabled={generatingMaster || currentResult.vulnerabilities.length === 0}
+                                                    className="h-10 px-4 bg-primary/10 hover:bg-primary/20 border border-primary/20 rounded-lg text-xs font-bold font-mono text-primary flex items-center gap-2 transition-all disabled:opacity-50"
+                                                >
+                                                    <Cpu className={`w-3.5 h-3.5 ${generatingMaster ? 'animate-spin' : ''}`} />
+                                                    MASTER FIX
+                                                </button>
+                                                <button
+                                                    onClick={() => scanRepo({ id: currentResult!.repoName, owner: currentResult!.owner, name: currentResult!.repoName } as any, true)}
+                                                    className="h-10 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-bold font-mono text-white flex items-center gap-2 transition-all"
+                                                >
+                                                    <RefreshCw className={`w-3.5 h-3.5 ${scanning ? 'animate-spin' : ''}`} />
+                                                    RESCAN
+                                                </button>
+                                            </div>
+                                        </header>
+
+                                        {/* AIPR Generation Prompt Area */}
+                                        {currentResult.vulnerabilities.length > 0 && (
+                                            <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-2xl p-6 relative overflow-hidden group">
+                                                <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                                                    <div className="space-y-1">
+                                                        <div className="flex items-center gap-2 text-primary">
+                                                            <Zap className="w-4 h-4 fill-primary" />
+                                                            <span className="text-xs font-bold font-mono uppercase tracking-widest">AI Correction Protocol</span>
+                                                        </div>
+                                                        <h3 className="text-lg font-bold text-white">Automate Security Remediation</h3>
+                                                        <p className="text-sm text-white/50 max-w-lg">
+                                                            Our AI agent can generate a comprehensive patch covering all {currentResult.vulnerabilities.length} detected vulnerabilities in a single pull request.
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => generateAutoFixPR(currentRepoKey!)}
+                                                        disabled={generatingPR}
+                                                        className="w-full md:w-auto px-6 py-3 bg-primary text-black font-bold font-mono text-sm rounded-xl hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 disabled:shadow-none"
+                                                    >
+                                                        {generatingPR ? 'ENGINEERING PATCH...' : 'GENERATE AUTO-FIX PR →'}
+                                                    </button>
+                                                </div>
+                                                <div className="absolute right-[-10%] top-[-50%] w-64 h-64 bg-primary/10 blur-[100px] rounded-full pointer-events-none group-hover:bg-primary/20 transition-colors duration-700" />
+                                            </div>
+                                        )}
+
+                                        {/* Vulnerabilities List */}
+                                        <div className="space-y-4">
+                                            {currentResult.vulnerabilities.length > 0 ? (
+                                                currentResult.vulnerabilities.map((vuln: ExtendedVulnerability, vIdx: number) => {
+                                                    const vulnKey = `${currentRepoKey}-${vuln.id || vIdx}`;
+                                                    const isExpanded = expandedVulns[vulnKey];
+                                                    const isAnalyzing = loadingAnalysis[vulnKey];
+                                                    return (
+                                                        <div key={vIdx} className="bg-[#0A0A0A] border border-white/5 rounded-2xl overflow-hidden group hover:border-white/10 transition-colors">
+                                                            {/* Vuln Header */}
+                                                            <div className="p-6 flex items-start justify-between gap-4 border-b border-transparent group-hover:border-white/5 transition-colors">
+                                                                <div className="flex items-start gap-4">
+                                                                    <div className={`mt-1 p-2 rounded-lg ${vuln.severity === 'critical' ? 'bg-red-500/10 text-red-500' :
+                                                                        vuln.severity === 'high' ? 'bg-orange-500/10 text-orange-500' :
+                                                                            'bg-amber-500/10 text-amber-500'
+                                                                        }`}>
+                                                                        <AlertTriangle className="w-5 h-5" />
+                                                                    </div>
+                                                                    <div className="min-w-0">
+                                                                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                                                            <span className="text-lg font-bold text-white leading-tight truncate max-w-[300px]">{vuln.title}</span>
+                                                                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold font-mono tracking-tighter uppercase ${vuln.severity === 'critical' ? 'bg-red-500 text-white' :
+                                                                                vuln.severity === 'high' ? 'bg-orange-500 text-white' :
+                                                                                    'bg-amber-500 text-black'
+                                                                                }`}>
+                                                                                {vuln.severity}
+                                                                            </span>
+                                                                        </div>
+                                                                        <div className="flex items-center gap-3 text-[10px] font-mono text-white/40">
+                                                                            <span className="flex items-center gap-1.5 shrink-0"><Terminal className="w-3 h-3" /> {vuln.file}:{vuln.line}</span>
+                                                                            <span className="w-1 h-1 bg-white/10 rounded-full shrink-0" />
+                                                                            <span className="truncate">{vuln.type.toUpperCase()}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <button
+                                                                    onClick={() => {
+                                                                        const nextState = !isExpanded;
+                                                                        setExpandedVulns(prev => ({ ...prev, [vulnKey]: nextState }));
+                                                                        if (nextState && !vuln.aiAnalysis && !isAnalyzing) {
+                                                                            getAiFix(vuln, currentRepoKey!);
+                                                                        }
+                                                                    }}
+                                                                    className="p-2 hover:bg-white/5 rounded-lg transition-colors shrink-0"
+                                                                >
+                                                                    <ChevronRight className={`w-5 h-5 text-white/40 transition-transform ${isExpanded ? 'rotate-90 text-white' : ''}`} />
+                                                                </button>
+                                                            </div>
+
+                                                            {/* Expanded Details */}
+                                                            <AnimatePresence>
+                                                                {isExpanded && (
+                                                                    <motion.div
+                                                                        initial={{ height: 0, opacity: 0 }}
+                                                                        animate={{ height: 'auto', opacity: 1 }}
+                                                                        exit={{ height: 0, opacity: 0 }}
+                                                                        className="overflow-hidden"
+                                                                    >
+                                                                        <div className="p-6 pt-2 space-y-6">
+                                                                            {/* Code Context */}
+                                                                            <div className="bg-black/40 rounded-xl border border-white/5 overflow-hidden">
+                                                                                <div className="px-3 py-1.5 bg-white/5 border-b border-white/5 text-[10px] font-mono text-white/40 flex items-center gap-2">
+                                                                                    <div className="w-2 h-2 rounded-full bg-red-500/50" />
+                                                                                    VULNERABLE SNIPPET
+                                                                                </div>
+                                                                                <pre className="p-4 text-xs font-mono text-red-200/70 overflow-x-auto custom-scrollbar">
+                                                                                    <code>{vuln.snippet}</code>
+                                                                                </pre>
+                                                                            </div>
+
+                                                                            {/* AI Analysis */}
+                                                                            <div className="grid lg:grid-cols-2 gap-6">
+                                                                                <div className="space-y-4">
+                                                                                    <div className="flex items-center gap-2 text-[10px] font-bold font-mono text-primary uppercase tracking-widest">
+                                                                                        <Cpu className="w-3.5 h-3.5" /> Technical Analysis
+                                                                                    </div>
+                                                                                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5 prose prose-invert prose-sm max-w-none text-white/60 font-mono text-[13px] leading-relaxed">
+                                                                                        <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+                                                                                            {vuln.aiAnalysis?.explanation?.technicalDetails || (isAnalyzing ? 'AI analysis in progress...' : 'Detailed analysis not started.')}
+                                                                                        </ReactMarkdown>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="space-y-4">
+                                                                                    <div className="flex items-center gap-2 text-[10px] font-bold font-mono text-emerald-400 uppercase tracking-widest">
+                                                                                        <Zap className="w-3.5 h-3.5" /> Patch Recommendation
+                                                                                    </div>
+                                                                                    <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-5">
+                                                                                        <div className="prose prose-emerald prose-invert prose-sm max-w-none text-emerald-100/80 font-mono text-[13px] leading-relaxed">
+                                                                                            <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+                                                                                                {vuln.aiAnalysis?.fixSuggestion || (isAnalyzing ? 'Generating recommendation...' : 'Fix suggestion pending...')}
+                                                                                            </ReactMarkdown>
+                                                                                        </div>
+                                                                                        {vuln.aiAnalysis?.fixSuggestion && (
+                                                                                            <button
+                                                                                                onClick={() => {
+                                                                                                    const fix = vuln.aiAnalysis?.fixSuggestion;
+                                                                                                    if (fix) {
+                                                                                                        navigator.clipboard.writeText(fix);
+                                                                                                        setCopiedFix({ ...copiedFix, [vulnKey]: true });
+                                                                                                        setTimeout(() => setCopiedFix({ ...copiedFix, [vulnKey]: false }), 2000);
+                                                                                                    }
+                                                                                                }}
+                                                                                                className={`mt-4 w-full py-2.5 rounded-lg text-[10px] font-bold font-mono flex items-center justify-center gap-2 transition-all ${copiedFix[vulnKey] ? 'bg-emerald-500 text-black' : 'bg-white/10 text-emerald-400 hover:bg-emerald-500/10'
+                                                                                                    }`}
+                                                                                            >
+                                                                                                {copiedFix[vulnKey] ? (
+                                                                                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                                                                                ) : (
+                                                                                                    <History className="w-3.5 h-3.5" />
+                                                                                                )}
+                                                                                                {copiedFix[vulnKey] ? 'COPIED TO CLIPBOARD' : 'COPY PATCH SNIPPET'}
+                                                                                            </button>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <EducationPanel
+                                                                                vulnerabilityType={vuln.type}
+                                                                                isSimpleMode={simpleEducationMode}
+                                                                            />
+                                                                        </div>
+                                                                    </motion.div>
+                                                                )}
+                                                            </AnimatePresence>
+                                                        </div>
+                                                    );
+                                                })
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center py-24 bg-emerald-500/[0.02] border border-emerald-500/10 rounded-[32px] text-center px-6">
+                                                    <div className="w-16 h-16 bg-emerald-500/10 flex items-center justify-center rounded-2xl mb-6">
+                                                        <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                                                    </div>
+                                                    <h3 className="text-2xl font-bold text-white mb-2">Codebase is Protected</h3>
+                                                    <p className="text-sm text-white/40 font-mono max-w-sm uppercase tracking-tight">Zero security vulnerabilities have been detected in this audit cycle.</p>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Threat Intelligence Panel */}
+                                        {currentResult.threatIntelligence && (currentResult.threatIntelligence as any).displayInUI !== false && (
+                                            <div className="mt-8 bg-white/[0.02] border border-white/5 rounded-3xl p-8">
+                                                <div className="flex items-center justify-between mb-8">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
+                                                            <Shield className="w-6 h-6" />
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="text-xl font-bold text-white tracking-tight">Threat Intelligence</h3>
+                                                            <p className="text-xs font-mono text-white/40 uppercase tracking-widest">Advanced Risk Profiling</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className={`px-4 py-1.5 rounded-full text-[10px] font-bold font-mono tracking-widest border ${currentResult.threatIntelligence.riskLevel === 'CRITICAL' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
+                                                        'bg-primary/10 border-primary/20 text-primary'
+                                                        }`}>
+                                                        {currentResult.threatIntelligence.riskLevel} RISK
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid md:grid-cols-3 gap-8">
+                                                    <div className="space-y-4">
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-xs font-mono text-white/40">RISK INDEX</span>
+                                                            <span className="text-2xl font-black text-white">{currentResult.threatIntelligence.riskScore}%</span>
+                                                        </div>
+                                                        <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full bg-primary transition-all duration-1000 ease-out"
+                                                                style={{ width: `${currentResult.threatIntelligence.riskScore}%` }}
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-2 gap-4 col-span-2">
+                                                        <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                                                            <div className="text-[10px] font-mono text-white/40 uppercase mb-1">CVE Identifiers</div>
+                                                            <div className="text-xl font-bold text-white">{currentResult.threatIntelligence.cveCount}</div>
+                                                        </div>
+                                                        <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                                                            <div className="text-[10px] font-mono text-white/40 uppercase mb-1">Security Advisories</div>
+                                                            <div className="text-xl font-bold text-white">{currentResult.threatIntelligence.advisoryCount}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Master Prompt Sidebar/Modal Trigger? No, let's keep it as a box */}
+                                        <AnimatePresence>
+                                            {masterPrompt && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="mt-8 bg-[#0F0F1A] border-2 border-primary/30 rounded-3xl p-8 relative overflow-hidden"
+                                                >
+                                                    <div className="relative z-10">
+                                                        <div className="flex items-center justify-between mb-6">
+                                                            <h3 className="text-xl font-bold text-primary flex items-center gap-2">
+                                                                <Terminal className="w-5 h-5" /> Master Fix Prompt
+                                                            </h3>
+                                                            <div className="flex gap-3">
+                                                                <button
+                                                                    onClick={() => {
+                                                                        navigator.clipboard.writeText(masterPrompt);
+                                                                        showToast({ type: 'success', title: 'COPIED', message: 'Ready for AI IDE', icon: '📋' });
+                                                                    }}
+                                                                    className="px-4 py-2 bg-primary text-black text-xs font-bold font-mono rounded-lg hover:scale-105 active:scale-95 transition-all"
+                                                                >
+                                                                    COPY PROMPT
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => setMasterPrompt(null)}
+                                                                    className="px-4 py-2 bg-white/10 text-white text-xs font-bold font-mono rounded-lg hover:bg-white/20 transition-all"
+                                                                >
+                                                                    CLOSE
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div className="bg-black/40 rounded-2xl p-6 border border-white/5 max-h-[400px] overflow-y-auto custom-scrollbar">
+                                                            <div className="prose prose-invert prose-sm max-w-none text-white/60 font-mono text-[13px]">
+                                                                <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+                                                                    {masterPrompt}
+                                                                </ReactMarkdown>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
                                 </>
                             )}
 
-                            {/* Result Header */}
-                            <div
-                                data-onboarding="scan-results"
-                                style={{
-                                    background: currentResult.status === 'safe' ? 'rgba(255, 255, 255, 0.1)' :
-                                        currentResult.status === 'high-risk' ? 'rgba(255, 0, 85, 0.1)' :
-                                            'rgba(255, 170, 0, 0.1)',
-                                    border: `2px solid ${currentResult.status === 'safe' ? 'var(--primary)' :
-                                        currentResult.status === 'high-risk' ? '#ff0055' : '#ffaa00'
-                                        }`,
-                                    borderRadius: '1rem',
-                                    padding: '1.5rem',
-                                    marginBottom: '1.5rem'
-                                }}>
-                                <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: 'var(--primary)', fontFamily: 'monospace', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                    {currentResult.repoName}
-                                    {(currentResult as any)._cached && (
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                            <span style={{
-                                                fontSize: '0.625rem',
-                                                background: 'rgba(0, 212, 255, 0.2)',
-                                                border: '1px solid var(--primary)',
-                                                color: 'var(--primary)',
-                                                padding: '0.25rem 0.5rem',
-                                                borderRadius: '0.25rem',
-                                                fontWeight: '700'
-                                            }}>
-                                                ⚡ CACHED ({new Date((currentResult as any)._cacheTimestamp || currentResult.scanTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
-                                            </span>
-                                            <button
-                                                onClick={() => {
-                                                    const repo = repositories.find(r => `${r.owner}/${r.name}` === currentRepoKey);
-                                                    if (repo) scanRepo(repo, true);
-                                                }}
-                                                style={{
-                                                    background: 'rgba(255,255,255,0.1)',
-                                                    border: '1px solid rgba(255,255,255,0.2)',
-                                                    color: '#fff',
-                                                    padding: '0.25rem 0.5rem',
-                                                    borderRadius: '0.25rem',
-                                                    fontSize: '0.625rem',
-                                                    fontWeight: '700',
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '0.25rem'
-                                                }}
-                                            >
-                                                🔄 REFRESH SCAN
-                                            </button>
-                                        </div>
-                                    )}
-                                </h2>
-                                <p style={{ fontSize: '0.875rem', color: '#cbd5e1', marginBottom: '1rem' }}>
-                                    {currentResult.summary}
-                                </p>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
-                                    {[
-                                        { label: 'STACK', value: currentResult.stackInfo.stack.toUpperCase() },
-                                        { label: 'VERSION', value: currentResult.stackInfo.version || 'UNKNOWN' },
-                                        { label: 'TYPESCRIPT', value: currentResult.stackInfo.hasTypeScript ? 'YES' : 'NO' },
-                                        { label: 'ISSUES', value: currentResult.vulnerabilities.length }
-                                    ].map((stat, i) => (
-                                        <div key={i} style={{
-                                            background: 'rgba(0, 0, 0, 0.3)',
-                                            borderRadius: '0.5rem',
-                                            padding: '0.75rem',
-                                            textAlign: 'center'
-                                        }}>
-                                            <div style={{ fontSize: '0.625rem', color: '#666', marginBottom: '0.25rem', fontFamily: 'monospace' }}>{stat.label}</div>
-                                            <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--primary)', fontFamily: 'monospace' }}>{stat.value}</div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {/* Master Fix Action */}
-                                {currentResult.vulnerabilities.length > 0 && (
-                                    <div style={{ marginTop: '1.5rem' }}>
-                                        <button
-                                            onClick={() => generateMasterFix(currentRepoKey!)}
-                                            disabled={generatingMaster}
-                                            style={{
-                                                width: '100%',
-                                                background: 'linear-gradient(90deg, #ff0055, #ff5500)',
-                                                border: 'none',
-                                                color: '#fff',
-                                                padding: '0.75rem',
-                                                borderRadius: '0.5rem',
-                                                fontSize: '0.875rem',
-                                                fontWeight: '900',
-                                                cursor: generatingMaster ? 'not-allowed' : 'pointer',
-                                                fontFamily: 'monospace',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                gap: '0.5rem',
-                                                boxShadow: '0 4px 15px rgba(255, 0, 85, 0.3)'
-                                            }}
-                                        >
-                                            {generatingMaster ? '🛠️ GENERATING MASTER PROMPT...' : '🚀 GENERATE MASTER FIX PROMPT'}
-                                        </button>
-                                        <p style={{ fontSize: '0.7rem', color: '#666', textAlign: 'center', marginTop: '0.5rem', fontFamily: 'monospace' }}>
-                                            ONE-SHOT PROMPT FOR CURSOR / WINDSURF / COPILOT
-                                        </p>
+                            {!currentResult && !scanning && (
+                                <div className="flex flex-col items-center justify-center py-40 bg-white/[0.01] border border-white/5 border-dashed rounded-[40px]">
+                                    <div className="w-20 h-20 bg-white/5 flex items-center justify-center rounded-full mb-8">
+                                        <Search className="w-8 h-8 text-white/20" />
                                     </div>
-                                )}
-
-                                {/* Auto-Fix PR Action */}
-                                {currentResult.vulnerabilities.length > 0 && (
-                                    <div style={{ marginTop: '1rem' }}>
-                                        <button
-                                            data-onboarding="auto-fix"
-                                            onClick={() => generateAutoFixPR(currentRepoKey!)}
-                                            disabled={generatingPR}
-                                            style={{
-                                                width: '100%',
-                                                background: generatingPR
-                                                    ? 'linear-gradient(90deg, #666, #888)'
-                                                    : 'linear-gradient(90deg, var(--primary), var(--primary))',
-                                                border: 'none',
-                                                color: generatingPR ? '#ccc' : '#0a0a0f',
-                                                padding: '0.75rem',
-                                                borderRadius: '0.5rem',
-                                                fontSize: '0.875rem',
-                                                fontWeight: '900',
-                                                cursor: generatingPR ? 'not-allowed' : 'pointer',
-                                                fontFamily: 'monospace',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                gap: '0.5rem',
-                                                boxShadow: generatingPR
-                                                    ? 'none'
-                                                    : '0 4px 15px rgba(255, 255, 255, 0.3)',
-                                                transition: 'all 0.3s ease'
-                                            }}
-                                        >
-                                            {generatingPR ? '🔧 CREATING PR...' : '🚀 AUTO-FIX: CREATE PR'}
-                                        </button>
-                                        <p style={{ fontSize: '0.7rem', color: '#666', textAlign: 'center', marginTop: '0.5rem', fontFamily: 'monospace' }}>
-                                            ONE-CLICK PR WITH SECURITY FIXES • PRIVACY-FIRST
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Master Prompt Display */}
-                            <AnimatePresence>
-                                {masterPrompt && (
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.95 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.95 }}
-                                        style={{
-                                            background: 'rgba(10, 10, 15, 0.95)',
-                                            border: '2px solid #ff0055',
-                                            borderRadius: '1rem',
-                                            padding: '1.5rem',
-                                            marginBottom: '1.5rem',
-                                            position: 'relative',
-                                            boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
-                                        }}
-                                    >
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                                            <h3 style={{ fontSize: '1rem', fontWeight: '900', color: '#ff0055', fontFamily: 'monospace' }}>
-                                                🔥 MASTER ONE-SHOT PROMPT
-                                            </h3>
-                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                                <button
-                                                    onClick={() => {
-                                                        navigator.clipboard.writeText(masterPrompt);
-                                                        const btn = document.getElementById('copy-master');
-                                                        if (btn) btn.innerText = 'COPIED!';
-                                                        setTimeout(() => { if (btn) btn.innerText = 'COPY PROMPT'; }, 2000);
-                                                    }}
-                                                    id="copy-master"
-                                                    style={{
-                                                        background: '#ff0055',
-                                                        border: 'none',
-                                                        color: '#fff',
-                                                        padding: '0.5rem 1rem',
-                                                        borderRadius: '0.4rem',
-                                                        fontSize: '0.7rem',
-                                                        fontWeight: '800',
-                                                        cursor: 'pointer',
-                                                        fontFamily: 'monospace'
-                                                    }}
-                                                >
-                                                    COPY PROMPT
-                                                </button>
-                                                <button
-                                                    onClick={() => setMasterPrompt(null)}
-                                                    style={{
-                                                        background: 'rgba(255, 255, 255, 0.1)',
-                                                        border: 'none',
-                                                        color: '#fff',
-                                                        padding: '0.5rem 1rem',
-                                                        borderRadius: '0.4rem',
-                                                        fontSize: '0.7rem',
-                                                        fontWeight: '800',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                >
-                                                    CLOSE
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div style={{
-                                            background: 'rgba(0,0,0,0.4)',
-                                            padding: '1.5rem',
-                                            borderRadius: '0.5rem',
-                                            fontSize: '0.875rem',
-                                            color: '#cbd5e1',
-                                            maxHeight: '500px',
-                                            overflow: 'auto',
-                                            fontFamily: 'monospace',
-                                            lineHeight: '1.6',
-                                            border: '1px solid rgba(255, 0, 85, 0.1)'
-                                        }}>
-                                            <ReactMarkdown
-                                                rehypePlugins={[rehypeSanitize]}
-                                                components={{
-                                                    h1: ({ node, ...props }) => <h1 style={{ color: '#ff0055', fontSize: '1.25rem', fontWeight: '900', marginBottom: '1rem', borderBottom: '1px solid rgba(255,0,85,0.2)', paddingBottom: '0.5rem' }} {...props} />,
-                                                    h2: ({ node, ...props }) => <h2 style={{ color: 'var(--primary)', fontSize: '1.1rem', fontWeight: '800', marginTop: '1.5rem', marginBottom: '0.75rem' }} {...props} />,
-                                                    h3: ({ node, ...props }) => <h3 style={{ color: 'var(--primary)', fontSize: '1rem', fontWeight: '700', marginTop: '1rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }} {...props} />,
-                                                    p: ({ node, ...props }) => <p style={{ marginBottom: '1rem' }} {...props} />,
-                                                    ul: ({ node, ...props }) => <ul style={{ paddingLeft: '1.5rem', marginBottom: '1rem' }} {...props} />,
-                                                    li: ({ node, ...props }) => <li style={{ marginBottom: '0.5rem' }} {...props} />,
-                                                    code: ({ node, ...props }) => (
-                                                        <code style={{
-                                                            background: 'rgba(255, 255, 255, 0.05)',
-                                                            padding: '0.2rem 0.4rem',
-                                                            borderRadius: '4px',
-                                                            color: '#ffaa00',
-                                                            fontSize: '0.85em'
-                                                        }} {...props} />
-                                                    ),
-                                                    pre: ({ node, ...props }) => (
-                                                        <pre style={{
-                                                            background: 'rgba(0,0,0,0.5)',
-                                                            padding: '1rem',
-                                                            borderRadius: '0.5rem',
-                                                            overflow: 'auto',
-                                                            marginBottom: '1rem',
-                                                            border: '1px solid rgba(255,255,255,0.1)'
-                                                        }} {...props} />
-                                                    ),
-                                                    strong: ({ node, ...props }) => <strong style={{ color: '#fff', fontWeight: '800' }} {...props} />
-                                                }}
-                                            >
-                                                {masterPrompt}
-                                            </ReactMarkdown>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-
-                            {/* Threat Intelligence Panel - Only display when displayInUI is true */}
-                            {currentResult.threatIntelligence && (currentResult.threatIntelligence as any).displayInUI !== false && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    style={{
-                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255,0.05))',
-                                        border: '2px solid rgba(255, 255, 255, 0.3)',
-                                        borderRadius: '1rem',
-                                        padding: '1.5rem',
-                                        marginBottom: '1.5rem'
-                                    }}
-                                >
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                            <div style={{ fontSize: '1.5rem' }}>🛡️</div>
-                                            <h3 style={{ fontSize: '1rem', fontWeight: '900', color: 'var(--primary)', fontFamily: 'monospace' }}>
-                                                THREAT INTELLIGENCE
-                                            </h3>
-                                        </div>
-                                        <div style={{
-                                            background: currentResult.threatIntelligence.riskLevel === 'CRITICAL' ? 'rgba(255, 0, 85, 0.2)' :
-                                                currentResult.threatIntelligence.riskLevel === 'HIGH' ? 'rgba(255, 170, 0, 0.2)' :
-                                                    currentResult.threatIntelligence.riskLevel === 'MEDIUM' ? 'rgba(255, 200, 0, 0.2)' :
-                                                        'rgba(255, 255, 255, 0.2)',
-                                            border: `2px solid ${currentResult.threatIntelligence.riskLevel === 'CRITICAL' ? '#ff0055' :
-                                                currentResult.threatIntelligence.riskLevel === 'HIGH' ? '#ffaa00' :
-                                                    currentResult.threatIntelligence.riskLevel === 'MEDIUM' ? '#ffc800' :
-                                                        'var(--primary)'}`,
-                                            borderRadius: '0.5rem',
-                                            padding: '0.5rem 1rem',
-                                            fontFamily: 'monospace',
-                                            fontWeight: '900',
-                                            fontSize: '0.75rem',
-                                            color: currentResult.threatIntelligence.riskLevel === 'CRITICAL' ? '#ff0055' :
-                                                currentResult.threatIntelligence.riskLevel === 'HIGH' ? '#ffaa00' :
-                                                    currentResult.threatIntelligence.riskLevel === 'MEDIUM' ? '#ffc800' :
-                                                        'var(--primary)'
-                                        }}>
-                                            {currentResult.threatIntelligence.riskLevel} RISK
-                                        </div>
-                                    </div>
-
-                                    {/* Risk Score Visualization */}
-                                    <div style={{ marginBottom: '1.5rem' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                            <span style={{ fontSize: '0.75rem', color: '#666', fontFamily: 'monospace' }}>RISK SCORE</span>
-                                            <span style={{ fontSize: '1.25rem', fontWeight: '900', color: 'var(--primary)', fontFamily: 'monospace' }}>
-                                                {currentResult.threatIntelligence.riskScore}/100
-                                            </span>
-                                        </div>
-                                        <div style={{
-                                            width: '100%',
-                                            height: '8px',
-                                            background: 'rgba(0, 0, 0, 0.3)',
-                                            borderRadius: '4px',
-                                            overflow: 'hidden'
-                                        }}>
-                                            <motion.div
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${currentResult.threatIntelligence.riskScore}%` }}
-                                                transition={{ duration: 1, ease: 'easeOut' }}
-                                                style={{
-                                                    height: '100%',
-                                                    background: currentResult.threatIntelligence.riskScore >= 75 ? 'linear-gradient(90deg, #ff0055, #ff5500)' :
-                                                        currentResult.threatIntelligence.riskScore >= 50 ? 'linear-gradient(90deg, #ffaa00, #ffc800)' :
-                                                            currentResult.threatIntelligence.riskScore >= 25 ? 'linear-gradient(90deg, #ffc800, var(--primary))' :
-                                                                'linear-gradient(90deg, var(--primary), var(--primary))'
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Threat Stats */}
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                                        <div style={{
-                                            background: 'rgba(0, 0, 0, 0.3)',
-                                            borderRadius: '0.5rem',
-                                            padding: '0.75rem',
-                                            textAlign: 'center'
-                                        }}>
-                                            <div style={{ fontSize: '0.625rem', color: '#666', marginBottom: '0.25rem', fontFamily: 'monospace' }}>CVEs</div>
-                                            <div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--primary)', fontFamily: 'monospace' }}>
-                                                {currentResult.threatIntelligence.cveCount}
-                                            </div>
-                                        </div>
-                                        <div style={{
-                                            background: 'rgba(0, 0, 0, 0.3)',
-                                            borderRadius: '0.5rem',
-                                            padding: '0.75rem',
-                                            textAlign: 'center'
-                                        }}>
-                                            <div style={{ fontSize: '0.625rem', color: '#666', marginBottom: '0.25rem', fontFamily: 'monospace' }}>ADVISORIES</div>
-                                            <div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--primary)', fontFamily: 'monospace' }}>
-                                                {currentResult.threatIntelligence.advisoryCount}
-                                            </div>
-                                        </div>
-                                        <div style={{
-                                            background: 'rgba(0, 0, 0, 0.3)',
-                                            borderRadius: '0.5rem',
-                                            padding: '0.75rem',
-                                            textAlign: 'center'
-                                        }}>
-                                            <div style={{ fontSize: '0.625rem', color: '#666', marginBottom: '0.25rem', fontFamily: 'monospace' }}>CRITICAL</div>
-                                            <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#ff0055', fontFamily: 'monospace' }}>
-                                                {currentResult.threatIntelligence.criticalThreats}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Recommendations */}
-                                    {currentResult.threatIntelligence.recommendations.length > 0 && (
-                                        <div>
-                                            <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--primary)', marginBottom: '0.5rem', fontFamily: 'monospace' }}>
-                                                SECURITY RECOMMENDATIONS
-                                            </div>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                                {currentResult.threatIntelligence.recommendations.map((rec: string, i: number) => (
-                                                    <div key={i} style={{
-                                                        fontSize: '0.8125rem',
-                                                        color: '#cbd5e1',
-                                                        padding: '0.5rem',
-                                                        background: 'rgba(0, 0, 0, 0.2)',
-                                                        borderRadius: '0.375rem',
-                                                        borderLeft: '3px solid var(--primary)'
-                                                    }}>
-                                                        {rec}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </motion.div>
-                            )}
-
-                            {/* Vulnerabilities */}
-                            {currentResult.vulnerabilities.length > 0 ? (
-                                <div>
-                                    <h3 style={{ fontSize: '0.875rem', color: '#ff0055', fontFamily: 'monospace', marginBottom: '1rem' }}>
-                                        VULNERABILITIES ({currentResult.vulnerabilities.length})
-                                    </h3>
-                                    {currentResult.vulnerabilities.map((vuln: any) => {
-                                        const vulnKey = `${currentRepoKey}-${vuln.id}`;
-                                        return (
-                                            <div key={vuln.id} style={{
-                                                background: 'rgba(255, 0, 85, 0.05)',
-                                                border: '2px solid rgba(255, 0, 85, 0.3)',
-                                                borderRadius: '0.75rem',
-                                                padding: '1rem',
-                                                marginBottom: '1rem'
-                                            }}>
-                                                <div style={{ marginBottom: '0.75rem' }}>
-                                                    <div>
-                                                        <h4 style={{ fontSize: '1rem', fontWeight: '700', color: '#ff0055', marginBottom: '0.25rem' }}>
-                                                            {vuln.title}
-                                                        </h4>
-                                                        <div style={{ fontSize: '0.75rem', color: '#666', fontFamily: 'monospace' }}>
-                                                            {vuln.file} • {vuln.severity}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <p style={{ fontSize: '0.875rem', color: '#cbd5e1', marginBottom: '0.75rem' }}>
-                                                    {vuln.description}
-                                                </p>
-
-                                                {/* Action Buttons */}
-                                                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                                                    <button
-                                                        onClick={() => getAiFix(vuln, currentRepoKey!)}
-                                                        disabled={loadingAnalysis[vulnKey]}
-                                                        style={{
-                                                            background: 'linear-gradient(135deg, var(--primary), var(--primary))',
-                                                            border: 'none',
-                                                            color: '#0a0a0f',
-                                                            padding: '0.5rem 1rem',
-                                                            borderRadius: '0.5rem',
-                                                            fontSize: '0.75rem',
-                                                            fontWeight: '700',
-                                                            cursor: loadingAnalysis[vulnKey] ? 'not-allowed' : 'pointer',
-                                                            fontFamily: 'monospace',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '0.5rem',
-                                                            opacity: loadingAnalysis[vulnKey] ? 0.7 : 1
-                                                        }}
-                                                    >
-                                                        {loadingAnalysis[vulnKey] ? (
-                                                            <>
-                                                                <motion.span
-                                                                    animate={{ rotate: 360 }}
-                                                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                                                    style={{
-                                                                        display: 'inline-block',
-                                                                        width: '12px',
-                                                                        height: '12px',
-                                                                        border: '2px solid #0a0a0f',
-                                                                        borderTopColor: 'transparent',
-                                                                        borderRadius: '50%'
-                                                                    }}
-                                                                />
-                                                                ANALYZING...
-                                                            </>
-                                                        ) : (
-                                                            '🤖 GET AI FIX'
-                                                        )}
-                                                    </button>
-                                                    {vuln.snippet && (
-                                                        <button
-                                                            onClick={() => setCodeExpanded(prev => ({ ...prev, [vulnKey]: !prev[vulnKey] }))}
-                                                            style={{
-                                                                background: 'rgba(255, 170, 0, 0.2)',
-                                                                border: '2px solid #ffaa00',
-                                                                color: '#ffaa00',
-                                                                padding: '0.5rem 1rem',
-                                                                borderRadius: '0.5rem',
-                                                                fontSize: '0.75rem',
-                                                                fontWeight: '700',
-                                                                cursor: 'pointer',
-                                                                fontFamily: 'monospace'
-                                                            }}
-                                                        >
-                                                            {codeExpanded[vulnKey] ? '🔼 HIDE CODE' : '👁️ VIEW CODE'}
-                                                        </button>
-                                                    )}
-                                                </div>
-
-                                                {/* Code Snippet */}
-                                                {vuln.snippet && codeExpanded[vulnKey] && (
-                                                    <div style={{
-                                                        background: 'rgba(10, 10, 15, 0.9)',
-                                                        border: '2px solid rgba(255, 170, 0, 0.3)',
-                                                        borderRadius: '0.5rem',
-                                                        padding: '1rem',
-                                                        marginBottom: '0.75rem',
-                                                        overflow: 'auto',
-                                                        maxHeight: '300px'
-                                                    }}
-                                                        data-lenis-prevent
-                                                    >
-                                                        <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#ffaa00', marginBottom: '0.5rem', fontFamily: 'monospace' }}>
-                                                            VULNERABLE CODE:
-                                                        </div>
-                                                        <pre style={{
-                                                            margin: 0,
-                                                            fontSize: '0.8125rem',
-                                                            color: '#cbd5e1',
-                                                            fontFamily: 'monospace',
-                                                            lineHeight: 1.6,
-                                                            whiteSpace: 'pre-wrap',
-                                                            wordBreak: 'break-word'
-                                                        }}>
-                                                            {vuln.snippet}
-                                                        </pre>
-                                                    </div>
-                                                )}
-
-                                                {vuln.aiAnalysis && aiExpanded[vulnKey] && (
-                                                    <div style={{
-                                                        background: 'rgba(255, 255, 255, 0.05)',
-                                                        border: '2px solid rgba(255, 255, 255, 0.3)',
-                                                        borderRadius: '0.5rem',
-                                                        padding: '1rem',
-                                                        marginTop: '1rem'
-                                                    }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                                            <div style={{ fontSize: '0.875rem', fontWeight: '700', color: 'var(--primary)' }}>
-                                                                AI ANALYSIS & VIBE PROMPT
-                                                            </div>
-                                                            {vuln.aiAnalysis.vibePrompt && (
-                                                                <button
-                                                                    onClick={() => {
-                                                                        navigator.clipboard.writeText(vuln.aiAnalysis.vibePrompt);
-                                                                        const btn = document.getElementById(`copy-${vulnKey}`);
-                                                                        if (btn) btn.innerText = 'COPIED!';
-                                                                        setTimeout(() => { if (btn) btn.innerText = 'COPY FIX PROMPT'; }, 2000);
-                                                                    }}
-                                                                    id={`copy-${vulnKey}`}
-                                                                    style={{
-                                                                        background: 'rgba(255, 255, 255, 0.2)',
-                                                                        border: '1px solid var(--primary)',
-                                                                        color: 'var(--primary)',
-                                                                        padding: '0.25rem 0.5rem',
-                                                                        borderRadius: '0.3rem',
-                                                                        fontSize: '0.625rem',
-                                                                        fontWeight: '800',
-                                                                        cursor: 'pointer',
-                                                                        fontFamily: 'monospace'
-                                                                    }}
-                                                                >
-                                                                    COPY FIX PROMPT
-                                                                </button>
-                                                            )}
-                                                        </div>
-
-                                                        {/* Vibe Prompt Box */}
-                                                        {vuln.aiAnalysis.vibePrompt && (
-                                                            <div style={{
-                                                                background: 'rgba(0,0,0,0.3)',
-                                                                padding: '0.75rem',
-                                                                borderRadius: '0.4rem',
-                                                                marginBottom: '1rem',
-                                                                borderLeft: '3px solid var(--primary)'
-                                                            }}>
-                                                                <div style={{ fontSize: '0.625rem', color: '#666', marginBottom: '0.25rem', fontFamily: 'monospace' }}>TARGETED AI FIX PROMPT:</div>
-                                                                <div style={{ fontSize: '0.75rem', color: 'var(--primary)', fontFamily: 'monospace', whiteSpace: 'pre-wrap', maxHeight: '150px', overflow: 'auto' }}>
-                                                                    {vuln.aiAnalysis.vibePrompt}
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        <div style={{ fontSize: '0.8125rem', color: '#cbd5e1', lineHeight: 1.6, fontFamily: 'monospace' }}>
-                                                            <ReactMarkdown
-                                                                rehypePlugins={[rehypeSanitize]}
-                                                                components={{
-                                                                    h1: ({ node, ...props }) => <h1 style={{ color: 'var(--primary)', fontSize: '1.25rem', fontWeight: '900', marginBottom: '1rem' }} {...props} />,
-                                                                    h2: ({ node, ...props }) => <h2 style={{ color: 'var(--primary)', fontSize: '1.1rem', fontWeight: '800', marginTop: '1.5rem', marginBottom: '0.75rem' }} {...props} />,
-                                                                    h3: ({ node, ...props }) => <h3 style={{ color: '#ffaa00', fontSize: '1rem', fontWeight: '700', marginTop: '1rem', marginBottom: '0.5rem' }} {...props} />,
-                                                                    p: ({ node, ...props }) => <p style={{ marginBottom: '0.75rem' }} {...props} />,
-                                                                    a: ({ node, ...props }) => <a style={{ color: 'var(--primary)', textDecoration: 'underline' }} {...props} />,
-                                                                    code: ({ node, ...props }) => <code style={{ background: 'rgba(0,0,0,0.3)', padding: '0.2rem', borderRadius: '4px', color: '#ffaa00' }} {...props} />,
-                                                                    pre: ({ node, ...props }) => (
-                                                                        <pre style={{
-                                                                            background: 'rgba(0,0,0,0.5)',
-                                                                            padding: '1rem',
-                                                                            borderRadius: '0.5rem',
-                                                                            overflow: 'auto',
-                                                                            marginBottom: '1rem',
-                                                                            border: '1px solid rgba(0,255,136,0.2)'
-                                                                        }} {...props} />
-                                                                    ),
-                                                                    ul: ({ node, ...props }) => <ul style={{ paddingLeft: '1.5rem', marginBottom: '0.75rem' }} {...props} />,
-                                                                    li: ({ node, ...props }) => <li style={{ marginBottom: '0.25rem' }} {...props} />,
-                                                                    strong: ({ node, ...props }) => <strong style={{ color: '#fff', fontWeight: '700' }} {...props} />
-                                                                }}
-                                                            >
-                                                                {(vuln.aiAnalysis.explanation?.technicalDetails || 'Analysis complete') +
-                                                                    (vuln.aiAnalysis.fixSuggestion ? `\n\n### 🚀 SUGGESTED FIX\n${vuln.aiAnalysis.fixSuggestion}` : '')}
-                                                            </ReactMarkdown>
-                                                        </div>
-
-                                                        {/* Copy Fix Snippet Button */}
-                                                        {vuln.aiAnalysis.fixSuggestion && (
-                                                            <motion.div
-                                                                initial={{ opacity: 0, y: 10 }}
-                                                                animate={{ opacity: 1, y: 0 }}
-                                                                style={{ marginTop: '1rem' }}
-                                                            >
-                                                                <button
-                                                                    onClick={() => {
-                                                                        navigator.clipboard.writeText(vuln.aiAnalysis.fixSuggestion);
-                                                                        setCopiedFix({ ...copiedFix, [vulnKey]: true });
-                                                                        setTimeout(() => {
-                                                                            setCopiedFix({ ...copiedFix, [vulnKey]: false });
-                                                                        }, 2500);
-                                                                    }}
-                                                                    style={{
-                                                                        width: '100%',
-                                                                        background: copiedFix[vulnKey]
-                                                                            ? 'linear-gradient(90deg, var(--primary), var(--primary))'
-                                                                            : 'linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(0, 204, 255, 0.1))',
-                                                                        border: copiedFix[vulnKey]
-                                                                            ? '2px solid var(--primary)'
-                                                                            : '1px solid rgba(255, 255, 255, 0.3)',
-                                                                        color: copiedFix[vulnKey] ? '#0a0a0f' : 'var(--primary)',
-                                                                        padding: '0.75rem 1rem',
-                                                                        borderRadius: '0.5rem',
-                                                                        fontSize: '0.8125rem',
-                                                                        fontWeight: '800',
-                                                                        cursor: 'pointer',
-                                                                        fontFamily: 'monospace',
-                                                                        display: 'flex',
-                                                                        alignItems: 'center',
-                                                                        justifyContent: 'center',
-                                                                        gap: '0.5rem',
-                                                                        transition: 'all 0.3s ease',
-                                                                        boxShadow: copiedFix[vulnKey]
-                                                                            ? '0 4px 15px rgba(255, 255, 255, 0.4)'
-                                                                            : '0 2px 8px rgba(0, 0, 0, 0.2)'
-                                                                    }}
-                                                                    onMouseEnter={(e: any) => {
-                                                                        if (!copiedFix[vulnKey]) {
-                                                                            e.currentTarget.style.borderColor = 'var(--primary)';
-                                                                            e.currentTarget.style.transform = 'translateY(-2px)';
-                                                                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 255, 255, 0.3)';
-                                                                        }
-                                                                    }}
-                                                                    onMouseLeave={(e: any) => {
-                                                                        if (!copiedFix[vulnKey]) {
-                                                                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                                                                            e.currentTarget.style.transform = 'translateY(0)';
-                                                                            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.2)';
-                                                                        }
-                                                                    }}
-                                                                >
-                                                                    {copiedFix[vulnKey] ? (
-                                                                        <>
-                                                                            <motion.span
-                                                                                initial={{ scale: 0 }}
-                                                                                animate={{ scale: 1 }}
-                                                                                transition={{ type: 'spring', stiffness: 500 }}
-                                                                            >
-                                                                                ✓
-                                                                            </motion.span>
-                                                                            COPIED TO CLIPBOARD!
-                                                                        </>
-                                                                    ) : (
-                                                                        <>
-                                                                            📋 COPY FIX SNIPPET
-                                                                        </>
-                                                                    )}
-                                                                </button>
-                                                                <p style={{ fontSize: '0.65rem', color: '#666', textAlign: 'center', marginTop: '0.5rem', fontFamily: 'monospace' }}>
-                                                                    ONE-CLICK COPY • PASTE INTO YOUR IDE
-                                                                </p>
-                                                            </motion.div>
-                                                        )}
-                                                    </div>
-                                                )}
-
-                                                {/* Education Panel */}
-                                                <EducationPanel
-                                                    vulnerabilityType={vuln.type}
-                                                    isSimpleMode={simpleEducationMode}
-                                                />
-                                            </div>
-                                        );
-                                    })}
-
-                                </div>
-                            ) : (
-                                <div style={{
-                                    background: 'rgba(255, 255, 255, 0.1)',
-                                    border: '2px solid var(--primary)',
-                                    borderRadius: '1rem',
-                                    padding: '3rem',
-                                    textAlign: 'center'
-                                }}>
-                                    <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>✓</div>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: '900', color: 'var(--primary)', fontFamily: 'monospace' }}>
-                                        ALL CLEAR
-                                    </div>
+                                    <h3 className="text-2xl font-bold text-white mb-3 tracking-tight">Select a Project</h3>
+                                    <p className="text-white/40 text-sm font-mono max-w-xs text-center leading-relaxed">
+                                        Choose a repository from the left sidebar to initiate a deep security audit.
+                                    </p>
                                 </div>
                             )}
-                        </>
-                    )}
-
-                    {!currentResult && !scanning && (
-                        <div style={{ textAlign: 'center', padding: '4rem', color: '#666' }}>
-                            <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>👁️</div>
-                            <div style={{ fontSize: '1rem', fontFamily: 'monospace' }}>SELECT A REPO TO SCAN</div>
                         </div>
-                    )}
+                    </div>
                 </div>
+            </main>
 
-                {/* PR Success Modal */}
+            {/* Modals & Overlays */}
+            <AnimatePresence>
                 {showPRSuccess && prResult && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        style={{
-                            position: 'fixed',
-                            inset: 0,
-                            background: 'rgba(0, 0, 0, 0.8)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            zIndex: 9999,
-                            padding: '2rem',
-                            backdropFilter: 'blur(10px)'
-                        }}
+                        className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] flex items-center justify-center p-6"
                         onClick={() => setShowPRSuccess(false)}
                     >
                         <motion.div
                             initial={{ scale: 0.9, y: 20 }}
                             animate={{ scale: 1, y: 0 }}
-                            onClick={(e) => e.stopPropagation()}
-                            style={{
-                                background: 'linear-gradient(135deg, rgba(10, 10, 15, 0.95), rgba(0, 20, 30, 0.95))',
-                                border: '2px solid var(--primary)',
-                                borderRadius: '1rem',
-                                padding: '2.5rem',
-                                maxWidth: '550px',
-                                width: '100%',
-                                boxShadow: '0 20px 60px rgba(255, 255, 255, 0.3)'
-                            }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            className="bg-[#0A0A0A] border border-white/10 rounded-[32px] p-10 max-w-xl w-full text-center relative overflow-hidden"
+                            onClick={e => e.stopPropagation()}
                         >
-                            <div style={{ textAlign: 'center' }}>
-                                <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ delay: 0.2, type: 'spring' }}
-                                    style={{ fontSize: '5rem', marginBottom: '1rem' }}
-                                >
-                                    🎉
-                                </motion.div>
-                                <motion.h2
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    style={{
-                                        fontSize: '2rem',
-                                        fontWeight: '900',
-                                        background: 'linear-gradient(90deg, var(--primary), var(--primary))',
-                                        WebkitBackgroundClip: 'text',
-                                        WebkitTextFillColor: 'transparent',
-                                        marginBottom: '1.5rem',
-                                        fontFamily: 'monospace',
-                                        letterSpacing: '0.05em'
-                                    }}
-                                >
-                                    PR CREATED!
-                                </motion.h2>
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.4 }}
-                                >
-                                    <p style={{
-                                        color: '#cbd5e1',
-                                        marginBottom: '0.75rem',
-                                        lineHeight: 1.7,
-                                        fontSize: '1rem'
-                                    }}>
-                                        Your security fixes have been committed to:
-                                    </p>
-                                    <div style={{
-                                        background: 'rgba(255, 255, 255, 0.1)',
-                                        border: '1px solid rgba(255, 255, 255, 0.3)',
-                                        padding: '1rem',
-                                        borderRadius: '0.5rem',
-                                        marginBottom: '2rem'
-                                    }}>
-                                        <code style={{
-                                            color: 'var(--primary)',
-                                            fontFamily: 'monospace',
-                                            fontSize: '0.875rem',
-                                            wordBreak: 'break-all'
-                                        }}>
-                                            {prResult.branch}
-                                        </code>
-                                    </div>
-                                </motion.div>
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.5 }}
-                                    style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}
-                                >
+                            <div className="relative z-10">
+                                <div className="w-24 h-24 bg-primary/10 flex items-center justify-center rounded-3xl mx-auto mb-8">
+                                    <Shield className="w-12 h-12 text-primary fill-primary/20" />
+                                </div>
+                                <h2 className="text-3xl font-black text-white tracking-tighter mb-4 uppercase">PR GENERATED</h2>
+                                <p className="text-white/50 text-base font-mono mb-8 leading-relaxed px-4">
+                                    The security patch for <span className="text-white">{currentRepoKey}</span> is ready for review.
+                                </p>
+
+                                <div className="space-y-4">
                                     <a
                                         href={prResult.prUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        style={{
-                                            background: 'linear-gradient(90deg, var(--primary), var(--primary))',
-                                            color: '#0a0a0f',
-                                            padding: '1rem 2rem',
-                                            borderRadius: '0.5rem',
-                                            fontSize: '1rem',
-                                            fontWeight: '800',
-                                            textDecoration: 'none',
-                                            fontFamily: 'monospace',
-                                            boxShadow: '0 4px 15px rgba(255, 255, 255, 0.4)',
-                                            display: 'block',
-                                            transition: 'transform 0.2s ease',
-                                            textAlign: 'center'
-                                        }}
-                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                                        className="block w-full py-4 bg-white text-black font-black font-mono text-sm rounded-2xl hover:bg-white/90 active:scale-[0.98] transition-all"
                                     >
-                                        VIEW PULL REQUEST #{prResult.prNumber} →
+                                        VIEW PULL REQUEST →
                                     </a>
                                     <button
                                         onClick={() => setShowPRSuccess(false)}
-                                        style={{
-                                            background: 'rgba(255, 255, 255, 0.05)',
-                                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                                            color: '#cbd5e1',
-                                            padding: '0.875rem 2rem',
-                                            borderRadius: '0.5rem',
-                                            fontSize: '0.875rem',
-                                            fontWeight: '700',
-                                            cursor: 'pointer',
-                                            fontFamily: 'monospace',
-                                            transition: 'all 0.2s ease'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                                        }}
+                                        className="block w-full py-4 text-white/40 hover:text-white text-xs font-bold font-mono tracking-widest transition-colors uppercase"
                                     >
-                                        CLOSE
+                                        Dismiss
                                     </button>
-                                </motion.div>
+                                </div>
                             </div>
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 via-white to-primary/50" />
                         </motion.div>
                     </motion.div>
                 )}
-            </main>
 
-            {/* Onboarding */}
-            <AnimatePresence>
                 {showOnboarding && (
                     <Onboarding
                         onComplete={() => setShowOnboarding(false)}
                         onDemoDataChange={setDemoScanResults}
                     />
                 )}
-            </AnimatePresence>
 
-            {/* GitHub Action Setup Modal */}
-            {/* GitHub Action Setup Modal */}
-            <AnimatePresence>
                 {showGitHubActionModal && (
                     <GitHubActionModal
                         isOpen={showGitHubActionModal}
@@ -1517,8 +959,8 @@ export default function Dashboard() {
                     />
                 )}
             </AnimatePresence>
+
             <ToastNotifications toasts={toasts} onDismiss={dismissToast} />
         </div>
-
     );
 }
