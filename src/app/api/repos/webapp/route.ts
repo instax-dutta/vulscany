@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { fetchUserRepositories } from '@/lib/github/client';
 import { detectStack } from '@/lib/github/stack-detector';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function GET(request: NextRequest) {
     const cookieStore = await cookies();
@@ -14,6 +15,12 @@ export async function GET(request: NextRequest) {
 
     if (!token) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate limit repository listing (20 per minute)
+    const { success } = await rateLimit(request, 20, 60);
+    if (!success) {
+        return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     try {
