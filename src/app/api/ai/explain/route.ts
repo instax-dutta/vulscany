@@ -8,6 +8,8 @@ import { cookies } from 'next/headers';
 import * as OllamaAI from '@/lib/ai/ollama';
 import * as MistralAI from '@/lib/ai/mistral';
 import { ExplainRequestSchema, sanitizeInput } from '@/lib/validators/api-validators';
+import { withTimeout } from '@/lib/utils/promise';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
@@ -15,6 +17,12 @@ export async function POST(request: NextRequest) {
 
     if (!token) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate limit AI requests (15 per minute)
+    const { success } = await rateLimit(request, 15, 60);
+    if (!success) {
+        return NextResponse.json({ error: 'Cooldown active', message: 'You are generating fixes too fast!' }, { status: 429 });
     }
 
     try {
@@ -42,13 +50,29 @@ export async function POST(request: NextRequest) {
             techStack || { hasNext: false, hasTypeScript: false }
         );
 
-        // Try Ollama first
-        let explanation = await OllamaAI.explainVulnerability(fileName, safeCodeSnippet, issueType);
+        // Try Ollama first with 15s timeout
+        let explanation;
+        try {
+            explanation = await withTimeout(
+                OllamaAI.explainVulnerability(fileName, safeCodeSnippet, issueType),
+                15000,
+                'Ollama timeout'
+            );
+        } catch (err) {
+            console.log('[AI] Ollama timeout or error');
+        }
 
-        // Fallback to Mistral if Ollama fails
+        // Fallback to Mistral if Ollama fails or times out
         if (!explanation) {
-            console.log('[AI] Ollama failed, falling back to Mistral');
-            explanation = await MistralAI.explainVulnerability(fileName, safeCodeSnippet, issueType);
+            try {
+                explanation = await withTimeout(
+                    MistralAI.explainVulnerability(fileName, safeCodeSnippet, issueType),
+                    15000,
+                    'Mistral timeout'
+                );
+            } catch (err) {
+                console.error('[AI] Mistral failed too');
+            }
         }
 
         if (!explanation) {

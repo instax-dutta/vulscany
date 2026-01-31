@@ -8,6 +8,7 @@ import { cookies } from 'next/headers';
 import { fetchUserRepositories } from '@/lib/github/client';
 import { detectStack } from '@/lib/github/stack-detector';
 import { scanRepository } from '@/lib/scanner';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function GET(request: NextRequest) {
     // Get GitHub token from cookie
@@ -42,6 +43,22 @@ export async function POST(request: NextRequest) {
 
     if (!token) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Apply rate limiting (e.g., 30 scans per minute per IP)
+    const { success, limit, remaining, reset } = await rateLimit(request, 30, 60);
+    if (!success) {
+        return NextResponse.json(
+            { error: 'Too Many Requests', message: 'Rate limit exceeded. Please try again in a minute.' },
+            {
+                status: 429,
+                headers: {
+                    'X-RateLimit-Limit': limit.toString(),
+                    'X-RateLimit-Remaining': remaining.toString(),
+                    'X-RateLimit-Reset': reset.toString(),
+                }
+            }
+        );
     }
 
     try {

@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { scanRepository } from '@/lib/scanner';
 import { detectStack } from '@/lib/github/stack-detector';
+import { rateLimit } from '@/lib/rate-limit';
 
 interface BatchScanRequest {
     repositories: Array<{
@@ -21,6 +22,22 @@ export async function POST(request: NextRequest) {
 
     if (!token) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Apply strict rate limiting for batch ops (10 per minute)
+    const { success, limit, remaining, reset } = await rateLimit(request, 10, 60);
+    if (!success) {
+        return NextResponse.json(
+            { error: 'Too Many Requests', message: 'Batch scan limit reached. Please wait a minute.' },
+            {
+                status: 429,
+                headers: {
+                    'X-RateLimit-Limit': limit.toString(),
+                    'X-RateLimit-Remaining': remaining.toString(),
+                    'X-RateLimit-Reset': reset.toString(),
+                }
+            }
+        );
     }
 
     try {
