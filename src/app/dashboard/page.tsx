@@ -432,8 +432,12 @@ export default function Dashboard() {
                 {/* Brand & Profile */}
                 <div className="p-4 border-b border-white/5 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 flex items-center justify-center rounded-lg overflow-hidden bg-white/5 border border-white/10">
-                            <img src="/logo.png" alt="AEGLYN" className="w-full h-full object-cover" />
+                        <div className="w-8 h-8 flex items-center justify-center rounded-lg overflow-hidden bg-white/5 border border-white/10 p-1">
+                            <img
+                                src="https://mirror.sdad.pro/vulscany-logo-nobg.png"
+                                alt="AEGLYN"
+                                className="w-full h-full object-contain invert brightness-200"
+                            />
                         </div>
                         <span className="font-mono font-bold tracking-tighter text-lg text-white">AEGLYN</span>
                     </div>
