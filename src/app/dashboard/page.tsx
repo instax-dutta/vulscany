@@ -43,10 +43,9 @@ import {
     AchievementsPanel,
     EducationPanel,
     CommunityPatternsPanel,
-    SecurityTipBanner,
-    GitHubActionModal
+    SecurityTipBanner
 } from '@/components/DashboardFeatures';
-import { loadUserStats, saveUserStats, updateStatsAfterScan, updateStatsAfterFix, type UserStats } from '@/lib/security-score';
+import { loadUserStats, saveUserStats, updateStatsAfterScan, updateStatsAfterFix, calculateScore, type UserStats } from '@/lib/security-score';
 import { ToastNotifications, useToast } from '@/components/ToastNotification';
 
 
@@ -119,9 +118,9 @@ export default function Dashboard() {
 
     // New Feature States
     const [userStats, setUserStats] = useState<UserStats | null>(null);
-    const [showGitHubActionModal, setShowGitHubActionModal] = useState(false);
     const [simpleEducationMode, setSimpleEducationMode] = useState(true);
 
+    const [userAvatar, setUserAvatar] = useState<string | null>(null);
     const [sidebarSearch, setSidebarSearch] = useState('');
     const { toasts, showToast, dismissToast, showSuccess, showAchievement, showSecurityWin } = useToast();
 
@@ -141,9 +140,36 @@ export default function Dashboard() {
 
     // Load user stats
     useEffect(() => {
-        const stats = loadUserStats();
+        let stats = loadUserStats();
+        // Emergency cleanup: if stats were inflated by the previous infinite loop bug
+        if (stats.totalScans > 1000000) {
+            stats.totalScans = Math.min(stats.reposScanned || 1, 10); // Reset to something sane
+            saveUserStats(stats);
+        }
         setUserStats(stats);
     }, []);
+
+    // Fetch user session for avatar
+    useEffect(() => {
+        const fetchSession = async () => {
+            try {
+                const res = await fetch('/api/auth/session');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.user?.avatar_url) {
+                        setUserAvatar(data.user.avatar_url);
+                        // If they haven't set a name in onboarding, use GitHub name/login
+                        if (!userName && (data.user.name || data.user.login)) {
+                            setUserName(data.user.name || data.user.login);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to fetch session:', err);
+            }
+        };
+        fetchSession();
+    }, [userName]);
 
 
     // Lenis is handled by SmoothScroll at the root layout
@@ -207,6 +233,19 @@ export default function Dashboard() {
             const status = data.scanResult.vulnerabilities.length === 0 ? 'safe' :
                 data.scanResult.status === 'high-risk' ? 'critical' : 'issues';
             updateRepoStatus(repo.id, status, data.scanResult.vulnerabilities.length);
+
+            // Update user stats (only for real scans, not cached ones)
+            if (!data.cached && userStats) {
+                const calculatedScore = calculateScore(data.scanResult.vulnerabilities);
+                const updated = updateStatsAfterScan(
+                    userStats,
+                    repo.name,
+                    calculatedScore,
+                    data.scanResult.vulnerabilities.length
+                );
+                setUserStats(updated);
+                saveUserStats(updated);
+            }
 
             // Show cache notification if applicable
             if (data.cached) {
@@ -346,6 +385,13 @@ export default function Dashboard() {
                 });
                 setShowPRSuccess(true);
                 showSecurityWin();
+
+                // Update user stats - increment fix count
+                if (userStats) {
+                    const updated = updateStatsAfterFix(userStats, repo.vulnerabilities.length);
+                    setUserStats(updated);
+                    saveUserStats(updated);
+                }
             } else {
                 showToast({ type: 'warning', title: 'PR FAILED', message: data.error || 'Unknown error', icon: '⚠️' });
             }
@@ -386,21 +432,30 @@ export default function Dashboard() {
                 {/* Brand & Profile */}
                 <div className="p-4 border-b border-white/5 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-white flex items-center justify-center rounded-md">
-                            <Shield className="w-5 h-5 text-black" />
+                        <div className="w-8 h-8 flex items-center justify-center rounded-lg overflow-hidden bg-white/5 border border-white/10">
+                            <img src="/logo.png" alt="AEGLYN" className="w-full h-full object-cover" />
                         </div>
                         <span className="font-mono font-bold tracking-tighter text-lg text-white">AEGLYN</span>
                     </div>
                     {userName && (
-                        <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-white/5 border border-white/10">
-                            <div className="w-4 h-4 rounded-full bg-primary" />
-                            <span className="text-[10px] font-mono text-white/60">{userName}</span>
+                        <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer">
+                            {userAvatar ? (
+                                <img src={userAvatar} alt={userName} className="w-5 h-5 rounded-full object-cover border border-white/20" />
+                            ) : (
+                                <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-[8px] font-bold text-primary border border-primary/30">
+                                    {userName.charAt(0).toUpperCase()}
+                                </div>
+                            )}
+                            <span className="text-[10px] font-mono font-bold text-white/80 pr-1">{userName}</span>
                         </div>
                     )}
                 </div>
 
                 {/* Sidebar Navigation / Search */}
-                <div className="px-4 py-4 space-y-4 flex-grow overflow-y-auto custom-scrollbar">
+                <div
+                    className="px-4 py-4 space-y-4 flex-grow overflow-y-auto custom-scrollbar"
+                    data-lenis-prevent
+                >
                     {/* Search Component */}
                     <div className="relative group">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-primary transition-colors" />
@@ -488,14 +543,6 @@ export default function Dashboard() {
                 {/* Sidebar Bottom */}
                 <div className="p-4 border-t border-white/5 space-y-2">
                     <button
-                        onClick={() => setShowGitHubActionModal(true)}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-mono text-primary bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-lg transition-all"
-                    >
-                        <Play className="w-3 h-3" />
-                        <span>Setup CI/CD</span>
-                    </button>
-
-                    <button
                         onClick={() => { fetch('/api/auth/logout', { method: 'POST' }); router.push('/'); }}
                         className="w-full flex items-center gap-2 px-3 py-2 text-xs font-mono text-red-500/60 hover:text-red-500 hover:bg-red-500/5 rounded-lg transition-all"
                     >
@@ -545,7 +592,10 @@ export default function Dashboard() {
                     </div>
                 </nav>
 
-                <div className="flex-1 overflow-y-auto custom-scrollbar">
+                <div
+                    className="flex-1 overflow-y-auto custom-scrollbar"
+                    data-lenis-prevent
+                >
                     <div className="max-w-6xl mx-auto p-8 space-y-8">
                         <SecurityTipBanner />
 
@@ -589,18 +639,6 @@ export default function Dashboard() {
                                             <div className="flex items-center gap-3">
                                                 <SecurityScoreWidget
                                                     vulnerabilities={currentResult.vulnerabilities}
-                                                    onScoreCalculated={(score) => {
-                                                        if (userStats) {
-                                                            const updated = updateStatsAfterScan(
-                                                                userStats,
-                                                                currentResult!.repoName,
-                                                                score,
-                                                                currentResult!.vulnerabilities.length
-                                                            );
-                                                            setUserStats(updated);
-                                                            saveUserStats(updated);
-                                                        }
-                                                    }}
                                                 />
                                                 <button
                                                     onClick={() => generateMasterFix(currentRepoKey!)}
@@ -949,13 +987,6 @@ export default function Dashboard() {
                     <Onboarding
                         onComplete={() => setShowOnboarding(false)}
                         onDemoDataChange={setDemoScanResults}
-                    />
-                )}
-
-                {showGitHubActionModal && (
-                    <GitHubActionModal
-                        isOpen={showGitHubActionModal}
-                        onClose={() => setShowGitHubActionModal(false)}
                     />
                 )}
             </AnimatePresence>
