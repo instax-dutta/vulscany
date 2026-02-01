@@ -45,6 +45,7 @@ import {
     CommunityPatternsPanel,
     SecurityTipBanner
 } from '@/components/DashboardFeatures';
+import { ThreatIntelligencePanel } from '@/components/ThreatIntelligencePanel';
 import { loadUserStats, saveUserStats, updateStatsAfterScan, updateStatsAfterFix, calculateScore, type UserStats } from '@/lib/security-score';
 import { ToastNotifications, useToast } from '@/components/ToastNotification';
 
@@ -830,50 +831,10 @@ export default function Dashboard() {
 
                                         {/* Threat Intelligence Panel */}
                                         {currentResult.threatIntelligence && (currentResult.threatIntelligence as any).displayInUI !== false && (
-                                            <div className="mt-8 bg-white/[0.02] border border-white/5 rounded-3xl p-8">
-                                                <div className="flex items-center justify-between mb-8">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
-                                                            <Shield className="w-6 h-6" />
-                                                        </div>
-                                                        <div>
-                                                            <h3 className="text-xl font-bold text-white tracking-tight">Threat Intelligence</h3>
-                                                            <p className="text-xs font-mono text-white/40 uppercase tracking-widest">Advanced Risk Profiling</p>
-                                                        </div>
-                                                    </div>
-                                                    <div className={`px-4 py-1.5 rounded-full text-[10px] font-bold font-mono tracking-widest border ${currentResult.threatIntelligence.riskLevel === 'CRITICAL' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
-                                                        'bg-primary/10 border-primary/20 text-primary'
-                                                        }`}>
-                                                        {currentResult.threatIntelligence.riskLevel} RISK
-                                                    </div>
-                                                </div>
-
-                                                <div className="grid md:grid-cols-3 gap-8">
-                                                    <div className="space-y-4">
-                                                        <div className="flex items-center justify-between">
-                                                            <span className="text-xs font-mono text-white/40">RISK INDEX</span>
-                                                            <span className="text-2xl font-black text-white">{currentResult.threatIntelligence.riskScore}%</span>
-                                                        </div>
-                                                        <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                                                            <div
-                                                                className="h-full bg-primary transition-all duration-1000 ease-out"
-                                                                style={{ width: `${currentResult.threatIntelligence.riskScore}%` }}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="grid grid-cols-2 gap-4 col-span-2">
-                                                        <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                                                            <div className="text-[10px] font-mono text-white/40 uppercase mb-1">CVE Identifiers</div>
-                                                            <div className="text-xl font-bold text-white">{currentResult.threatIntelligence.cveCount}</div>
-                                                        </div>
-                                                        <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                                                            <div className="text-[10px] font-mono text-white/40 uppercase mb-1">Security Advisories</div>
-                                                            <div className="text-xl font-bold text-white">{currentResult.threatIntelligence.advisoryCount}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <ThreatIntelligencePanel
+                                                threatData={currentResult.threatIntelligence}
+                                                repoName={currentRepoKey?.split('/')[1]}
+                                            />
                                         )}
 
                                         {/* Master Prompt Sidebar/Modal Trigger? No, let's keep it as a box */}

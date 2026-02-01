@@ -150,14 +150,37 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        // Step 4: Create mode - create the PR
-        console.log('[Generate PR] Creating pull request...');
+        // Step 4: CRITICAL VALIDATION GATE - Block PR creation if errors exist
+        if (hasErrors) {
+            const errorDetails = validationResults
+                .filter(r => !r.validation.valid)
+                .map(r => `\n- ${r.filePath}:\n  ${r.validation.errors.join('\n  ')}`)
+                .join('');
+
+            console.error('[Generate PR] BLOCKING PR creation due to validation errors:', errorDetails);
+
+            return NextResponse.json(
+                {
+                    error: 'Cannot create PR: Generated code has critical errors',
+                    blocked: true,
+                    reason: 'The AI-generated fixes contain syntax errors or security regressions that would break your build.',
+                    details: errorDetails,
+                    recommendation: 'Please report this issue. Our AI will be retrained to handle this pattern.',
+                    validationResults: validationResults.filter(r => !r.validation.valid)
+                },
+                { status: 422 } // Unprocessable Entity
+            );
+        }
+
+        // Step 5: Create mode - create the PR (only if validation passed)
+        console.log('[Generate PR] ✅ Validation passed. Creating pull request...');
         const prResult = await createSecurityFixPR(
             accessToken,
             owner,
             repo,
             fixes,
-            baseBranch
+            baseBranch,
+            validationResults // Pass validation results to PR creator
         );
 
         return NextResponse.json({

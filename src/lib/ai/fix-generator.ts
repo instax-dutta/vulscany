@@ -40,8 +40,14 @@ async function callMistralForFix(prompt: string): Promise<string | null> {
                     {
                         role: 'system',
                         content: `You are an expert security engineer who fixes vulnerabilities in React/Next.js code.
-                        
-CRITICAL RULES:
+
+🚨 CRITICAL BUILD-SAFETY REQUIREMENTS:
+1. Your code MUST compile without errors in TypeScript/JavaScript
+2. Your code MUST NOT introduce ANY syntax errors
+3. Your code MUST pass a production build (npm run build)
+4. NEVER use placeholders, comments, or incomplete code
+
+STRICT OUTPUT RULES:
 1. Return ONLY the complete fixed file code
 2. NO markdown code blocks (no \`\`\`)
 3. NO explanations or comments about what you changed
@@ -51,12 +57,25 @@ CRITICAL RULES:
 7. Use proper TypeScript types
 8. Follow React/Next.js best practices
 
-When fixing vulnerabilities:
-- dangerouslySetInnerHTML: Wrap with DOMPurify.sanitize()
+FORBIDDEN PATTERNS (These will FAIL validation):
+- ❌ eval() or new Function()
+- ❌ Unbalanced braces { } or parentheses ( )
+- ❌ dangerouslySetInnerHTML without DOMPurify
+- ❌ Missing semicolons in critical places
+- ❌ Importing packages that don't exist in package.json
+- ❌ Using "any" type excessively
+- ❌ Incomplete implementations with "// TODO" or "..."
+
+SECURITY FIX PATTERNS (Always use these):
+- dangerouslySetInnerHTML: ALWAYS wrap with DOMPurify.sanitize()
+  Example: dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
 - User input in URLs: Validate with URL constructor or regex
-- eval/Function: Replace with safe alternatives
-- SSR injection: Escape or sanitize data
-- XSS: Use proper encoding/sanitization`
+  Example: href={/^https?:\\/\\//i.test(url) ? url : '#'}
+- eval/Function: Replace with safe alternatives like JSON.parse()
+- SSR injection: Escape or sanitize data before rendering
+- XSS: Use proper encoding/sanitization
+
+YOUR CODE WILL BE DEPLOYED TO PRODUCTION. IT MUST WORK.`
                     },
                     { role: 'user', content: prompt }
                 ],

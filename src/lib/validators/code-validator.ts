@@ -62,10 +62,34 @@ export function validateGeneratedCode(code: string, availablePackages: string[] 
         }
     }
 
-    // 3. Security Regression Check
+    // 3. JSX-specific validation for React/Next.js
+    const jsxBraces = (code.match(/\{[^}]*\}/g) || []);
+    for (const brace of jsxBraces) {
+        // Check for common JSX syntax errors
+        if (brace.includes('}}}}') || brace.includes('{{{{')) {
+            warnings.push('Potential JSX brace nesting issue detected');
+        }
+    }
+
+    // 4. React Hook Rules (basic check)
+    if (code.includes('useState') || code.includes('useEffect')) {
+        // Hooks should be at top level of component
+        const hookInConditional = /if\s*\([^)]*\)\s*\{[^}]*use[A-Z]/.test(code);
+        if (hookInConditional) {
+            errors.push('React hooks cannot be called inside conditions or loops');
+        }
+    }
+
+    // 5. TypeScript 'any' overuse check
+    const anyCount = (code.match(/:\s*any\b/g) || []).length;
+    if (anyCount > 5) {
+        warnings.push(`Excessive use of 'any' type (${anyCount} instances) - may hide type errors`);
+    }
+
+    // 6. Security Regression Check
     const dangerousPatterns = [
         { pattern: /\beval\s*\(/, name: 'eval()' },
-        { pattern: /dangerouslySetInnerHTML/, name: 'dangerouslySetInnerHTML' },
+        { pattern: /dangerouslySetInnerHTML(?!.*DOMPurify)/, name: 'dangerouslySetInnerHTML without sanitization' },
         { pattern: /\bnew\s+Function\s*\(/, name: 'new Function()' },
         { pattern: /v-html/, name: 'v-html (Vue XSS)' },
         { pattern: /\[innerHTML\]/, name: 'innerHTML (Angular XSS)' }
@@ -73,13 +97,39 @@ export function validateGeneratedCode(code: string, availablePackages: string[] 
 
     for (const { pattern, name } of dangerousPatterns) {
         if (pattern.test(code)) {
-            errors.push(`Security Regression: AI introduced dangerous pattern '${name}'`);
+            errors.push(`Security Regression: dangerous pattern '${name}' detected`);
         }
     }
 
-    // 4. Incomplete Code detection
-    if (code.includes('// ...') || code.includes('/* ... */') || code.includes('// rest of code')) {
-        errors.push('Incomplete code: AI provided placeholders instead of full implementation');
+    // 7. Incomplete Code detection
+    const incompletePatterns = [
+        '// ...',
+        '/* ... */',
+        '// rest of code',
+        '// TODO',
+        '// FIXME',
+        '...',  // Only if it's a comment or placeholder, not spread operator
+    ];
+
+    for (const pattern of incompletePatterns) {
+        if (code.includes(pattern)) {
+            // Avoid false positives with spread operator
+            if (pattern === '...' && /\[\.\.\./.test(code)) {
+                continue; // This is a spread operator, not a placeholder
+            }
+            errors.push(`Incomplete code: Found placeholder '${pattern}'`);
+            break;
+        }
+    }
+
+    // 8. Function return validation (basic heuristic)
+    const functionDeclarations = code.match(/function\s+\w+\s*\([^)]*\)\s*:\s*\w+/g) || [];
+    for (const func of functionDeclarations) {
+        // If function has a return type, it should have a return statement
+        const funcName = func.match(/function\s+(\w+)/)?.[1];
+        if (funcName && !code.includes(`return`) && !func.includes(': void')) {
+            warnings.push(`Function '${funcName}' declares a return type but may be missing return statement`);
+        }
     }
 
     return {
