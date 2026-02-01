@@ -73,83 +73,77 @@ export function SecurityScoreWidget({ vulnerabilities, onScoreCalculated }: Secu
 
     if (!score) return null;
 
-    const circumference = 2 * Math.PI * 45;
+    const circumference = 2 * Math.PI * 34; // Slightly smaller for horizontal fit
     const progress = (animatedScore / 100) * circumference;
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            style={{
-                background: 'rgba(10, 10, 15, 0.8)',
-                border: '2px solid rgba(255, 255, 255, 0.3)',
-                borderRadius: '1rem',
-                padding: '1.5rem',
-                textAlign: 'center'
-            }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex flex-col md:flex-row items-center gap-4 md:gap-6 bg-white/[0.03] border border-white/10 rounded-2xl p-4 md:px-6 md:py-3 transition-colors hover:bg-white/[0.05]"
         >
-            <div style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--primary)', marginBottom: '1rem' }}>
-                SECURITY SCORE
-            </div>
-
-            <div style={{ position: 'relative', width: '120px', height: '120px', margin: '0 auto' }}>
-                <svg width="120" height="120" style={{ transform: 'rotate(-90deg)' }}>
+            {/* Left Side: Circular Score */}
+            <div className="relative w-16 h-16 shrink-0">
+                <svg width="64" height="64" className="rotate-[-90deg]">
                     <circle
-                        cx="60"
-                        cy="60"
-                        r="45"
+                        cx="32"
+                        cy="32"
+                        r="28"
                         fill="none"
-                        stroke="rgba(255, 255, 255, 0.1)"
-                        strokeWidth="10"
+                        stroke="rgba(255, 255, 255, 0.05)"
+                        strokeWidth="6"
                     />
                     <circle
-                        cx="60"
-                        cy="60"
-                        r="45"
+                        cx="32"
+                        cy="32"
+                        r="28"
                         fill="none"
                         stroke={getScoreColor(animatedScore)}
-                        strokeWidth="10"
+                        strokeWidth="6"
                         strokeDasharray={circumference}
                         strokeDashoffset={circumference - progress}
                         strokeLinecap="round"
-                        style={{ transition: 'stroke-dashoffset 0.1s ease' }}
+                        className="transition-all duration-300 ease-out"
                     />
                 </svg>
-                <div style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    fontSize: '2rem',
-                    fontWeight: '900',
-                    color: getScoreColor(animatedScore),
-                    fontFamily: 'monospace'
-                }}>
+                <div
+                    className="absolute inset-0 flex items-center justify-center font-mono font-black text-lg"
+                    style={{ color: getScoreColor(animatedScore) }}
+                >
                     {animatedScore}
                 </div>
             </div>
 
-            <div style={{
-                marginTop: '0.75rem',
-                fontSize: '0.875rem',
-                fontWeight: '700',
-                color: getScoreColor(score.score)
-            }}>
-                {getScoreLabel(score.score)}
-            </div>
+            {/* Right Side: Label & Breakdown */}
+            <div className="flex flex-col items-center md:items-start min-w-[140px]">
+                <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] font-mono font-bold text-white/40 uppercase tracking-widest leading-none">Status</span>
+                    <span
+                        className="text-xs font-bold leading-none"
+                        style={{ color: getScoreColor(score.score) }}
+                    >
+                        {getScoreLabel(score.score)}
+                    </span>
+                </div>
 
-            <div style={{
-                marginTop: '1rem',
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '0.5rem',
-                fontSize: '0.625rem',
-                fontFamily: 'monospace'
-            }}>
-                <div style={{ color: '#ff0055' }}>🔴 CRIT: {score.breakdown.critical}</div>
-                <div style={{ color: '#ff6600' }}>⚠️ HIGH: {score.breakdown.high}</div>
-                <div style={{ color: '#ffaa00' }}>🟡 MED: {score.breakdown.medium}</div>
-                <div style={{ color: 'var(--primary)' }}>🟢 LOW: {score.breakdown.low}</div>
+                <div className="flex items-center gap-3 mt-1">
+                    <div className="flex items-center gap-1.5" title="Critical Issues">
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                        <span className="text-[10px] font-mono font-bold text-white/60">{score.breakdown.critical}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5" title="High Risk Issues">
+                        <div className="w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
+                        <span className="text-[10px] font-mono font-bold text-white/60">{score.breakdown.high}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5" title="Medium Risk Issues">
+                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                        <span className="text-[10px] font-mono font-bold text-white/60">{score.breakdown.medium}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5" title="Low Risk Issues">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                        <span className="text-[10px] font-mono font-bold text-white/60">{score.breakdown.low}</span>
+                    </div>
+                </div>
             </div>
         </motion.div>
     );
