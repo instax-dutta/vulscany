@@ -71,12 +71,17 @@ export function ThreatIntelligencePanel({ threatData, repoName }: ThreatIntellig
                     {/* Circular Gauge Background */}
                     <div className="relative w-40 h-20 mb-4">
                         {/* Base Arc */}
-                        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 160 80">
+                        <svg
+                            className="absolute inset-0 w-full h-full"
+                            viewBox="0 0 160 80"
+                            preserveAspectRatio="xMidYMid meet"
+                            style={{ shapeRendering: 'geometricPrecision' }}
+                        >
                             <path
                                 d="M 10 70 A 70 70 0 0 1 150 70"
                                 fill="none"
                                 stroke="rgba(255,255,255,0.05)"
-                                strokeWidth="12"
+                                strokeWidth="14"
                                 strokeLinecap="round"
                             />
                             {/* Active Arc */}
@@ -84,7 +89,7 @@ export function ThreatIntelligencePanel({ threatData, repoName }: ThreatIntellig
                                 d="M 10 70 A 70 70 0 0 1 150 70"
                                 fill="none"
                                 stroke={riskLevel === 'CRITICAL' ? '#ef4444' : riskLevel === 'HIGH' ? '#f97316' : riskLevel === 'MEDIUM' ? '#f59e0b' : '#10b981'}
-                                strokeWidth="12"
+                                strokeWidth="14"
                                 strokeLinecap="round"
                                 strokeDasharray={220}
                                 strokeDashoffset={220 - (220 * riskScore) / 100}
@@ -92,6 +97,7 @@ export function ThreatIntelligencePanel({ threatData, repoName }: ThreatIntellig
                                 animate={{ strokeDashoffset: 220 - (220 * riskScore) / 100 }}
                                 transition={{ duration: 1.5, ease: 'easeOut' }}
                                 className={`drop-shadow-[0_0_8px_currentColor]`}
+                                style={{ shapeRendering: 'geometricPrecision' }}
                             />
                         </svg>
                         {/* Needle Indicator */}
