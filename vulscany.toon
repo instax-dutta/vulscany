@@ -1,0 +1,87 @@
+{
+  "product_protocol": {
+    "identity": {
+      "name": "Aeglyn",
+      "tagline": "Privacy-First React Security Sentinel",
+      "vision": "To empower indie developers and solopreneurs with enterprise-grade security auditing without the baggage of heavy configurations or privacy compromises.",
+      "symbolism": "Derived from 'Aegis' (protection) and 'Lyn' (vision/insight). A sentinel that sees what others miss.",
+      "branding": {
+        "logo_logic": "Textless, initials-based, minimalist geometric design. Symbolizes clean structure and unbreakable boundaries.",
+        "domain": "example.com",
+        "seo_keywords": ["React Security Scanner", "Privacy-First Code Audit", "AI Security Assistant", "Indie Dev Security", "GitHub Vulnerability Scanner"]
+      }
+    },
+    "market_positioning": {
+      "target_audience": ["Indie Developers", "Solopreneurs", "Small Starter Agencies", "Full-stack Freelancers"],
+      "competitor_divergence": {
+        "vs_snyk": "Aeglyn is lightweight, zero-config, and specifically optimized for the React/Next.js ecosystem vs Snyk's enterprise-heavy generalized approach.",
+        "vs_coderabbit": "Aeglyn focuses on identifying active security vulnerabilities and technical debt rather than general PR code review."
+      },
+      "criticality": "Aeglyn prevents 'Identity Leak' and 'CSR/XSS' disasters before they hit production. Without it, developers risk account hijacks and data breaches due to unintentional dangerous API usage."
+    }
+  },
+  "technical_doctrine": {
+    "core_stack": {
+      "frontend": "Next.js 15 (App Router), Tailwind CSS v4.0, Framer Motion",
+      "backend": "Next.js Serverless Functions, Edge Runtime Middleware",
+      "ai_orchestration": "Dual-Stream Fallback: Local Ollama (Mistral-7B) | Cloud Mistral Large",
+      "persistence": "Upstash Redis (Global REST Layer) - No permanent DB storage of source code."
+    },
+    "architecture_logic": {
+      "github_auth": "OAuth 2.0 flow -> github_token cookie (HTTPOnly) -> Middleware validation -> 2-hour sliding expiration.",
+      "scanner_engine": {
+        "logic": "Recursive DFS (Depth=6) crawling. 150-file limit. Regex pattern library matching security hotspots.",
+        "privacy": "Only metadata (id, type, line_num, severity) is cached. Code snippets reside in transient memory during analysis only."
+      }
+    },
+    "security_hardening": {
+        "headers": ["CSP", "X-Frame-Options: DENY", "X-Content-Type-Options: nosniff", "Strict-Transport-Security"],
+        "logic": "Middleware checks authentication for all /dashboard routes. Rate limiting enforced per IP (30/min)."
+    }
+  },
+  "business_monetization_doctrine": {
+    "model": "Credit-Based Freemium",
+    "rationale": "Allows predictable scaling and prevents API abuse. Credits correlate directly to compute cost on the AI/Scanner layer.",
+    "pricing_tiers": {
+      "free_tier": {
+        "credits": 10,
+        "frequency": "Monthly reset (No carry-forward)",
+        "access": "Basic Scan, AI Technical Explanations"
+      },
+      "one_time_packs": {
+        "benefit": "Unused credits carry forward indefinitely",
+        "target": "Freelancers with infrequent, intense audit needs"
+      },
+      "subscription_plans": {
+        "benefit": "Bulk discount, Priority AI processing, Team features",
+        "target": "Agencies and active Project Developers"
+      }
+    },
+    "feature_usage_cost": {
+      "repository_scan": "1 Credit",
+      "ai_fix_generation": "2 Credits",
+      "pr_automation": "1 Credit"
+    }
+  },
+  "operational_doctrine": {
+    "founders": [
+      { "name": "Sai Dutta Abhishek Dash", "role": "Architect / Visionary" },
+      { "name": "Tejes Munde", "role": "Engineering / Security Operations" }
+    ],
+    "payments_legal": {
+      "provider": "Dodo Payments",
+      "setup": "Merchant of Record (MoR) for automated tax/compliance. No local company registration required.",
+      "preference": "Local payment support (INR) via UPI/Cards where available through Dodo."
+    },
+    "privacy_trust_pledge": [
+      "No source code persistent storage.",
+      "Minified code snippets used in AI prompts.",
+      "Tokens expire every 2 hours to minimize session hijacking risk."
+    ]
+  },
+  "roadmap_doctrine": {
+    "phase_1_baseline": ["GitHub OAuth", "Vulnerability Scanner", "AI Explainability", "Horizontal UI Dashboard"],
+    "phase_2_launch": ["Dodo Payments Integration", "Credit Wallet System", "Mass Repo Management", "AI-Generated README Security Seals"],
+    "phase_3_growth": ["Multi-org GitHub support", "Slack/Discord Alerts", "API for CI/CD Pipelines", "Organization-wide Health Scoreboards"]
+  }
+}

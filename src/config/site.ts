@@ -20,7 +20,7 @@ export const SITE_CONFIG = {
         name: 'Aeglyn',
         tagline: 'Privacy-First React Security Scanner',
         description: 'AI-Powered Threat Intelligence for React Applications',
-        internalName: 'VulScany', // For development/internal use only
+        internalName: 'Aeglyn', // For development/internal use only
     },
 
     // Navigation Links
