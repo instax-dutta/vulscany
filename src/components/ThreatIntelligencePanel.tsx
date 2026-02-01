@@ -77,6 +77,16 @@ export function ThreatIntelligencePanel({ threatData, repoName }: ThreatIntellig
                             preserveAspectRatio="xMidYMid meet"
                             style={{ shapeRendering: 'geometricPrecision' }}
                         >
+                            {/* Define SVG glow filter (native, no rasterization) */}
+                            <defs>
+                                <filter id="gaugeGlow" x="-50%" y="-50%" width="200%" height="200%">
+                                    <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur" />
+                                        <feMergeNode in="SourceGraphic" />
+                                    </feMerge>
+                                </filter>
+                            </defs>
                             <path
                                 d="M 10 70 A 70 70 0 0 1 150 70"
                                 fill="none"
@@ -96,7 +106,7 @@ export function ThreatIntelligencePanel({ threatData, repoName }: ThreatIntellig
                                 initial={{ strokeDashoffset: 220 }}
                                 animate={{ strokeDashoffset: 220 - (220 * riskScore) / 100 }}
                                 transition={{ duration: 1.5, ease: 'easeOut' }}
-                                className={`drop-shadow-[0_0_8px_currentColor]`}
+                                filter="url(#gaugeGlow)"
                                 style={{ shapeRendering: 'geometricPrecision' }}
                             />
                         </svg>
