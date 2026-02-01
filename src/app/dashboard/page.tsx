@@ -46,6 +46,7 @@ import {
     SecurityTipBanner
 } from '@/components/DashboardFeatures';
 import { ThreatIntelligencePanel } from '@/components/ThreatIntelligencePanel';
+import { DashboardErrorBoundary } from '@/components/DashboardErrorBoundary';
 import { loadUserStats, saveUserStats, updateStatsAfterScan, updateStatsAfterFix, calculateScore, type UserStats } from '@/lib/security-score';
 import { ToastNotifications, useToast } from '@/components/ToastNotification';
 
@@ -91,7 +92,7 @@ interface Repository {
     issueCount?: number;
 }
 
-export default function Dashboard() {
+function Dashboard() {
     const router = useRouter();
     const [repositories, setRepositories] = useState<Repository[]>([]);
     const [loading, setLoading] = useState(true);
@@ -190,13 +191,38 @@ export default function Dashboard() {
     const fetchRepos = async () => {
         try {
             const res = await fetch('/api/repos/webapp');
+
+            // Handle session expiration
+            if (res.status === 401) {
+                showToast({
+                    type: 'warning',
+                    title: 'Session Expired',
+                    message: 'Redirecting to login...',
+                    icon: '🔒'
+                });
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
+                return;
+            }
+
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+            }
+
             const data = await res.json();
             setRepositories((data.repositories || []).map((r: any) => ({
                 ...r,
                 scanStatus: 'pending'
             })));
         } catch (err) {
-            console.error(err);
+            console.error('[Dashboard] Failed to fetch repos:', err);
+            showToast({
+                type: 'warning',
+                title: 'Load Failed',
+                message: 'Unable to load repositories. Please refresh.',
+                icon: '⚠️'
+            });
         } finally {
             setLoading(false);
         }
@@ -219,7 +245,33 @@ export default function Dashboard() {
                     force // Pass force parameter to bypass cache
                 })
             });
+
+            // CRITICAL: Check for 401 BEFORE parsing JSON
+            if (res.status === 401) {
+                showToast({
+                    type: 'warning',
+                    title: 'Session Expired',
+                    message: 'Your session has expired. Redirecting to login...',
+                    icon: '🔒'
+                });
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+                return;
+            }
+
+            // Check for other HTTP errors
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
+                throw new Error(errorData.error || errorData.message || `HTTP ${res.status}`);
+            }
+
             const data = await res.json();
+
+            // SAFETY: Validate data structure before accessing nested properties
+            if (!data.scanResult || !data.scanResult.vulnerabilities) {
+                throw new Error('Invalid scan response format');
+            }
 
             // Store scan result with cache metadata
             const scanResultWithMeta = {
@@ -254,8 +306,15 @@ export default function Dashboard() {
             } else {
                 showSuccess('Scan Complete', `Found ${data.scanResult.vulnerabilities.length} issues in ${repo.name}`);
             }
-        } catch (err) {
+        } catch (err: any) {
+            console.error('[Dashboard] Scan failed:', err);
             updateRepoStatus(repo.id, 'pending');
+            showToast({
+                type: 'warning',
+                title: 'Scan Failed',
+                message: err.message || 'Unable to complete scan. Please try again.',
+                icon: '⚠️'
+            });
         } finally {
             setScanning(false);
         }
@@ -958,5 +1017,14 @@ export default function Dashboard() {
 
             <ToastNotifications toasts={toasts} onDismiss={dismissToast} />
         </div>
+    );
+}
+
+// Wrap with Error Boundary for graceful crash handling
+export default function DashboardWithErrorBoundary() {
+    return (
+        <DashboardErrorBoundary>
+            <Dashboard />
+        </DashboardErrorBoundary>
     );
 }
