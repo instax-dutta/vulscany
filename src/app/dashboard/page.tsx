@@ -761,21 +761,21 @@ export default function Dashboard() {
 
                                                                             {/* AI Analysis */}
                                                                             <div className="grid lg:grid-cols-2 gap-6">
-                                                                                <div className="space-y-4">
+                                                                                <div className="space-y-4 min-w-0">
                                                                                     <div className="flex items-center gap-2 text-[10px] font-bold font-mono text-primary uppercase tracking-widest">
                                                                                         <Cpu className="w-3.5 h-3.5" /> Technical Analysis
                                                                                     </div>
-                                                                                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5 prose prose-invert prose-sm max-w-none text-white/60 font-mono text-[13px] leading-relaxed">
+                                                                                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5 prose prose-invert prose-sm max-w-none text-white/60 font-mono text-[13px] leading-relaxed overflow-x-auto custom-scrollbar">
                                                                                         <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
                                                                                             {vuln.aiAnalysis?.explanation?.technicalDetails || (isAnalyzing ? 'AI analysis in progress...' : 'Detailed analysis not started.')}
                                                                                         </ReactMarkdown>
                                                                                     </div>
                                                                                 </div>
-                                                                                <div className="space-y-4">
+                                                                                <div className="space-y-4 min-w-0">
                                                                                     <div className="flex items-center gap-2 text-[10px] font-bold font-mono text-emerald-400 uppercase tracking-widest">
                                                                                         <Zap className="w-3.5 h-3.5" /> Patch Recommendation
                                                                                     </div>
-                                                                                    <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-5">
+                                                                                    <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-5 overflow-x-auto custom-scrollbar">
                                                                                         <div className="prose prose-emerald prose-invert prose-sm max-w-none text-emerald-100/80 font-mono text-[13px] leading-relaxed">
                                                                                             <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
                                                                                                 {vuln.aiAnalysis?.fixSuggestion || (isAnalyzing ? 'Generating recommendation...' : 'Fix suggestion pending...')}
