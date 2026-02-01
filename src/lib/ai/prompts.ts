@@ -34,7 +34,7 @@ ${v.snippet || '// Snippet not available for this issue'}
     }).join('\n');
 
     return `
-# VullScanny Master Security Fix Mission 🛡️
+# Aeglyn Master Security Fix Mission 🛡️
 
 I am scanning the project **${repoName}** and I need you to fix the following security vulnerabilities in one shot. 
 This project uses **${techStack.framework}** (${techStack.reactVersion}) with **${techStack.isTypeScript ? 'TypeScript' : 'JavaScript'}**.
