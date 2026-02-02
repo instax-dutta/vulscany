@@ -11,6 +11,8 @@ import { getFileContent } from '@/lib/github/client';
 import { getProjectContext, buildContextString } from '@/lib/ai/pr-context';
 import { validateGeneratedCode, formatValidationReport } from '@/lib/validators/code-validator';
 import type { Vulnerability } from '@/lib/scanner';
+import { incrementUserMetric } from '@/lib/user/stats';
+import { rateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -182,6 +184,21 @@ export async function POST(request: NextRequest) {
             baseBranch,
             validationResults // Pass validation results to PR creator
         );
+
+        // Increment Redis stats (non-blocking)
+        const sessionCookie = cookieStore.get('session');
+        if (sessionCookie) {
+            try {
+                const session = JSON.parse(sessionCookie.value);
+                const userId = session.id;
+                if (userId) {
+                    incrementUserMetric(userId, 'totalFixes');
+                    incrementUserMetric(userId, 'vulnerabilitiesFixed', vulnerabilities.length);
+                }
+            } catch (err) {
+                console.error('[Generate PR] Failed to increment fix stats:', err);
+            }
+        }
 
         return NextResponse.json({
             success: true,

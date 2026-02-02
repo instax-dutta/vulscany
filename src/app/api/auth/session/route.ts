@@ -21,6 +21,7 @@ export async function GET() {
             // Return user data (without sensitive info)
             response = NextResponse.json({
                 user: {
+                    id: session.id,
                     login: session.login,
                     name: session.name,
                     avatar_url: session.avatar_url,
