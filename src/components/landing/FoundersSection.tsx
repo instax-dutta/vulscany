@@ -31,8 +31,8 @@ export function FoundersSection() {
                     </div>
 
                     <div className="pt-8 border-t border-white/5 text-center">
-                        <p className="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em]">
-                            Together they have shipped 30+ production tools and experimental primitives.
+                        <p className="max-w-2xl mx-auto text-[10px] font-mono text-white/30 uppercase tracking-[0.15em] leading-relaxed">
+                            Ex-founders of two successfully acquired ventures. Together, they have shipped a prolific ecosystem of Micro-SaaS platforms, developer primitives, and high-impact open-source tools.
                         </p>
                     </div>
                 </div>
