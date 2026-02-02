@@ -1,7 +1,7 @@
 # 📊 Aeglyn: Project Status
 
 **Milestone**: Launch Readiness (V1.0-RC3)  
-**Last Sync**: 2026-02-01 09:05:00Z
+**Last Sync**: 2026-02-03 00:55:00Z
 
 ---
 
@@ -22,12 +22,12 @@
 | **Recursive Scanner** | ✅ Operational | Depth=6 crawling, regex pattern library. |
 | **AI Remediation** | ✅ Operational | Build-Safety Gate with 9 security & syntax rules. |
 | **Threat Intel** | ✅ Operational | Premium Bento Grid UI with animated risk gauge. |
-| **Gamification** | ✅ Operational | Achievement triggers based on scan metadata. |
+| **Gamification** | ✅ Operational | Persistent Redis store for user achievements & stats. |
 
 ### Integrations
 - **GitHub API**: Octokit REST / GraphQL (Metadata fetching).
 - **LLM**: Dual-Stream (Local Ollama / Mistral Cloud).
-- **Cache**: Upstash Redis (Atomic counters + JSON Store).
+- **Cache**: Upstash Redis (Atomic counters + JSON Store + User Stats).
 
 ---
 
@@ -35,7 +35,7 @@
 - **Frontend**: Next.js 15, React 19, Tailwind v4, Framer Motion.
 - **Backend**: Serverless API Routes (Typed), Edge Middleware.
 - **Reliability**: Sliding window rate limit (30req/60s). Fail-open strategy implemented.
-- **Caching**: Metadata-only storage in Redis (Zero code retention).
+- **Caching**: Metadata-only storage in Redis (Zero code retention). User-wise stats persistent.
 
 ---
 
