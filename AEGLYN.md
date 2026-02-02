@@ -32,7 +32,7 @@ Aeglyn addresses the high-velocity "Vibe Coding" market where speed often compro
 - **Frontend**: Next.js 15 (App Router), Tailwind CSS v4.0, Framer Motion
 - **Backend**: Next.js Serverless Functions, Edge Runtime
 - **AI Orchestration**: Dual-Stream Fallback (Local Ollama Mistral-7B | Cloud Mistral Large)
-- **Persistence**: Upstash Redis (Global REST Layer) - **No permanent code storage.**
+- **Persistence**: Upstash Redis (Global REST Layer) - **User Stats & Persistent Metadata only.** No permanent code storage.
 
 ### Architecture Logic
 1.  **GitHub Auth**: OAuth 2.0 -> HTTPOnly Cookies -> 2-hour sliding expiration.
