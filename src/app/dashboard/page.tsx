@@ -47,7 +47,7 @@ import {
 } from '@/components/DashboardFeatures';
 import { ThreatIntelligencePanel } from '@/components/ThreatIntelligencePanel';
 import { DashboardErrorBoundary } from '@/components/DashboardErrorBoundary';
-import { loadUserStats, saveUserStats, updateStatsAfterScan, updateStatsAfterFix, calculateScore, type UserStats } from '@/lib/security-score';
+import { loadUserStats, saveUserStats, loadUserStatsFromCloud, syncUserStatsToCloud, updateStatsAfterScan, updateStatsAfterFix, calculateScore, type UserStats } from '@/lib/security-score';
 import { ToastNotifications, useToast } from '@/components/ToastNotification';
 
 
@@ -142,13 +142,33 @@ function Dashboard() {
 
     // Load user stats
     useEffect(() => {
-        let stats = loadUserStats();
-        // Emergency cleanup: if stats were inflated by the previous infinite loop bug
-        if (stats.totalScans > 1000000) {
-            stats.totalScans = Math.min(stats.reposScanned || 1, 10); // Reset to something sane
-            saveUserStats(stats);
-        }
-        setUserStats(stats);
+        const fetchStats = async () => {
+            // Try cloud first
+            const cloudStats = await loadUserStatsFromCloud();
+
+            if (cloudStats) {
+                setUserStats(cloudStats);
+                // Also update local for offline/fallback
+                saveUserStats(cloudStats);
+            } else {
+                // Fallback to local
+                const localStats = loadUserStats();
+
+                // Emergency cleanup: if stats were inflated by the previous infinite loop bug
+                if (localStats.totalScans > 1000000) {
+                    localStats.totalScans = Math.min(localStats.reposScanned || 1, 10);
+                    saveUserStats(localStats);
+                }
+
+                setUserStats(localStats);
+
+                // If we have local stats but failed cloud load, try to sync ONE-TIME
+                if (localStats.totalScans > 0) {
+                    syncUserStatsToCloud(localStats);
+                }
+            }
+        };
+        fetchStats();
     }, []);
 
     // Fetch user session for avatar

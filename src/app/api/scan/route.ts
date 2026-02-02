@@ -8,6 +8,9 @@ import { cookies } from 'next/headers';
 import { fetchUserRepositories } from '@/lib/github/client';
 import { detectStack } from '@/lib/github/stack-detector';
 import { scanRepository } from '@/lib/scanner';
+import { validateGeneratedCode, formatValidationReport } from '@/lib/validators/code-validator';
+import type { Vulnerability } from '@/lib/scanner';
+import { incrementUserMetric } from '@/lib/user/stats';
 import { rateLimit } from '@/lib/rate-limit';
 
 export async function GET(request: NextRequest) {
@@ -137,6 +140,23 @@ export async function POST(request: NextRequest) {
             // Continue even if caching fails
         }
 
+        // Increment Redis stats (non-blocking)
+        const sessionCookie = cookieStore.get('session');
+        if (sessionCookie) {
+            try {
+                const session = JSON.parse(sessionCookie.value);
+                const userId = session.id;
+                if (userId) {
+                    incrementUserMetric(userId, 'totalScans');
+                    if (scanResult.vulnerabilities?.length > 0) {
+                        incrementUserMetric(userId, 'vulnerabilitiesFound', scanResult.vulnerabilities.length);
+                    }
+                }
+            } catch (err) {
+                console.error('[API] Failed to increment scan stats:', err);
+            }
+        }
+
         return NextResponse.json({
             scanResult,
             cached: false
@@ -150,3 +170,5 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+
+

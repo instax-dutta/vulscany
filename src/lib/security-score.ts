@@ -198,6 +198,40 @@ export function saveUserStats(stats: UserStats): void {
 }
 
 /**
+ * Sync user stats to Redis cloud storage
+ */
+export async function syncUserStatsToCloud(stats: UserStats): Promise<boolean> {
+    try {
+        const response = await fetch('/api/user/stats', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stats })
+        });
+        return response.ok;
+    } catch (error) {
+        console.error('[Stats Sync] Failed:', error);
+        return false;
+    }
+}
+
+/**
+ * Fetch user stats from cloud storage
+ */
+export async function loadUserStatsFromCloud(): Promise<UserStats | null> {
+    try {
+        const response = await fetch('/api/user/stats');
+        if (response.ok) {
+            const data = await response.json();
+            return data.stats;
+        }
+        return null;
+    } catch (error) {
+        console.error('[Stats Load] Failed:', error);
+        return null;
+    }
+}
+
+/**
  * Get default stats for new users
  */
 function getDefaultStats(): UserStats {

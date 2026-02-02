@@ -65,9 +65,12 @@ export async function GET(request: NextRequest) {
         response.cookies.set('github_token', tokenData.access_token, cookieOptions);
 
         response.cookies.set('session', JSON.stringify({
-            login: userData.login,
-            name: userData.name || userData.login,
-            avatar_url: userData.avatar_url,
+            user: {
+                id: userData.id,
+                login: userData.login,
+                name: userData.name || userData.login,
+                avatar_url: userData.avatar_url,
+            }
         }), cookieOptions);
 
         return response;
