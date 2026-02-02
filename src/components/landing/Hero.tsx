@@ -29,17 +29,15 @@ export function Hero() {
     return (
         <section className="min-h-screen flex items-center justify-center overflow-hidden relative">
             <div className="container mx-auto px-4 text-center relative z-10 py-20 md:py-0 max-w-5xl">
-                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight mb-8 bg-gradient-to-b from-foreground to-foreground/50 bg-clip-text text-transparent pb-4 leading-[1.05]">
-                    Move fast,
+                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight mb-6 bg-gradient-to-b from-foreground to-foreground/50 bg-clip-text text-transparent pb-4 leading-[1.05]">
+                    Your AI security copilot—
                     <br />
-                    break nothing:
-                    <br />
-                    <span className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl">Secure your code instantly</span>
+                    <span className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl">no compromise.</span>
                 </h1>
                 <p className="max-w-3xl mx-auto text-lg sm:text-xl md:text-2xl text-muted-foreground mb-12 leading-relaxed px-4 font-medium">
-                    Lightning-fast AI scans that respect your privacy,
+                    Full visibility with total code privacy.
                     <br className="hidden sm:block" />
-                    with clear fix guidance for every issue.
+                    No configs. No delays.
                 </p>
 
                 {/* Primary CTAs */}
