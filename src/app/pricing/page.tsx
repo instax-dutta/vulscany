@@ -1,3 +1,5 @@
+import { Navbar } from "@/components/landing/Navbar"
+import { Footer } from "@/components/landing/Footer"
 import { PricingSection } from "@/components/landing/PricingSection"
 
 export const metadata = {
@@ -7,8 +9,12 @@ export const metadata = {
 
 export default function PricingPage() {
     return (
-        <div className="py-20">
-            <PricingSection />
+        <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-grow pt-20">
+                <PricingSection />
+            </main>
+            <Footer />
         </div>
     )
 }

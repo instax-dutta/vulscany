@@ -1,3 +1,5 @@
+import { Navbar } from "@/components/landing/Navbar"
+import { Footer } from "@/components/landing/Footer"
 import { FeaturesSection } from "@/components/landing/FeaturesSection"
 import { RoadmapSection } from "@/components/landing/RoadmapSection"
 
@@ -8,9 +10,13 @@ export const metadata = {
 
 export default function FeaturesPage() {
     return (
-        <div className="py-20">
-            <FeaturesSection />
-            <RoadmapSection />
+        <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-grow pt-20">
+                <FeaturesSection />
+                <RoadmapSection />
+            </main>
+            <Footer />
         </div>
     )
 }

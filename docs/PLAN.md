@@ -1,42 +1,31 @@
-# PLAN: Randomized Hero Text Implementation
+# Plan - Fix Viewport Bug and Add Navbar
 
-## 1. Overview
-The goal is to implement a randomized hero section in the `vulscany` landing page. Every time a visitor lands on the page, they should see one of the 20 provided hero text/subheadline combinations. The implementation must be smooth, intelligent, and maintain the existing design's responsiveness.
+The goal is to fix the viewport bug on the Features page (ensuring it starts at the top) and add the Navbar to the Why page (and other landing pages for consistency).
 
-## 2. Technical Stack
-- **Framework**: Next.js (App Router)
-- **Styling**: Tailwind CSS
-- **Components**: React (Client Component)
-- **Animations**: CSS Transitions or Framer Motion (for smooth switching)
+## Phase 1: Debugging & Planning
+- [x] Explore codebase to identify relevant files.
+- [x] Identify the cause of the viewport bug (Lenis scroll persistence).
+- [x] Create detailed implementation steps.
 
-## 3. Data Definition
-Create a constant array `HERO_COMBOS` containing the 20 text pairs.
+## Phase 2: Implementation
+### 1. Fix Viewport Bug
+- [x] Modify `src/components/SmoothScroll.tsx` to reset scroll position on route changes using `useLenis` and `usePathname`.
+- [x] Added `scroll-mt-24` to landing sections (`PricingSection`, `FeaturesSection`, `WhySection`) to handle anchor link offsets correctly.
 
-## 4. Implementation Steps
+### 2. Add Navbar to Missing Pages
+- [x] Update `src/app/why/page.tsx` to include `Navbar` and `Footer`.
+- [x] Update `src/app/features/page.tsx` to include `Navbar` and `Footer`.
+- [x] Update `src/app/pricing/page.tsx` to include `Navbar` and `Footer`.
+- [x] Update `src/app/terms/page.tsx` and `src/app/privacy/page.tsx` for consistency.
+- [x] Standardized layout structure (`flex flex-col min-h-screen`) across all landing pages.
 
-### Phase 1: Preparation
-- Define the `HERO_COMBOS` array in a separate file (e.g., `src/constants/hero-texts.ts`) or within `Hero.tsx`.
+## Phase 3: Verification
+- [x] Verify navigation from home to subpages starts at the top.
+- [x] Verify anchor link scrolling (e.g., clicking logo or navigating to sections) doesn't overlap the sticky Navbar.
+- [x] Verify layout responsiveness and footer placement.
 
-### Phase 2: Randomization Logic
-- Use `useEffect` and `useState` to select a random index on the client side to avoid hydration mismatch.
-- Default to the current hardcoded text for the initial server-side render.
-
-### Phase 3: Component Update
-- Update `Hero.tsx` to use the state-driven hero text and subheadline.
-- Add smooth fade-in animations for the text to prevent "jumping" when the random text is set.
-
-### Phase 4: Styling & Responsiveness
-- Ensure the containers for the text can handle varying lengths of headlines without breaking the layout.
-- Verify scaling on mobile, tablet, and desktop.
-
-## 5. Verification Plan
-- **Visual Check**: Refresh the page multiple times to verify randomization.
-- **Responsiveness**: Test on various screen sizes.
-- **Performance**: Ensure no significant layout shift (CLS).
-- **Accessibility**: Verify screen readers can still read the hero text.
-
-## 6. Agents Involved
-- `project-planner`: Initial planning and breakdown.
-- `frontend-specialist`: Implementation of the randomized hero component.
-- `performance-optimizer`: Ensuring smooth transitions and minimal layout shift.
-- `test-engineer`: Verification and testing.
+## Agents Involved
+- **Project Planner**: Task breakdown and planning.
+- **Frontend Specialist**: UI implementation and Navbar integration.
+- **Debugger**: Root cause analysis and fix for the scroll bug.
+- **Test Engineer**: Final verification.

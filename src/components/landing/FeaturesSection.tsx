@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 
 export function FeaturesSection() {
     return (
-        <section id="features" className="py-24">
+        <section id="features" className="py-24 scroll-mt-24">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16 space-y-4">
                     <h2 className="text-3xl md:text-4xl font-bold">Built for the Vibe Coding Era</h2>
