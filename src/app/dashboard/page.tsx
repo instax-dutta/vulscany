@@ -46,6 +46,7 @@ import {
     SecurityTipBanner
 } from '@/components/DashboardFeatures';
 import { ThreatIntelligencePanel } from '@/components/ThreatIntelligencePanel';
+import { MasterFixDrawer } from '@/components/MasterFixDrawer';
 import { DashboardErrorBoundary } from '@/components/DashboardErrorBoundary';
 import { loadUserStats, saveUserStats, loadUserStatsFromCloud, syncUserStatsToCloud, updateStatsAfterScan, updateStatsAfterFix, calculateScore, type UserStats } from '@/lib/security-score';
 import { ToastNotifications, useToast } from '@/components/ToastNotification';
@@ -110,6 +111,11 @@ function Dashboard() {
     const [generatingPR, setGeneratingPR] = useState(false);
     const [prResult, setPrResult] = useState<{ prUrl: string; prNumber: number; branch: string } | null>(null);
     const [showPRSuccess, setShowPRSuccess] = useState(false);
+
+    // Master Fix Prompt state
+    const [masterPrompt, setMasterPrompt] = useState<string | null>(null);
+    const [generatingMaster, setGeneratingMaster] = useState(false);
+    const [isMasterDrawerOpen, setIsMasterDrawerOpen] = useState(false);
 
     // Copy fix snippets state
     const [copiedFix, setCopiedFix] = useState<Record<string, boolean>>({});
@@ -409,14 +415,14 @@ function Dashboard() {
         }
     };
 
-    const [masterPrompt, setMasterPrompt] = useState<string | null>(null);
-    const [generatingMaster, setGeneratingMaster] = useState(false);
-
     const generateMasterFix = async (repoKey: string) => {
         const repo = scanResults[repoKey];
         if (!repo) return;
 
         setGeneratingMaster(true);
+        // Announce generation
+        showToast({ type: 'info', title: 'PROTOCOL INITIATED', message: 'Generating master security patch...', icon: '🧠' });
+
         try {
             const res = await fetch('/api/ai/batch-fix', {
                 method: 'POST',
@@ -429,8 +435,11 @@ function Dashboard() {
             });
             const data = await res.json();
             setMasterPrompt(data.prompt);
+            setIsMasterDrawerOpen(true);
+            showSuccess('Prompt Generated', 'Unified patch protocol is ready for deployment.');
         } catch (err) {
             console.error(err);
+            showToast({ type: 'warning', title: 'PROCESS FAILED', message: 'Unable to generate master patch.', icon: '⚠️' });
         } finally {
             setGeneratingMaster(false);
         }
@@ -917,49 +926,6 @@ function Dashboard() {
                                             />
                                         )}
 
-                                        {/* Master Prompt Sidebar/Modal Trigger? No, let's keep it as a box */}
-                                        <AnimatePresence>
-                                            {masterPrompt && (
-                                                <motion.div
-                                                    initial={{ opacity: 0, y: 20 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    className="mt-8 bg-[#0F0F1A] border-2 border-primary/30 rounded-3xl p-8 relative overflow-hidden"
-                                                >
-                                                    <div className="relative z-10">
-                                                        <div className="flex items-center justify-between mb-6">
-                                                            <h3 className="text-xl font-bold text-primary flex items-center gap-2">
-                                                                <Terminal className="w-5 h-5" /> Master Fix Prompt
-                                                            </h3>
-                                                            <div className="flex gap-3">
-                                                                <button
-                                                                    onClick={() => {
-                                                                        navigator.clipboard.writeText(masterPrompt);
-                                                                        showToast({ type: 'success', title: 'COPIED', message: 'Ready for AI IDE', icon: '📋' });
-                                                                    }}
-                                                                    className="px-4 py-2 bg-primary text-black text-xs font-bold font-mono rounded-lg hover:scale-105 active:scale-95 transition-all"
-                                                                >
-                                                                    COPY PROMPT
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => setMasterPrompt(null)}
-                                                                    className="px-4 py-2 bg-white/10 text-white text-xs font-bold font-mono rounded-lg hover:bg-white/20 transition-all"
-                                                                >
-                                                                    CLOSE
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                        <div className="bg-black/40 rounded-2xl p-6 border border-white/5 max-h-[400px] overflow-y-auto custom-scrollbar">
-                                                            <div className="prose prose-invert prose-sm max-w-none text-white/60 font-mono text-[13px]">
-                                                                <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
-                                                                    {masterPrompt}
-                                                                </ReactMarkdown>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
                                     </div>
                                 </>
                             )}
@@ -1034,6 +1000,14 @@ function Dashboard() {
                         onDemoDataChange={setDemoScanResults}
                     />
                 )}
+
+                <MasterFixDrawer
+                    isOpen={isMasterDrawerOpen}
+                    onClose={() => setIsMasterDrawerOpen(false)}
+                    prompt={masterPrompt}
+                    onCopy={() => showToast({ type: 'success', title: 'SYCHRONIZED', message: 'Payload ready for deployment', icon: '🚀' })}
+                    repoName={currentRepoKey?.split('/')[1]}
+                />
             </AnimatePresence>
 
             <ToastNotifications toasts={toasts} onDismiss={dismissToast} />

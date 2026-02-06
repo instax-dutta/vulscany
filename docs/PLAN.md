@@ -1,31 +1,37 @@
-# Plan - Fix Viewport Bug and Add Navbar
+# Plan: Master Fix UX Enhancement (Option A)
 
-The goal is to fix the viewport bug on the Features page (ensuring it starts at the top) and add the Navbar to the Why page (and other landing pages for consistency).
+Enhance the user experience for the "Master Fix" feature by implementing a side drawer, success notifications, and guidance.
 
-## Phase 1: Debugging & Planning
-- [x] Explore codebase to identify relevant files.
-- [x] Identify the cause of the viewport bug (Lenis scroll persistence).
-- [x] Create detailed implementation steps.
+## Task
+When the user clicks "Generate Auto-Fix PR" or "Master Fix" (depending on the context), the generated prompt should be announced and easily accessible via a side drawer, rather than just appearing at the bottom of the page.
 
-## Phase 2: Implementation
-### 1. Fix Viewport Bug
-- [x] Modify `src/components/SmoothScroll.tsx` to reset scroll position on route changes using `useLenis` and `usePathname`.
-- [x] Added `scroll-mt-24` to landing sections (`PricingSection`, `FeaturesSection`, `WhySection`) to handle anchor link offsets correctly.
+## Proposed Changes
 
-### 2. Add Navbar to Missing Pages
-- [x] Update `src/app/why/page.tsx` to include `Navbar` and `Footer`.
-- [x] Update `src/app/features/page.tsx` to include `Navbar` and `Footer`.
-- [x] Update `src/app/pricing/page.tsx` to include `Navbar` and `Footer`.
-- [x] Update `src/app/terms/page.tsx` and `src/app/privacy/page.tsx` for consistency.
-- [x] Standardized layout structure (`flex flex-col min-h-screen`) across all landing pages.
+### 1. Planning & Prep (done by orchestrator)
+- Map existing `masterPrompt` usage in `Dashboard` component.
+- Identify `DashboardFeatures` components that might need updating.
 
-## Phase 3: Verification
-- [x] Verify navigation from home to subpages starts at the top.
-- [x] Verify anchor link scrolling (e.g., clicking logo or navigating to sections) doesn't overlap the sticky Navbar.
-- [x] Verify layout responsiveness and footer placement.
+### 2. Frontend Implementation (`frontend-specialist`)
+- **Success Toast**: Add a `showSuccess` toast when the Master Fix prompt is successfully generated.
+- **Side Drawer**: Create a `MasterFixDrawer` component (using Framer Motion) that slides in from the right when `masterPrompt` is present.
+- **Drawer Content**:
+    - Header with "AI Security Patch Protocol".
+    - Instructions: "Paste this into your IDE or AI assistant (Claude/ChatGPT/Cursor)."
+    - Scrollable code block for the prompt.
+    - Large "Copy to Clipboard" button.
+- **Dashboard Hooks**:
+    - Add `isDrawerOpen` state.
+    - Update `generateMasterFix` to open the drawer automatically on completion.
 
-## Agents Involved
-- **Project Planner**: Task breakdown and planning.
-- **Frontend Specialist**: UI implementation and Navbar integration.
-- **Debugger**: Root cause analysis and fix for the scroll bug.
-- **Test Engineer**: Final verification.
+### 3. Verification (`test-engineer`)
+- **Manual Verification**: Trigger a scan, click Master Fix, and verify:
+    - Toast appears.
+    - Drawer slides in.
+    - Prompt text is correct.
+    - "Copy" button works and provides feedback.
+- **Linting**: Run `lint_runner.py` to ensure code quality.
+
+## Deliverables
+- [ ] Updated `Dashboard` component with `MasterFixDrawer` and state logic.
+- [ ] Integration of success toast in prompt generation flow.
+- [ ] Verification report.
