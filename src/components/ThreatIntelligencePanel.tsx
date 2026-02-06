@@ -8,8 +8,15 @@
 import { motion } from 'framer-motion';
 import { Shield, Activity, AlertTriangle, TrendingUp, FileText, ExternalLink } from 'lucide-react';
 
+const THEME_COLORS = {
+    LOW: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', text: 'text-emerald-500', glow: 'shadow-[0_0_20px_rgba(16,185,129,0.15)]' },
+    MEDIUM: { bg: 'bg-amber-500/10', border: 'border-amber-500/20', text: 'text-amber-500', glow: 'shadow-[0_0_20px_rgba(245,158,11,0.15)]' },
+    HIGH: { bg: 'bg-orange-500/10', border: 'border-orange-500/20', text: 'text-orange-500', glow: 'shadow-[0_0_20px_rgba(249,115,22,0.15)]' },
+    CRITICAL: { bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-500', glow: 'shadow-[0_0_20px_rgba(239,68,68,0.2)]' }
+};
+
 interface ThreatIntelligence {
-    riskScore: number;
+    riskScore: number; // Internally 0-100 where 100 is bad
     riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
     cveCount: number;
     advisoryCount: number;
@@ -27,18 +34,20 @@ interface ThreatIntelligencePanelProps {
 export function ThreatIntelligencePanel({ threatData, repoName }: ThreatIntelligencePanelProps) {
     const { riskScore, riskLevel, cveCount, advisoryCount, criticalThreats, recommendations } = threatData;
 
-    // Color mapping based on risk level
-    const riskColors = {
-        LOW: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', text: 'text-emerald-500', glow: 'shadow-[0_0_20px_rgba(16,185,129,0.15)]' },
-        MEDIUM: { bg: 'bg-amber-500/10', border: 'border-amber-500/20', text: 'text-amber-500', glow: 'shadow-[0_0_20px_rgba(245,158,11,0.15)]' },
-        HIGH: { bg: 'bg-orange-500/10', border: 'border-orange-500/20', text: 'text-orange-500', glow: 'shadow-[0_0_20px_rgba(249,115,22,0.15)]' },
-        CRITICAL: { bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-500', glow: 'shadow-[0_0_20px_rgba(239,68,68,0.2)]' }
-    };
+    // Convert to Posture Score (100 = Safe, 0 = High Risk)
+    // This aligns with the Top Bar "Health" model
+    const postureScore = Math.max(0, 100 - riskScore);
 
-    const colors = riskColors[riskLevel];
+    // Deterministic colors based on posture (Higher = Greener)
+    const colors = postureScore >= 90 ? THEME_COLORS.LOW :
+        postureScore >= 70 ? THEME_COLORS.MEDIUM :
+            postureScore >= 40 ? THEME_COLORS.HIGH :
+                THEME_COLORS.CRITICAL;
 
     // Calculate gauge rotation (0-180 degrees for semi-circle)
-    const gaugeRotation = (riskScore / 100) * 180;
+    // 100 Posture = Needle on the right (180 deg)
+    // 0 Posture = Needle on the left (0 deg)
+    const gaugeRotation = (postureScore / 100) * 180;
 
     return (
         <motion.div
@@ -61,13 +70,12 @@ export function ThreatIntelligencePanel({ threatData, repoName }: ThreatIntellig
                     </div>
                 </div>
                 <div className={`px-4 py-1.5 rounded-full text-[10px] font-bold font-mono tracking-widest border ${colors.bg} ${colors.border} ${colors.text}`}>
-                    {riskLevel} RISK
+                    {postureScore >= 90 ? 'SECURE' : postureScore >= 40 ? 'PATCH REQUIRED' : 'COMPROMISED'}
                 </div>
             </div>
 
             {/* Bento Grid Layout */}
             <div className="relative z-10 grid grid-cols-12 gap-4">
-                {/* Risk Gauge - Takes 5 columns */}
                 {/* Risk Gauge - Takes 5 columns */}
                 <div className="col-span-12 md:col-span-5 bg-white/5 rounded-2xl border border-white/5 pt-12 pb-10 flex flex-col items-center relative overflow-hidden">
                     {/* Circular Gauge Background */}
@@ -79,7 +87,6 @@ export function ThreatIntelligencePanel({ threatData, repoName }: ThreatIntellig
                             preserveAspectRatio="xMidYMid meet"
                             style={{ shapeRendering: 'geometricPrecision' }}
                         >
-                            {/* Define SVG glow filter (native, no rasterization) */}
                             <defs>
                                 <filter id="gaugeGlow" x="-50%" y="-50%" width="200%" height="200%">
                                     <feGaussianBlur stdDeviation="3" result="coloredBlur" />
@@ -96,17 +103,17 @@ export function ThreatIntelligencePanel({ threatData, repoName }: ThreatIntellig
                                 strokeWidth="12"
                                 strokeLinecap="round"
                             />
-                            {/* Active Arc */}
+                            {/* Active Arc - Shows Posture (remaining health) */}
                             <motion.path
                                 d="M 15 80 A 65 65 0 0 1 145 80"
                                 fill="none"
-                                stroke={riskLevel === 'CRITICAL' ? '#ef4444' : riskLevel === 'HIGH' ? '#f97316' : riskLevel === 'MEDIUM' ? '#f59e0b' : '#10b981'}
+                                stroke={postureScore >= 90 ? '#10b981' : postureScore >= 70 ? '#f59e0b' : postureScore >= 40 ? '#f97316' : '#ef4444'}
                                 strokeWidth="12"
                                 strokeLinecap="round"
                                 strokeDasharray={205}
-                                strokeDashoffset={205 - (205 * riskScore) / 100}
+                                strokeDashoffset={205 - (205 * postureScore) / 100}
                                 initial={{ strokeDashoffset: 205 }}
-                                animate={{ strokeDashoffset: 205 - (205 * riskScore) / 100 }}
+                                animate={{ strokeDashoffset: 205 - (205 * postureScore) / 100 }}
                                 transition={{ duration: 1.5, ease: 'easeOut' }}
                                 filter="url(#gaugeGlow)"
                                 style={{ shapeRendering: 'geometricPrecision' }}
@@ -129,10 +136,10 @@ export function ThreatIntelligencePanel({ threatData, repoName }: ThreatIntellig
                         <div className="absolute bottom-[11px] left-1/2 -ml-0.5 w-1 h-1 rounded-full bg-white z-30" />
                     </div>
 
-                    {/* Risk Score Display */}
+                    {/* Posture Score Display */}
                     <div className="text-center">
-                        <div className={`text-4xl font-black ${colors.text} mb-1`}>{riskScore}%</div>
-                        <div className="text-[10px] font-mono text-white/40 uppercase tracking-widest">Risk Index</div>
+                        <div className={`text-4xl font-black ${colors.text} mb-1`}>{postureScore}%</div>
+                        <div className="text-[10px] font-mono text-white/40 uppercase tracking-widest leading-none">Security Posture</div>
                     </div>
 
                     {/* Pulse Animation Border */}
