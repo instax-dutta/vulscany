@@ -17,8 +17,13 @@ export function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [session, setSession] = useState<UserSession | null>(null)
     const [loading, setLoading] = useState(true)
+    const [onboardingName, setOnboardingName] = useState<string | null>(null)
 
     useEffect(() => {
+        // Get name from onboarding if exists
+        const savedName = localStorage.getItem('vulscany_user_name')
+        if (savedName) setOnboardingName(savedName)
+
         const fetchSession = async () => {
             try {
                 const res = await fetch(`/api/auth/session`)
@@ -79,8 +84,8 @@ export function Navbar() {
                                 alt={session.user.login}
                                 className="w-6 h-6 rounded-full border border-primary/20"
                             />
-                            <span className="text-sm font-mono font-medium text-primary">
-                                {session.user.login}
+                            <span className="text-sm font-mono font-medium text-primary uppercase">
+                                {onboardingName || session.user.name || session.user.login}
                             </span>
                         </Link>
                     ) : (
@@ -133,8 +138,8 @@ export function Navbar() {
                                     className="w-10 h-10 rounded-full border border-primary/20"
                                 />
                                 <div className="flex flex-col">
-                                    <span className="text-sm font-mono font-bold text-primary">
-                                        {session.user.login}
+                                    <span className="text-sm font-mono font-bold text-primary uppercase">
+                                        {onboardingName || session.user.name || session.user.login}
                                     </span>
                                     <span className="text-xs text-muted-foreground">Go to Dashboard</span>
                                 </div>
