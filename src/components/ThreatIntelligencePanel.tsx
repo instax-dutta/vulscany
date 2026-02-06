@@ -67,13 +67,14 @@ export function ThreatIntelligencePanel({ threatData, repoName }: ThreatIntellig
             {/* Bento Grid Layout */}
             <div className="relative z-10 grid grid-cols-12 gap-4">
                 {/* Risk Gauge - Takes 5 columns */}
-                <div className="col-span-12 md:col-span-5 bg-white/5 rounded-2xl border border-white/5 p-6 flex flex-col items-center justify-center relative overflow-hidden">
+                {/* Risk Gauge - Takes 5 columns */}
+                <div className="col-span-12 md:col-span-5 bg-white/5 rounded-2xl border border-white/5 pt-12 pb-10 flex flex-col items-center relative overflow-hidden">
                     {/* Circular Gauge Background */}
-                    <div className="relative w-40 h-20 mb-4">
+                    <div className="relative w-40 h-[90px] mb-8">
                         {/* Base Arc */}
                         <svg
                             className="absolute inset-0 w-full h-full"
-                            viewBox="0 0 160 80"
+                            viewBox="0 0 160 90"
                             preserveAspectRatio="xMidYMid meet"
                             style={{ shapeRendering: 'geometricPrecision' }}
                         >
@@ -88,23 +89,23 @@ export function ThreatIntelligencePanel({ threatData, repoName }: ThreatIntellig
                                 </filter>
                             </defs>
                             <path
-                                d="M 10 70 A 70 70 0 0 1 150 70"
+                                d="M 15 80 A 65 65 0 0 1 145 80"
                                 fill="none"
                                 stroke="rgba(255,255,255,0.05)"
-                                strokeWidth="14"
+                                strokeWidth="12"
                                 strokeLinecap="round"
                             />
                             {/* Active Arc */}
                             <motion.path
-                                d="M 10 70 A 70 70 0 0 1 150 70"
+                                d="M 15 80 A 65 65 0 0 1 145 80"
                                 fill="none"
                                 stroke={riskLevel === 'CRITICAL' ? '#ef4444' : riskLevel === 'HIGH' ? '#f97316' : riskLevel === 'MEDIUM' ? '#f59e0b' : '#10b981'}
-                                strokeWidth="14"
+                                strokeWidth="12"
                                 strokeLinecap="round"
-                                strokeDasharray={220}
-                                strokeDashoffset={220 - (220 * riskScore) / 100}
-                                initial={{ strokeDashoffset: 220 }}
-                                animate={{ strokeDashoffset: 220 - (220 * riskScore) / 100 }}
+                                strokeDasharray={205}
+                                strokeDashoffset={205 - (205 * riskScore) / 100}
+                                initial={{ strokeDashoffset: 205 }}
+                                animate={{ strokeDashoffset: 205 - (205 * riskScore) / 100 }}
                                 transition={{ duration: 1.5, ease: 'easeOut' }}
                                 filter="url(#gaugeGlow)"
                                 style={{ shapeRendering: 'geometricPrecision' }}
