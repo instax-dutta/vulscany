@@ -112,12 +112,19 @@ export function ThreatIntelligencePanel({ threatData, repoName }: ThreatIntellig
                         </svg>
                         {/* Needle Indicator */}
                         <motion.div
-                            className="absolute bottom-0 left-1/2 w-1 h-14 bg-white/80 origin-bottom -ml-0.5 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]"
-                            style={{ transformOrigin: 'bottom center' }}
-                            initial={{ rotate: 0 }}
+                            className="absolute bottom-[10px] left-1/2 w-1 h-14 bg-white/60 origin-bottom -ml-0.5 rounded-full z-10"
+                            style={{
+                                transformOrigin: 'bottom center',
+                                filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.4))'
+                            }}
+                            initial={{ rotate: -90 }}
                             animate={{ rotate: gaugeRotation - 90 }}
                             transition={{ duration: 1.5, ease: [0.34, 1.56, 0.64, 1] }}
                         />
+
+                        {/* Center Pivot Point */}
+                        <div className="absolute bottom-[7px] left-1/2 -ml-1.5 w-3 h-3 rounded-full bg-[#0a0a0a] border-2 border-white/20 z-20" />
+                        <div className="absolute bottom-[11px] left-1/2 -ml-0.5 w-1 h-1 rounded-full bg-white z-30" />
                     </div>
 
                     {/* Risk Score Display */}
