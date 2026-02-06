@@ -2,7 +2,7 @@ import { Eye } from "lucide-react"
 
 export function WhySection() {
     return (
-        <section id="why" className="py-24 border-y border-border/50 bg-card/20">
+        <section id="why" className="py-24 border-y border-border/50 bg-card/20 scroll-mt-24">
             <div className="container mx-auto px-4">
                 <div className="grid md:grid-cols-2 gap-16 items-center">
                     <div className="space-y-6">

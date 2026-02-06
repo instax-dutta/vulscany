@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 
 export function PricingSection() {
     return (
-        <section id="pricing" className="py-24">
+        <section id="pricing" className="py-24 scroll-mt-24">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16 space-y-4">
                     <h2 className="text-3xl font-bold">Transparent Pricing</h2>
