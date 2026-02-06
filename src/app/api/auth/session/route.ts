@@ -16,15 +16,18 @@ export async function GET() {
             response = NextResponse.json({ user: null });
         } else {
             // Parse session data
-            const session = JSON.parse(sessionCookie.value);
+            const sessionData = JSON.parse(sessionCookie.value);
+
+            // Extract user info (handle nested user object from callback if present)
+            const user = sessionData.user || sessionData;
 
             // Return user data (without sensitive info)
             response = NextResponse.json({
                 user: {
-                    id: session.id,
-                    login: session.login,
-                    name: session.name,
-                    avatar_url: session.avatar_url,
+                    id: user.id,
+                    login: user.login,
+                    name: user.name,
+                    avatar_url: user.avatar_url,
                 }
             });
         }
