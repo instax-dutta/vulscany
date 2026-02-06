@@ -132,17 +132,30 @@ function calculateRiskFactors(
 function calculateOverallRiskScore(factors: RiskFactors): number {
     let score = 0;
 
-    score += factors.criticalCVEs * 30; // Heavily weight criticals
-    score += factors.highCVEs * 15;
-    score += factors.knownExploits * 20;
-    score += factors.outdatedDependencies * 1.5;
-    score += factors.transitiveVulnerabilities * 4;
+    // Direct Critical/High CVEs are the most dangerous
+    score += factors.criticalCVEs * 35;
+    score += factors.highCVEs * 20;
 
-    // Minimum baseline risk if many advisories exist even without criticals
-    if (factors.outdatedDependencies > 10 && score < 10) {
-        score = 10 + (factors.outdatedDependencies / 10);
+    // Exploits add a significant multiplier/flat risk
+    score += factors.knownExploits * 25;
+
+    // Security Advisories (GHSA) - Use logarithmic scaling so they don't drown out CVEs
+    // 0-5 advisories: 3 points each
+    // 6-20 advisories: 1 point each
+    // 21+: 0.5 points each
+    let advisoryScore = 0;
+    if (factors.outdatedDependencies > 0) {
+        const count = factors.outdatedDependencies;
+        if (count <= 5) advisoryScore = count * 3;
+        else if (count <= 20) advisoryScore = 15 + (count - 5) * 1;
+        else advisoryScore = 30 + (count - 20) * 0.5;
     }
+    score += Math.min(advisoryScore, 40); // Cap advisory contribution at 40 points
 
+    // Transitive vulnerabilities should have a smaller impact
+    score += Math.min(factors.transitiveVulnerabilities * 2, 15);
+
+    // Final risk score clamped to 100
     return Math.min(score, 100);
 }
 
