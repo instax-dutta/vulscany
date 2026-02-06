@@ -116,23 +116,32 @@ function calculateRiskFactors(
     advisories: GitHubAdvisory[],
     dependencies: Record<string, string>
 ): RiskFactors {
+    const criticalAdvisories = advisories.filter(a => a.severity === 'CRITICAL').length;
+    const highAdvisories = advisories.filter(a => a.severity === 'HIGH').length;
+
     return {
         dependencyAge: 0, // Would need package metadata
         knownExploits: cves.filter(c => c.exploitAvailable).length,
-        criticalCVEs: cves.filter(c => c.severity === 'CRITICAL').length,
-        highCVEs: cves.filter(c => c.severity === 'HIGH').length,
-        outdatedDependencies: 0, // Would need latest version check
-        transitiveVulnerabilities: Math.floor(cves.length * 0.3), // Estimate
+        criticalCVEs: cves.filter(c => c.severity === 'CRITICAL').length + criticalAdvisories,
+        highCVEs: cves.filter(c => c.severity === 'HIGH').length + highAdvisories,
+        outdatedDependencies: advisories.length,
+        transitiveVulnerabilities: Math.floor((cves.length + advisories.length) * 0.35),
     };
 }
 
 function calculateOverallRiskScore(factors: RiskFactors): number {
     let score = 0;
 
-    score += factors.criticalCVEs * 20;
-    score += factors.highCVEs * 10;
-    score += factors.knownExploits * 15;
-    score += factors.transitiveVulnerabilities * 5;
+    score += factors.criticalCVEs * 30; // Heavily weight criticals
+    score += factors.highCVEs * 15;
+    score += factors.knownExploits * 20;
+    score += factors.outdatedDependencies * 1.5;
+    score += factors.transitiveVulnerabilities * 4;
+
+    // Minimum baseline risk if many advisories exist even without criticals
+    if (factors.outdatedDependencies > 10 && score < 10) {
+        score = 10 + (factors.outdatedDependencies / 10);
+    }
 
     return Math.min(score, 100);
 }
