@@ -129,12 +129,12 @@ export function calculateScore(vulnerabilities: { severity: string }[]): Securit
         else breakdown.low++;
     });
 
-    // Calculate score with weighted deductions
+    // Calculate score with weighted deductions (Aggressive Health Model)
     let score = 100;
-    score -= breakdown.critical * 25;
-    score -= breakdown.high * 15;
-    score -= breakdown.medium * 8;
-    score -= breakdown.low * 3;
+    score -= breakdown.critical * 60; // 1 critical = 40 (Poor)
+    score -= breakdown.high * 30;     // 1 high = 70 (Good/Fair)
+    score -= breakdown.medium * 12;
+    score -= breakdown.low * 4;
 
     // Clamp between 0 and 100
     score = Math.max(0, Math.min(100, score));
@@ -164,10 +164,10 @@ export function getScoreColor(score: number): string {
  */
 export function getScoreLabel(score: number): string {
     if (score >= 90) return 'Excellent';
-    if (score >= 70) return 'Good';
-    if (score >= 50) return 'Fair';
-    if (score >= 30) return 'Poor';
-    return 'Critical';
+    if (score >= 80) return 'Good';
+    if (score >= 60) return 'Fair';
+    if (score >= 40) return 'Poor';
+    return 'Compromised';
 }
 
 /**

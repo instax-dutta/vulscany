@@ -18,8 +18,8 @@ function calculateScanRiskScore(vulnerabilities: any[]): number {
     let score = 0;
     for (const v of vulnerabilities) {
         const severity = v.severity?.toLowerCase();
-        if (severity === 'critical') score += 45;
-        else if (severity === 'high') score += 25;
+        if (severity === 'critical') score += 60;
+        else if (severity === 'high') score += 30;
         else if (severity === 'medium') score += 12;
         else if (severity === 'low') score += 4;
     }
