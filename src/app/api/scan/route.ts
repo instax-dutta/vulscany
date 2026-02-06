@@ -13,6 +13,19 @@ import type { Vulnerability } from '@/lib/scanner';
 import { incrementUserMetric } from '@/lib/user/stats';
 import { rateLimit } from '@/lib/rate-limit';
 
+// Risk calculation utility for static scan findings
+function calculateScanRiskScore(vulnerabilities: any[]): number {
+    let score = 0;
+    for (const v of vulnerabilities) {
+        const severity = v.severity?.toLowerCase();
+        if (severity === 'critical') score += 45;
+        else if (severity === 'high') score += 25;
+        else if (severity === 'medium') score += 12;
+        else if (severity === 'low') score += 4;
+    }
+    return Math.min(score, 100);
+}
+
 export async function GET(request: NextRequest) {
     // Get GitHub token from cookie
     const cookieStore = await cookies();
@@ -112,20 +125,32 @@ export async function POST(request: NextRequest) {
 
             if (Object.keys(dependencies).length > 0) {
                 const threatIntel = await analyzeRepositoryThreats(dependencies);
+                const scanFindingsScore = calculateScanRiskScore(scanResult.vulnerabilities || []);
+                const compositeScore = Math.max(threatIntel.riskScore, scanFindingsScore);
+
+                // Determine composite risk level
+                const compositeRiskLevel =
+                    compositeScore >= 75 ? 'CRITICAL' :
+                        compositeScore >= 50 ? 'HIGH' :
+                            compositeScore >= 25 ? 'MEDIUM' : 'LOW';
 
                 // Always include threat intelligence data, but mark if it should be displayed
                 scanResult.threatIntelligence = {
-                    riskScore: threatIntel.riskScore,
-                    riskLevel: threatIntel.riskLevel,
+                    riskScore: compositeScore,
+                    riskLevel: compositeRiskLevel,
                     cveCount: threatIntel.cveMatches.length,
                     advisoryCount: threatIntel.advisoryMatches.length,
-                    criticalThreats: threatIntel.cveMatches.filter(c => c.severity === 'CRITICAL').length,
-                    recommendations: threatIntel.recommendations,
-                    // Only display in UI if vulnerabilities were found in the scan
-                    displayInUI: scanResult.vulnerabilities && scanResult.vulnerabilities.length > 0
+                    scanFindingsCount: scanResult.vulnerabilities?.length || 0,
+                    criticalThreats: threatIntel.cveMatches.filter(c => c.severity === 'CRITICAL').length + (scanResult.vulnerabilities?.filter((v: any) => v.severity === 'critical').length || 0),
+                    recommendations: [
+                        ...threatIntel.recommendations,
+                        ...(scanResult.vulnerabilities?.length > 0 ? ['🛠️ Implement AI-suggested fixes for detected code vulnerabilities'] : [])
+                    ],
+                    // Only display in UI if vulnerabilities were found in the scan OR significant threats exist
+                    displayInUI: true
                 };
 
-                console.log(`[API] Threat intel gathered: ${threatIntel.cveMatches.length} CVEs, ${threatIntel.advisoryMatches.length} advisories`);
+                console.log(`[API] Composite risk gathered: ${compositeScore}% (${threatIntel.advisoryMatches.length} advisories, ${scanResult.vulnerabilities?.length} findings)`);
             }
         } catch (error) {
             console.error('[API] Threat intelligence failed:', error);

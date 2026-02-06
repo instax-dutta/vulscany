@@ -14,6 +14,7 @@ interface ThreatIntelligence {
     cveCount: number;
     advisoryCount: number;
     criticalThreats: number;
+    scanFindingsCount?: number;
     recommendations: string[];
     displayInUI?: boolean;
 }
@@ -167,6 +168,20 @@ export function ThreatIntelligencePanel({ threatData, repoName }: ThreatIntellig
                             <FileText className="w-4 h-4 text-amber-400/50 group-hover/card:text-amber-400 transition-colors" />
                         </div>
                         <div className="text-3xl font-black text-white">{advisoryCount}</div>
+                    </div>
+
+                    {/* Scan Findings Status */}
+                    <div className="bg-white/5 rounded-2xl border border-white/5 p-5 hover:bg-white/[0.07] transition-colors group/card">
+                        <div className="flex items-start justify-between mb-3">
+                            <div className="text-[10px] font-mono text-white/40 uppercase tracking-wider">Scan Findings</div>
+                            <Shield className={`w-4 h-4 ${criticalThreats > 0 ? 'text-red-400' : 'text-emerald-400/50'} group-hover/card:scale-110 transition-transform`} />
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                            <div className="text-3xl font-black text-white">{threatData.scanFindingsCount !== undefined ? threatData.scanFindingsCount : (criticalThreats > 0 ? '!' : '0')}</div>
+                            <div className={`text-[10px] font-bold font-mono ${criticalThreats > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+                                {criticalThreats > 0 ? 'ISSUES' : 'SECURE'}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Active Monitoring Status */}

@@ -76,6 +76,7 @@ interface ScanResult {
         riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
         cveCount: number;
         advisoryCount: number;
+        scanFindingsCount?: number;
         criticalThreats: number;
         recommendations: string[];
         displayInUI?: boolean;
