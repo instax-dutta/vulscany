@@ -11,30 +11,8 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Lenis from 'lenis';
 import ReactMarkdown from 'react-markdown';
-import {
-    LayoutDashboard,
-    Shield,
-    Zap,
-    Cpu,
-    History,
-    Trophy,
-    BookOpen,
-    Users,
-    Settings,
-    Search,
-    Github,
-    LogOut,
-    Menu,
-    X,
-    ChevronRight,
-    AlertTriangle,
-    CheckCircle2,
-    ExternalLink,
-    RefreshCw,
-    Play,
-    Terminal,
-    Box
-} from "lucide-react";
+import { Terminal, Cpu, Zap, History, Search, Github, LogOut, Menu, X, ChevronRight, AlertTriangle, CheckCircle2, Shield, LayoutDashboard, Trophy, BookOpen, Users, Settings, Filter, Download, ExternalLink, RefreshCw, AlertCircle, Info, MoreVertical, Trash2, Play, Box, Calendar, ArrowUpRight, SearchCode, Activity, Lock, Eye, Star, GitBranch, Clock } from 'lucide-react';
+import { type WebAppProjectInfo } from '@/lib/github/stack-detector';
 import rehypeSanitize from 'rehype-sanitize';
 import type { Vulnerability } from '@/lib/scanner';
 import Onboarding from '@/components/Onboarding';
@@ -68,7 +46,7 @@ interface ScanResult {
     repoName: string;
     owner: string;
     scanTimestamp: string;
-    stackInfo: any;
+    stackInfo: WebAppProjectInfo;
     vulnerabilities: ExtendedVulnerability[];
     status: 'safe' | 'needs-attention' | 'high-risk';
     summary: string;
@@ -909,22 +887,45 @@ function Dashboard() {
                                                     );
                                                 })
                                             ) : (
-                                                <div className="flex flex-col items-center justify-center py-24 bg-emerald-500/[0.02] border border-emerald-500/10 rounded-[32px] text-center px-6">
-                                                    <div className="w-16 h-16 bg-emerald-500/10 flex items-center justify-center rounded-2xl mb-6">
-                                                        <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                                                currentResult.threatIntelligence && ['HIGH', 'CRITICAL'].includes(currentResult.threatIntelligence.riskLevel) ? (
+                                                    <div className="flex flex-col items-center justify-center py-20 bg-red-500/[0.02] border border-red-500/10 rounded-[32px] text-center px-6 animate-in fade-in duration-500">
+                                                        <div className="w-20 h-20 bg-red-500/10 flex items-center justify-center rounded-2xl mb-6 shadow-[0_0_30px_rgba(239,68,68,0.1)]">
+                                                            <div className="relative">
+                                                                <AlertTriangle className="w-10 h-10 text-red-500" />
+                                                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping" />
+                                                            </div>
+                                                        </div>
+                                                        <h3 className="text-2xl font-bold text-white mb-3">Supply Chain Risks Detected</h3>
+                                                        <p className="text-sm text-white/50 font-mono max-w-md mx-auto mb-8 leading-relaxed">
+                                                            While your source code appears clean, critical vulnerabilities have been detected in your <span className="text-red-400 font-bold">project dependencies</span>.
+                                                        </p>
+                                                        <button
+                                                            onClick={() => document.getElementById('threat-intel-panel')?.scrollIntoView({ behavior: 'smooth' })}
+                                                            className="h-12 px-8 bg-red-500 hover:bg-red-600 text-white font-bold font-mono text-xs tracking-wider rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-red-500/20"
+                                                        >
+                                                            REVIEW THREAT INTELLIGENCE ↓
+                                                        </button>
                                                     </div>
-                                                    <h3 className="text-2xl font-bold text-white mb-2">Codebase is Protected</h3>
-                                                    <p className="text-sm text-white/40 font-mono max-w-sm uppercase tracking-tight">Zero security vulnerabilities have been detected in this audit cycle.</p>
-                                                </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center justify-center py-24 bg-emerald-500/[0.02] border border-emerald-500/10 rounded-[32px] text-center px-6">
+                                                        <div className="w-16 h-16 bg-emerald-500/10 flex items-center justify-center rounded-2xl mb-6">
+                                                            <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                                                        </div>
+                                                        <h3 className="text-2xl font-bold text-white mb-2">Codebase is Protected</h3>
+                                                        <p className="text-sm text-white/40 font-mono max-w-sm uppercase tracking-tight">Zero security vulnerabilities have been detected in this audit cycle.</p>
+                                                    </div>
+                                                )
                                             )}
                                         </div>
 
                                         {/* Threat Intelligence Panel */}
-                                        {currentResult.threatIntelligence && (currentResult.threatIntelligence as any).displayInUI !== false && (
-                                            <ThreatIntelligencePanel
-                                                threatData={currentResult.threatIntelligence}
-                                                repoName={currentRepoKey?.split('/')[1]}
-                                            />
+                                        {currentResult.threatIntelligence && currentResult.threatIntelligence.displayInUI !== false && (
+                                            <div id="threat-intel-panel">
+                                                <ThreatIntelligencePanel
+                                                    threatData={currentResult.threatIntelligence}
+                                                    repoName={currentRepoKey?.split('/')[1]}
+                                                />
+                                            </div>
                                         )}
 
                                     </div>
