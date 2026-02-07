@@ -40,15 +40,16 @@ import {
 
 interface SecurityScoreWidgetProps {
     vulnerabilities: { severity: string }[];
+    threatIntel?: { riskScore: number };
     onScoreCalculated?: (score: SecurityScore) => void;
 }
 
-export function SecurityScoreWidget({ vulnerabilities, onScoreCalculated }: SecurityScoreWidgetProps) {
+export function SecurityScoreWidget({ vulnerabilities, threatIntel, onScoreCalculated }: SecurityScoreWidgetProps) {
     const [score, setScore] = useState<SecurityScore | null>(null);
     const [animatedScore, setAnimatedScore] = useState(0);
 
     useEffect(() => {
-        const calculated = calculateScore(vulnerabilities);
+        const calculated = calculateScore(vulnerabilities, threatIntel);
         setScore(calculated);
         onScoreCalculated?.(calculated);
 
@@ -69,7 +70,7 @@ export function SecurityScoreWidget({ vulnerabilities, onScoreCalculated }: Secu
         }, duration / steps);
 
         return () => clearInterval(timer);
-    }, [vulnerabilities, onScoreCalculated]);
+    }, [vulnerabilities, threatIntel, onScoreCalculated]);
 
     if (!score) return null;
 

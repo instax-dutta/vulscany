@@ -110,9 +110,12 @@ export const ACHIEVEMENTS: Achievement[] = [
 ];
 
 /**
- * Calculate security score from vulnerabilities
+ * Calculate security score from vulnerabilities and optional threat intel
  */
-export function calculateScore(vulnerabilities: { severity: string }[]): SecurityScore {
+export function calculateScore(
+    vulnerabilities: { severity: string }[],
+    threatIntel?: { riskScore: number }
+): SecurityScore {
     const breakdown = {
         critical: 0,
         high: 0,
@@ -129,18 +132,27 @@ export function calculateScore(vulnerabilities: { severity: string }[]): Securit
         else breakdown.low++;
     });
 
-    // Calculate score with weighted deductions (Aggressive Health Model)
-    let score = 100;
-    score -= breakdown.critical * 60; // 1 critical = 40 (Poor)
-    score -= breakdown.high * 30;     // 1 high = 70 (Good/Fair)
-    score -= breakdown.medium * 12;
-    score -= breakdown.low * 4;
+    // Calculate findings-based score (Aggressive Health Model)
+    let findingsScore = 100;
+    findingsScore -= breakdown.critical * 60;
+    findingsScore -= breakdown.high * 30;
+    findingsScore -= breakdown.medium * 12;
+    findingsScore -= breakdown.low * 4;
 
-    // Clamp between 0 and 100
-    score = Math.max(0, Math.min(100, score));
+    // Minimum health of findings score
+    findingsScore = Math.max(0, Math.min(100, findingsScore));
+
+    // If threat intel is available, incorporate the package-based posture score
+    // 100 - riskScore = Posture (Health)
+    let finalScore = findingsScore;
+    if (threatIntel) {
+        const postureScore = Math.max(0, 100 - threatIntel.riskScore);
+        // The global score is limited by the weakest link
+        finalScore = Math.min(findingsScore, postureScore);
+    }
 
     return {
-        score,
+        score: finalScore,
         maxScore: 100,
         breakdown,
         trend: 'stable',
