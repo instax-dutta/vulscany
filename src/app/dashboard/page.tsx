@@ -733,6 +733,7 @@ function Dashboard() {
                                             <div className="flex items-center gap-3">
                                                 <SecurityScoreWidget
                                                     vulnerabilities={currentResult.vulnerabilities}
+                                                    threatIntel={currentResult.threatIntelligence}
                                                 />
                                                 <button
                                                     onClick={() => generateMasterFix(currentRepoKey!)}
