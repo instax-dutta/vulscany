@@ -1,37 +1,46 @@
-# Plan: Master Fix UX Enhancement (Option A)
+# PLAN: Nested Project Discovery (Option A)
 
-Enhance the user experience for the "Master Fix" feature by implementing a side drawer, success notifications, and guidance.
+This plan implements recursive manifest search (Max Depth 2) to accurately identify web application stacks in repositories where the project files are not in the root directory.
 
-## Task
-When the user clicks "Generate Auto-Fix PR" or "Master Fix" (depending on the context), the generated prompt should be announced and easily accessible via a side drawer, rather than just appearing at the bottom of the page.
+## 1. Information Gathering & Discovery
 
-## Proposed Changes
+- [x] **Identify Current Logic**: Root-only check in `src/lib/github/stack-detector.ts`.
+- [x] **API Support**: `src/lib/github/client.ts` supports `getDirectoryContents`.
+- [ ] **Identify Vulnerable Points**:
+    - `detectStack` returns `null` if root `package.json` is missing.
+    - `scanRepository` (in `src/lib/scanner/index.ts`) might also need path adjustments if it assumes root.
 
-### 1. Planning & Prep (done by orchestrator)
-- Map existing `masterPrompt` usage in `Dashboard` component.
-- Identify `DashboardFeatures` components that might need updating.
+## 2. Implementation Strategy
 
-### 2. Frontend Implementation (`frontend-specialist`)
-- **Success Toast**: Add a `showSuccess` toast when the Master Fix prompt is successfully generated.
-- **Side Drawer**: Create a `MasterFixDrawer` component (using Framer Motion) that slides in from the right when `masterPrompt` is present.
-- **Drawer Content**:
-    - Header with "AI Security Patch Protocol".
-    - Instructions: "Paste this into your IDE or AI assistant (Claude/ChatGPT/Cursor)."
-    - Scrollable code block for the prompt.
-    - Large "Copy to Clipboard" button.
-- **Dashboard Hooks**:
-    - Add `isDrawerOpen` state.
-    - Update `generateMasterFix` to open the drawer automatically on completion.
+### Phase 1: Stack Detection Enhancement
+- Update `detectStack` in `src/lib/github/stack-detector.ts`.
+- If root `package.json` is missing:
+    - List root directory contents.
+    - Identify subdirectories (excluding hidden ones like `.github`, `node_modules`).
+    - Attempt to fetch `package.json` from each subdirectory.
+    - If found, use that subdirectory for stack identification.
+- Store the detected `projectRoot` (relative path) in the `WebAppProjectInfo` interface.
 
-### 3. Verification (`test-engineer`)
-- **Manual Verification**: Trigger a scan, click Master Fix, and verify:
-    - Toast appears.
-    - Drawer slides in.
-    - Prompt text is correct.
-    - "Copy" button works and provides feedback.
-- **Linting**: Run `lint_runner.py` to ensure code quality.
+### Phase 2: Scanner Alignment
+- Update `src/lib/scanner/index.ts` to respect the `projectRoot` from `WebAppProjectInfo`.
+- Ensure file fetches for vulnerability scanning (regex checks, etc.) use the correct base path.
 
-## Deliverables
-- [ ] Updated `Dashboard` component with `MasterFixDrawer` and state logic.
-- [ ] Integration of success toast in prompt generation flow.
-- [ ] Verification report.
+## 3. Implementation Details
+
+### File: `src/lib/github/stack-detector.ts`
+- Add `projectRoot: string` to `WebAppProjectInfo`.
+- Add recursive search logic inside `detectStack`.
+
+### File: `src/lib/scanner/index.ts`
+- Pass `stackInfo.projectRoot` when fetching files for scanning.
+
+## 4. Verification Plan
+
+- [ ] **Manual Test**: Simulate a nested repo structure (e.g., `oneshotai/package.json`).
+- [ ] **Unit Tests**: Add tests for recursive detection.
+- [ ] **Safety Checks**: Ensure recursion doesn't hit GitHub rate limits (limit to first 5 subdirectories or specific folder depth).
+
+## 5. Timeline & Delivery
+- **Step 1**: Backend Implementation (Backend Specialist)
+- **Step 2**: Security/Path Verification (Security Auditor)
+- **Step 3**: Final Verification (Test Engineer)

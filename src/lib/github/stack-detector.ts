@@ -26,25 +26,56 @@ export interface WebAppProjectInfo {
     hasVite: boolean;
     hasTypeScript: boolean;
     dependencies: Record<string, string>;
+    projectRoot: string; // The directory where the app was found (e.g., "", "apps/web", etc.)
 }
 
 /**
  * Detect if a repository is a Web application and identify its stack
+ * Supports recursive search (depth 2) for projects not in the root
  */
 export async function detectStack(
     accessToken: string,
     owner: string,
     repo: string
 ): Promise<WebAppProjectInfo | null> {
-    // Fetch package.json
-    const packageFile = await getFileContent(accessToken, owner, repo, 'package.json');
-
-    if (!packageFile) {
-        return null; // No package.json, not a Node.js project
+    // 1. Initial Root Check
+    const rootPackage = await getFileContent(accessToken, owner, repo, 'package.json');
+    if (rootPackage) {
+        return parsePackageJson(rootPackage.content, "");
     }
 
+    // 2. Recursive Discovery (Depth 2)
+    // If no package.json in root, look at subdirectories
+    console.log(`[Stack Detection] package.json not found in root of ${owner}/${repo}. Probing subdirectories...`);
+
+    const { getDirectoryContents } = await import('./client');
+    const rootItems = await getDirectoryContents(accessToken, owner, repo, '');
+    const subDirs = rootItems.filter(item =>
+        item.type === 'dir' &&
+        !item.name.startsWith('.') &&
+        !['node_modules', 'dist', 'build', 'public', 'assets', 'test', 'tests', 'docs'].includes(item.name.toLowerCase())
+    );
+
+    // Only probe the first 8 subdirectories to prevent rate limit exhaustion
+    for (const dir of subDirs.slice(0, 8)) {
+        const nestedPath = `${dir.path}/package.json`;
+        const nestedPackage = await getFileContent(accessToken, owner, repo, nestedPath);
+
+        if (nestedPackage) {
+            console.log(`[Stack Detection] Found project manifest at: ${nestedPath}`);
+            return parsePackageJson(nestedPackage.content, dir.path);
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Helper to parse package.json and create WebAppProjectInfo
+ */
+function parsePackageJson(content: string, projectRoot: string): WebAppProjectInfo | null {
     try {
-        const packageJson: PackageJson = JSON.parse(packageFile.content);
+        const packageJson: PackageJson = JSON.parse(content);
         const allDeps = {
             ...packageJson.dependencies,
             ...packageJson.devDependencies
@@ -57,20 +88,6 @@ export async function detectStack(
         const isNextJS = 'next' in allDeps;
         const isNuxtJS = 'nuxt' in allDeps;
 
-        if (!isReact && !isVue && !isAngular && !isSvelte && !isNextJS && !isNuxtJS) {
-            return {
-                stack: 'other',
-                isReact: false,
-                isVue: false,
-                isAngular: false,
-                isSvelte: false,
-                isNextJS: false,
-                hasVite: 'vite' in allDeps,
-                hasTypeScript: 'typescript' in allDeps,
-                dependencies: allDeps
-            };
-        }
-
         let stack: WebStack = 'other';
         let version: string | undefined;
 
@@ -81,6 +98,7 @@ export async function detectStack(
         else if (isAngular) { stack = 'angular'; version = allDeps['@angular/core']; }
         else if (isSvelte) { stack = 'svelte'; version = allDeps['svelte']; }
 
+        // Even if no major target found, if it has package.json it's at least a node project
         return {
             stack,
             isReact,
@@ -91,10 +109,11 @@ export async function detectStack(
             version,
             hasVite: 'vite' in allDeps,
             hasTypeScript: 'typescript' in allDeps,
-            dependencies: allDeps
+            dependencies: allDeps,
+            projectRoot
         };
     } catch (error) {
-        console.error('[Stack Detection] Failed to parse package.json:', error);
+        console.error(`[Stack Detection] Failed to parse manifest in ${projectRoot}:`, error);
         return null;
     }
 }

@@ -92,7 +92,9 @@ async function scanSourceFiles(
     const MAX_FILES = 150; // Increased for deeper scanning
     let scannedFileCount = 0;
 
-    const queue: { path: string, depth: number }[] = [{ path: '', depth: 0 }];
+    // Start scanning from the detected project root
+    const startPath = stackInfo.projectRoot || '';
+    const queue: { path: string, depth: number }[] = [{ path: startPath, depth: 0 }];
     const processedPaths = new Set<string>();
 
     while (queue.length > 0 && scannedFileCount < MAX_FILES) {
@@ -106,6 +108,11 @@ async function scanSourceFiles(
 
         for (const item of items) {
             if (item.type === 'dir') {
+                // Safeguard: If we're in a specific project root, don't wander into unrelated root folders
+                if (stackInfo.projectRoot && path === '' && item.path !== stackInfo.projectRoot) {
+                    continue;
+                }
+
                 if (['node_modules', '.git', 'dist', 'build', '.next', 'out', 'coverage', 'public', 'vendor', 'temp', 'tmp', '.agent'].includes(item.name)) continue;
                 if (item.name.startsWith('.')) continue;
                 queue.push({ path: item.path, depth: depth + 1 });
