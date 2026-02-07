@@ -238,47 +238,29 @@ function Dashboard() {
         setCurrentRepoKey(key);
         updateRepoStatus(repo.id, 'scanning');
         setScanning(true);
-        setMasterPrompt(null); // Clear previous prompt when starting new scan
+        setMasterPrompt(null);
 
         try {
             const res = await fetch('/api/scan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    owner: repo.owner,
-                    repo: repo.name,
-                    force // Pass force parameter to bypass cache
-                })
+                body: JSON.stringify({ owner: repo.owner, repo: repo.name, force })
             });
 
-            // CRITICAL: Check for 401 BEFORE parsing JSON
             if (res.status === 401) {
-                showToast({
-                    type: 'warning',
-                    title: 'Session Expired',
-                    message: 'Your session has expired. Redirecting to login...',
-                    icon: '🔒'
-                });
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 2000);
+                showToast({ type: 'warning', title: 'Session Expired', message: 'Redirecting to login...', icon: '🔒' });
+                setTimeout(() => { window.location.href = '/'; }, 2000);
                 return;
             }
 
-            // Check for other HTTP errors
             if (!res.ok) {
                 const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
                 throw new Error(errorData.error || errorData.message || `HTTP ${res.status}`);
             }
 
             const data = await res.json();
+            if (!data.scanResult) throw new Error('Invalid scan response format');
 
-            // SAFETY: Validate data structure before accessing nested properties
-            if (!data.scanResult || !data.scanResult.vulnerabilities) {
-                throw new Error('Invalid scan response format');
-            }
-
-            // Store scan result with cache metadata
             const scanResultWithMeta = {
                 ...data.scanResult,
                 _cached: data.cached || false,
@@ -292,34 +274,36 @@ function Dashboard() {
                 data.scanResult.status === 'high-risk' ? 'critical' : 'issues';
             updateRepoStatus(repo.id, status, data.scanResult.vulnerabilities.length);
 
-            // Update user stats (only for real scans, not cached ones)
+            // Update user stats
             if (!data.cached && userStats) {
-                const calculatedScore = calculateScore(data.scanResult.vulnerabilities);
-                const updated = updateStatsAfterScan(
-                    userStats,
-                    repo.name,
-                    calculatedScore,
-                    data.scanResult.vulnerabilities.length
-                );
+                const calculatedScore = calculateScore(data.scanResult.vulnerabilities, data.scanResult.threatIntelligence);
+                const updated = updateStatsAfterScan(userStats, repo.name, calculatedScore, data.scanResult.vulnerabilities.length);
                 setUserStats(updated);
                 saveUserStats(updated);
             }
 
-            // Show cache notification if applicable
             if (data.cached) {
                 showToast({ type: 'info', title: 'CACHE HIT', message: `Loaded scan from ${new Date(data.cacheTimestamp).toLocaleTimeString()}`, icon: '⚡' });
             } else {
-                showSuccess('Scan Complete', `Found ${data.scanResult.vulnerabilities.length} issues in ${repo.name}`);
+                const vulnCount = data.scanResult.vulnerabilities.length;
+                const threatCount = data.scanResult.threatIntelligence?.cveCount || 0;
+                const isThreatCritical = ['HIGH', 'CRITICAL'].includes(data.scanResult.threatIntelligence?.riskLevel);
+
+                if (vulnCount > 0 || isThreatCritical) {
+                    showToast({
+                        type: 'warning',
+                        title: 'Scan Complete',
+                        message: `Detected ${vulnCount} code issues and ${threatCount} dependency threats.`,
+                        icon: '🛡️'
+                    });
+                } else {
+                    showSuccess('Scan Complete', `Project ${repo.name} is secure.`);
+                }
             }
         } catch (err: any) {
             console.error('[Dashboard] Scan failed:', err);
             updateRepoStatus(repo.id, 'pending');
-            showToast({
-                type: 'warning',
-                title: 'Scan Failed',
-                message: err.message || 'Unable to complete scan. Please try again.',
-                icon: '⚠️'
-            });
+            showToast({ type: 'warning', title: 'Scan Failed', message: err.message || 'Unable to complete scan.', icon: '⚠️' });
         } finally {
             setScanning(false);
         }
@@ -408,6 +392,7 @@ function Dashboard() {
                 body: JSON.stringify({
                     repoName: repo.repoName,
                     vulnerabilities: repo.vulnerabilities,
+                    threatIntelligence: repo.threatIntelligence,
                     techStack: repo.stackInfo
                 })
             });
@@ -715,8 +700,8 @@ function Dashboard() {
                                                 />
                                                 <button
                                                     onClick={() => generateMasterFix(currentRepoKey!)}
-                                                    disabled={generatingMaster || currentResult.vulnerabilities.length === 0}
-                                                    className="h-10 px-4 bg-primary/10 hover:bg-primary/20 border border-primary/20 rounded-lg text-xs font-bold font-mono text-primary flex items-center gap-2 transition-all disabled:opacity-50"
+                                                    disabled={generatingMaster || (currentResult.vulnerabilities.length === 0 && (!currentResult.threatIntelligence || !['HIGH', 'CRITICAL'].includes(currentResult.threatIntelligence.riskLevel)))}
+                                                    className={`h-10 px-4 bg-primary/10 hover:bg-primary/20 border border-primary/20 rounded-lg text-xs font-bold font-mono text-primary flex items-center gap-2 transition-all disabled:opacity-50 ${(!generatingMaster && currentResult.vulnerabilities.length === 0 && currentResult.threatIntelligence && ['HIGH', 'CRITICAL'].includes(currentResult.threatIntelligence.riskLevel)) ? 'ring-2 ring-primary/40 animate-pulse' : ''}`}
                                                 >
                                                     <Cpu className={`w-3.5 h-3.5 ${generatingMaster ? 'animate-spin' : ''}`} />
                                                     MASTER FIX
@@ -896,9 +881,18 @@ function Dashboard() {
                                                             </div>
                                                         </div>
                                                         <h3 className="text-2xl font-bold text-white mb-3">Supply Chain Risks Detected</h3>
-                                                        <p className="text-sm text-white/50 font-mono max-w-md mx-auto mb-8 leading-relaxed">
+                                                        <p className="text-sm text-white/50 font-mono max-w-md mx-auto mb-4 leading-relaxed">
                                                             While your source code appears clean, critical vulnerabilities have been detected in your <span className="text-red-400 font-bold">project dependencies</span>.
                                                         </p>
+                                                        <div className="bg-black/40 border border-red-500/20 rounded-xl p-4 mb-8 w-full max-w-sm">
+                                                            <div className="text-[10px] font-bold font-mono text-red-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                                                <Terminal className="w-3 h-3" /> Recommended Remediation
+                                                            </div>
+                                                            <code className="text-xs text-red-200/70 font-mono break-all bg-white/5 p-2 rounded block">
+                                                                npm audit fix --force && npm update
+                                                            </code>
+                                                            <p className="text-[9px] text-white/30 mt-2 italic font-mono">Run this in your terminal to apply priority security patches.</p>
+                                                        </div>
                                                         <button
                                                             onClick={() => document.getElementById('threat-intel-panel')?.scrollIntoView({ behavior: 'smooth' })}
                                                             className="h-12 px-8 bg-red-500 hover:bg-red-600 text-white font-bold font-mono text-xs tracking-wider rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-red-500/20"

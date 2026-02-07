@@ -5,6 +5,14 @@
 export interface MasterFixPromptOptions {
     repoName: string;
     vulnerabilities: any[];
+    threatIntelligence?: {
+        riskLevel: string;
+        riskScore: number;
+        cveCount: number;
+        advisoryCount: number;
+        criticalThreats: number;
+        recommendations: string[];
+    };
     techStack: {
         reactVersion: string;
         framework: string;
@@ -16,7 +24,7 @@ export interface MasterFixPromptOptions {
  * Generates a master one-shot prompt for vibe coders to fix all vulnerabilities
  */
 export function generateMasterFixPrompt(options: MasterFixPromptOptions): string {
-    const { repoName, vulnerabilities, techStack } = options;
+    const { repoName, vulnerabilities, techStack, threatIntelligence } = options;
 
     const vulnerabilityList = vulnerabilities.map((v, i) => {
         const lang = techStack.isTypeScript ? 'tsx' : 'jsx';
@@ -33,23 +41,40 @@ ${v.snippet || '// Snippet not available for this issue'}
 `;
     }).join('\n');
 
+    let threatSection = '';
+    if (threatIntelligence && (threatIntelligence.riskLevel === 'HIGH' || threatIntelligence.riskLevel === 'CRITICAL')) {
+        threatSection = `
+## 🚨 SUPPLY CHAIN RISKS (CRITICAL PERIMETER)
+- **Risk Level**: ${threatIntelligence.riskLevel} (${threatIntelligence.riskScore}/100)
+- **CVE Findings**: ${threatIntelligence.cveCount}
+- **Security Advisories**: ${threatIntelligence.advisoryCount}
+- **Critical Threats**: ${threatIntelligence.criticalThreats}
+- **Immediate Requirements**:
+${threatIntelligence.recommendations.map(r => `  - ${r}`).join('\n')}
+`;
+    }
+
+    const missionPrompt = vulnerabilities.length > 0
+        ? `I am scanning the project **${repoName}** and I need you to fix the following security vulnerabilities in one shot.`
+        : `I am scanning the project **${repoName}**. No source code vulnerabilities were found, but there are **CRITICAL SUPPLY CHAIN RISKS** that need immediate remediation.`;
+
     return `
 # Aeglyn Master Security Fix Mission 🛡️
 
-I am scanning the project **${repoName}** and I need you to fix the following security vulnerabilities in one shot. 
+${missionPrompt}
 This project uses **${techStack.framework}** (${techStack.reactVersion}) with **${techStack.isTypeScript ? 'TypeScript' : 'JavaScript'}**.
 
-## 🛠️ THE VULNERABILITIES:
 ${vulnerabilityList}
+${threatSection}
 
 ## 🎯 YOUR MISSION:
 1. Provide a concise explanation for each fix.
 2. Provide the EXACT code replacements for each file.
-3. If dependencies need to be updated, specify the command (e.g., \`npm install react@latest\`).
-4. Ensure all fixes are modern, secure, and follow best practices (e.g., using DOMPurify for HTML, rehype-sanitize for markdown, etc.).
+3. **CRITICAL**: Suggest the exact commands to fix dependency issues (e.g., \`npm install package@secure-version\` or \`npm audit fix --force\`).
+4. Ensure all fixes are modern, secure, and follow best practices.
 
 ## ⚡ ACTION PLAN FOR VIBE CODING:
-- If you are an AI assistant (like Cursor or Windsurf), please go through the files and apply these changes immediately.
+- If you are an AI assistant (like Cursor or Windsurf), please apply these changes and run the suggested dependency updates.
 - Use the most efficient and standard security libraries.
 - Keep the logic intact, only harden the security.
 
