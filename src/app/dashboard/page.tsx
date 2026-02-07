@@ -25,6 +25,7 @@ import {
 } from '@/components/DashboardFeatures';
 import { ThreatIntelligencePanel } from '@/components/ThreatIntelligencePanel';
 import { MasterFixDrawer } from '@/components/MasterFixDrawer';
+import { RemediationBlock } from '@/components/RemediationBlock';
 import { DashboardErrorBoundary } from '@/components/DashboardErrorBoundary';
 import { loadUserStats, saveUserStats, loadUserStatsFromCloud, syncUserStatsToCloud, updateStatsAfterScan, updateStatsAfterFix, calculateScore, type UserStats } from '@/lib/security-score';
 import { ToastNotifications, useToast } from '@/components/ToastNotification';
@@ -884,15 +885,12 @@ function Dashboard() {
                                                         <p className="text-sm text-white/50 font-mono max-w-md mx-auto mb-4 leading-relaxed">
                                                             While your source code appears clean, critical vulnerabilities have been detected in your <span className="text-red-400 font-bold">project dependencies</span>.
                                                         </p>
-                                                        <div className="bg-black/40 border border-red-500/20 rounded-xl p-4 mb-8 w-full max-w-sm">
-                                                            <div className="text-[10px] font-bold font-mono text-red-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                                                                <Terminal className="w-3 h-3" /> Recommended Remediation
-                                                            </div>
-                                                            <code className="text-xs text-red-200/70 font-mono break-all bg-white/5 p-2 rounded block">
-                                                                npm audit fix --force && npm update
-                                                            </code>
-                                                            <p className="text-[9px] text-white/30 mt-2 italic font-mono">Run this in your terminal to apply priority security patches.</p>
-                                                        </div>
+                                                        <p className="text-sm text-white/50 font-mono max-w-md mx-auto mb-4 leading-relaxed">
+                                                            While your source code appears clean, critical vulnerabilities have been detected in your <span className="text-red-400 font-bold">project dependencies</span>.
+                                                        </p>
+
+                                                        <RemediationBlock />
+
                                                         <button
                                                             onClick={() => document.getElementById('threat-intel-panel')?.scrollIntoView({ behavior: 'smooth' })}
                                                             className="h-12 px-8 bg-red-500 hover:bg-red-600 text-white font-bold font-mono text-xs tracking-wider rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-red-500/20"
