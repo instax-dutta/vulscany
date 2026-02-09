@@ -91,6 +91,44 @@ export async function getCachedThreatData(key: string): Promise<any | null> {
     return null;
 }
 
+/**
+ * Get multiple cached items in a single batch
+ */
+export async function getMultipleCachedThreatData(keys: string[]): Promise<any[]> {
+    if (keys.length === 0) return [];
+
+    const redis = getRedisClient();
+
+    if (redis) {
+        try {
+            // Both ioredis and upstash support mget
+            const results = await redis.mget(...keys);
+
+            return results.map(data => {
+                if (!data) return null;
+                // Upstash returns parsed JSON automatically, ioredis returns string
+                try {
+                    return typeof data === 'string' ? JSON.parse(data) : data;
+                } catch (e) {
+                    console.error('[Redis] Parse error for key:', e);
+                    return null;
+                }
+            });
+        } catch (error) {
+            console.error('[Redis] MGet error:', error);
+        }
+    }
+
+    // Fallback to memory cache
+    return keys.map(key => {
+        const cached = memoryCache.get(key);
+        if (cached && cached.expiry > Date.now()) {
+            return cached.data;
+        }
+        return null;
+    });
+}
+
 export async function setCachedThreatData(
     key: string,
     data: any,
