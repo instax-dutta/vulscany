@@ -51,6 +51,29 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Maximum 10 repositories allowed per batch' }, { status: 400 });
         }
 
+        // 2. Credit balance check
+        const { convex, api } = await import('@/lib/convex/client');
+        const convexUserId = cookieStore.get('convex_user_id')?.value;
+        const BATCH_COST = repositories.length; // 1 credit per repo in batch
+
+        if (convexUserId) {
+            const user = await convex.query(api.users.getById, { userId: convexUserId as any });
+            if (user && user.creditBalance < BATCH_COST) {
+                return NextResponse.json(
+                    { error: 'Payment Required', message: `Insufficient credits for batch scan. Need ${BATCH_COST} credits.` },
+                    { status: 402 }
+                );
+            }
+
+            // Deduct credits upfront
+            await convex.mutation(api.users.deductCredits, {
+                userId: convexUserId as any,
+                amount: BATCH_COST,
+                operation: 'batch_scan',
+                repoName: `Batch: ${repositories.length} repos`
+            });
+        }
+
         console.log(`[Batch Scan] Starting batch scan for ${repositories.length} repositories`);
 
         // Scan all repositories in parallel for speed
@@ -86,6 +109,33 @@ export async function POST(request: NextRequest) {
                 const summary = scanResults.vulnerabilities.length === 0
                     ? 'No security issues detected. Your code looks secure!'
                     : `Found ${scanResults.vulnerabilities.length} security ${scanResults.vulnerabilities.length === 1 ? 'issue' : 'issues'}. ${criticalCount > 0 ? `${criticalCount} critical. ` : ''}Review and address them to secure your application.`;
+
+                // Log scan to Convex scanHistory (metadata only - NO source code)
+                if (convexUserId) {
+                    try {
+                        const vulnerabilities = scanResults.vulnerabilities || [];
+                        const criticalFound = vulnerabilities.filter((v: any) => v.severity === 'critical').length;
+                        const highFound = vulnerabilities.filter((v: any) => v.severity === 'high').length;
+                        const mediumFound = vulnerabilities.filter((v: any) => v.severity === 'medium').length;
+                        const lowFound = vulnerabilities.filter((v: any) => v.severity === 'low').length;
+
+                        await convex.mutation(api.scanHistory.create, {
+                            userId: convexUserId as any,
+                            repoName: `${repo.owner}/${repo.name}`,
+                            repoUrl: `https://github.com/${repo.owner}/${repo.name}`,
+                            scanType: 'batch',
+                            vulnerabilitiesFound: vulnerabilities.length,
+                            criticalCount: criticalFound,
+                            highCount: highFound,
+                            mediumCount: mediumFound,
+                            lowCount: lowFound,
+                            creditsConsumed: 1, // Already deducted upfront, so this is for tracking
+                            scanDurationMs: scanResults.scanDuration || 0,
+                        });
+                    } catch (error) {
+                        console.error(`[Batch Scan] Failed to log scan history for ${repo.name}:`, error);
+                    }
+                }
 
                 return {
                     repoName: repo.name,

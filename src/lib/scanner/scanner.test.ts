@@ -23,9 +23,10 @@ describe('Scanner Logic', () => {
         hasVite: false,
         version: '18.0.0',
         hasTypeScript: true,
+        projectRoot: '',
         dependencies: {
             'react': '18.0.0',
-            'dangerously-set-html-content': '1.0.0'
+            'axios': '0.19.0'
         }
     };
 
@@ -123,5 +124,15 @@ describe('Scanner Logic', () => {
                 })
             ])
         );
+    });
+
+    it('should include scanDuration in results', async () => {
+        vi.mocked(githubClient.getDirectoryContents).mockResolvedValue([]);
+
+        const results = await scanRepository(mockToken, mockOwner, mockRepo, mockStackInfo);
+
+        expect(results.scanDuration).toBeDefined();
+        expect(typeof results.scanDuration).toBe('number');
+        expect(results.scanDuration).toBeGreaterThanOrEqual(0);
     });
 });

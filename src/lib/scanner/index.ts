@@ -22,6 +22,7 @@ export interface ScanResult {
     vulnerabilities: Vulnerability[];
     status: 'safe' | 'needs-attention' | 'high-risk';
     summary: string;
+    scanDuration: number;
     threatIntelligence?: {
         riskScore: number;
         riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
@@ -43,6 +44,7 @@ export async function scanRepository(
     repo: string,
     stackInfo: WebAppProjectInfo
 ): Promise<ScanResult> {
+    const startTime = Date.now();
     const vulnerabilities: Vulnerability[] = [];
 
     // 1. Check dependencies
@@ -66,6 +68,7 @@ export async function scanRepository(
     // Determine status
     const status = determineStatus(vulnerabilities);
     const summary = generateSummary(vulnerabilities);
+    const scanDuration = Date.now() - startTime;
 
     return {
         repoName: repo,
@@ -74,7 +77,8 @@ export async function scanRepository(
         stackInfo,
         vulnerabilities,
         status,
-        summary
+        summary,
+        scanDuration
     };
 }
 
