@@ -1,46 +1,36 @@
-# PLAN: Nested Project Discovery (Option A)
+# Plan: Fix Failing Test Suite and Logic
 
-This plan implements recursive manifest search (Max Depth 2) to accurately identify web application stacks in repositories where the project files are not in the root directory.
+The goal is to resolve 14 failing tests identified in `npm run test:coverage`, focusing on AI fix generation mocks and code validation logic, while ensuring no real API keys are required for testing.
 
-## 1. Information Gathering & Discovery
+## Phase 1: Planning & Analysis 
+- [x] Identify root cause of `fetch` mocking failure in `fix-generator.test.ts`. 
+- [x] Identify logic errors in `code-validator.ts` for parentheses and placeholders.
+- [ ] Create this `docs/PLAN.md` (Current).
 
-- [x] **Identify Current Logic**: Root-only check in `src/lib/github/stack-detector.ts`.
-- [x] **API Support**: `src/lib/github/client.ts` supports `getDirectoryContents`.
-- [ ] **Identify Vulnerable Points**:
-    - `detectStack` returns `null` if root `package.json` is missing.
-    - `scanRepository` (in `src/lib/scanner/index.ts`) might also need path adjustments if it assumes root.
+## Phase 2: Implementation (Orchestrated)
 
-## 2. Implementation Strategy
+### 1. Fix AI Fix Generator Tests (`backend-specialist` + `test-engineer`)
+- **Task**: Fix `fetch` mocking in `src/lib/ai/fix-generator.test.ts`.
+- **Details**: 
+    - Use `vi.stubGlobal('fetch', vi.fn())` or ensure `global.fetch` is correctly intercepted in the Node environment.
+    - Verify that all AI fallback logic works correctly without network access.
+    - Ensure `MISTRAL_API_KEYS` are pooled and used without needing real values.
 
-### Phase 1: Stack Detection Enhancement
-- Update `detectStack` in `src/lib/github/stack-detector.ts`.
-- If root `package.json` is missing:
-    - List root directory contents.
-    - Identify subdirectories (excluding hidden ones like `.github`, `node_modules`).
-    - Attempt to fetch `package.json` from each subdirectory.
-    - If found, use that subdirectory for stack identification.
-- Store the detected `projectRoot` (relative path) in the `WebAppProjectInfo` interface.
+### 2. Fix Code Validator Logic (`backend-specialist`)
+- **Task**: Fix `src/lib/validators/code-validator.ts`.
+- **Details**:
+    - **Balanced Parentheses**: Fix the regex or counting logic that is causing `should detect unbalanced parentheses` to fail (received `true` for valid instead of `false` for invalid).
+    - **Placeholder Detection**: Update the `incompletePatterns` check to correctly identify `/* rest of code */` and other markers while avoiding false positives.
 
-### Phase 2: Scanner Alignment
-- Update `src/lib/scanner/index.ts` to respect the `projectRoot` from `WebAppProjectInfo`.
-- Ensure file fetches for vulnerability scanning (regex checks, etc.) use the correct base path.
+### 3. Verification & Coverage (`test-engineer`)
+- **Task**: Run full test suite with coverage.
+- **Details**:
+    - Run `npm run test:run` to confirm all 47 tests pass.
+    - Run `npm run test:coverage` to ensure high coverage without regressions.
+    - Verify that no external calls are made during tests (enforced by MSW and global fetch mocks).
 
-## 3. Implementation Details
+## Phase 3: Final Synthesis
+- Summarize changes and confirm the health of the codebase.
 
-### File: `src/lib/github/stack-detector.ts`
-- Add `projectRoot: string` to `WebAppProjectInfo`.
-- Add recursive search logic inside `detectStack`.
-
-### File: `src/lib/scanner/index.ts`
-- Pass `stackInfo.projectRoot` when fetching files for scanning.
-
-## 4. Verification Plan
-
-- [ ] **Manual Test**: Simulate a nested repo structure (e.g., `oneshotai/package.json`).
-- [ ] **Unit Tests**: Add tests for recursive detection.
-- [ ] **Safety Checks**: Ensure recursion doesn't hit GitHub rate limits (limit to first 5 subdirectories or specific folder depth).
-
-## 5. Timeline & Delivery
-- **Step 1**: Backend Implementation (Backend Specialist)
-- **Step 2**: Security/Path Verification (Security Auditor)
-- **Step 3**: Final Verification (Test Engineer)
+---
+**Approved by User?** (Pending)

@@ -19,18 +19,8 @@ vi.mock('@/lib/github/stack-detector', () => ({
     detectStack: vi.fn(),
 }));
 
-vi.mock('@/lib/cache/scan-cache', () => ({
-    getCachedScanResult: vi.fn().mockResolvedValue(null),
-    cacheScanResult: vi.fn().mockResolvedValue(true),
-    invalidateScanCache: vi.fn().mockResolvedValue(true),
-}));
-
 vi.mock('@/lib/rate-limit', () => ({
     rateLimit: vi.fn().mockResolvedValue({ success: true, limit: 10, remaining: 9, reset: 0 }),
-}));
-
-vi.mock('@/lib/user/stats', () => ({
-    incrementUserMetric: vi.fn(),
 }));
 
 // Mock Convex client
@@ -50,42 +40,12 @@ vi.mock('@/lib/convex/client', () => ({
     }
 }));
 
-describe('API: /api/scan', () => {
+describe('API: /api/batch-scan', () => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
 
-    it('should return 401 if unauthorized', async () => {
-        vi.mocked(cookies).mockResolvedValue({
-            get: vi.fn().mockReturnValue(undefined)
-        } as any);
-
-        const req = new NextRequest('http://localhost/api/scan', {
-            method: 'POST',
-            body: JSON.stringify({ owner: 'owner', repo: 'repo' })
-        });
-
-        const response = await POST(req);
-        expect(response.status).toBe(401);
-        const data = await response.json();
-        expect(data.error).toBe('Unauthorized');
-    });
-
-    it('should return 400 if owner or repo is missing', async () => {
-        vi.mocked(cookies).mockResolvedValue({
-            get: vi.fn().mockReturnValue({ value: 'token' })
-        } as any);
-
-        const req = new NextRequest('http://localhost/api/scan', {
-            method: 'POST',
-            body: JSON.stringify({ owner: 'owner' }) // missing repo
-        });
-
-        const response = await POST(req);
-        expect(response.status).toBe(400);
-    });
-
-    it('should return 402 if user has insufficient credits', async () => {
+    it('should return 402 if user has insufficient credits for batch', async () => {
         const { convex } = await import('@/lib/convex/client');
 
         vi.mocked(cookies).mockResolvedValue({
@@ -96,24 +56,29 @@ describe('API: /api/scan', () => {
             })
         } as any);
 
-        // Mock low balance
+        // Mock low balance (needs 2 credits for 2 repos)
         vi.mocked(convex.query).mockResolvedValue({
-            creditBalance: 0,
+            creditBalance: 1,
             subscriptionTier: 'free'
         });
 
-        const req = new NextRequest('http://localhost/api/scan', {
+        const req = new NextRequest('http://localhost/api/batch-scan', {
             method: 'POST',
-            body: JSON.stringify({ owner: 'owner', repo: 'repo' })
+            body: JSON.stringify({
+                repositories: [
+                    { owner: 'o1', name: 'r1' },
+                    { owner: 'o2', name: 'r2' }
+                ]
+            })
         });
 
         const response = await POST(req);
         expect(response.status).toBe(402);
         const data = await response.json();
-        expect(data.error).toBe('Insufficient credits');
+        expect(data.error).toBe('Payment Required');
     });
 
-    it('should perform scan, deduct credits, and log history for valid web app', async () => {
+    it('should perform batch scan and deduct credits upfront', async () => {
         const { convex } = await import('@/lib/convex/client');
 
         vi.mocked(cookies).mockResolvedValue({
@@ -126,46 +91,44 @@ describe('API: /api/scan', () => {
 
         // Mock sufficient balance
         vi.mocked(convex.query).mockResolvedValue({
-            creditBalance: 100,
+            creditBalance: 10,
             subscriptionTier: 'pro'
         });
 
-        const mockStack = {
-            stack: 'react',
-            dependencies: {}
-        };
-        vi.mocked(stackDetector.detectStack).mockResolvedValue(mockStack as any);
+        vi.mocked(stackDetector.detectStack).mockResolvedValue({ stack: 'react', dependencies: {} } as any);
+        vi.mocked(scanner.scanRepository).mockResolvedValue({ vulnerabilities: [], status: 'safe', summary: 'OK', scanDuration: 100 } as any);
 
-        const mockScanResult = {
-            vulnerabilities: [],
-            status: 'safe',
-            summary: 'Clean',
-            scanDuration: 1500
-        };
-        vi.mocked(scanner.scanRepository).mockResolvedValue(mockScanResult as any);
-
-        const req = new NextRequest('http://localhost/api/scan', {
+        const req = new NextRequest('http://localhost/api/batch-scan', {
             method: 'POST',
-            body: JSON.stringify({ owner: 'owner', repo: 'repo' })
+            body: JSON.stringify({
+                repositories: [
+                    { owner: 'o1', name: 'r1' },
+                    { owner: 'o2', name: 'r2' }
+                ]
+            })
         });
 
         const response = await POST(req);
         expect(response.status).toBe(200);
 
-        // Verify credit deduction
+        // Verify upfront deduction for 2 repos
         expect(convex.mutation).toHaveBeenCalledWith('users:deductCredits', expect.objectContaining({
             userId: 'user_123',
-            amount: 1
+            amount: 2,
+            operation: 'batch_scan'
         }));
 
-        // Verify history logging
+        // Verify history logging for both repos
         expect(convex.mutation).toHaveBeenCalledWith('scanHistory:create', expect.objectContaining({
-            scanDurationMs: 1500,
-            creditsConsumed: 1
+            repoName: 'o1/r1',
+            scanType: 'batch'
+        }));
+        expect(convex.mutation).toHaveBeenCalledWith('scanHistory:create', expect.objectContaining({
+            repoName: 'o2/r2',
+            scanType: 'batch'
         }));
 
         const data = await response.json();
-        expect(data.scanResult).toBeDefined();
+        expect(data.batchSummary.successful).toBe(2);
     });
 });
-

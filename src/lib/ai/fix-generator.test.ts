@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { generateCodeFix, generateBatchFixes } from './fix-generator';
 import type { Vulnerability } from '../scanner';
-
-// Mock Mistral AI API
-global.fetch = vi.fn();
+import { server } from '../../../vitest.setup';
+import { http, HttpResponse } from 'msw';
 
 describe('Fix Generator', () => {
     const mockVulnerability: Vulnerability = {
@@ -46,14 +45,13 @@ export function Component({ userInput }: { userInput: string }) {
 }
 `;
 
-            vi.mocked(fetch).mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({
-                    choices: [{
-                        message: { content: mockAIResponse }
-                    }]
+            server.use(
+                http.post('https://api.mistral.ai/v1/chat/completions', () => {
+                    return HttpResponse.json({
+                        choices: [{ message: { content: mockAIResponse } }]
+                    });
                 })
-            } as Response);
+            );
 
             const result = await generateCodeFix(mockVulnerability, mockFileContent);
 
@@ -67,14 +65,13 @@ export function Component({ userInput }: { userInput: string }) {
         it('should strip markdown code blocks from AI response', async () => {
             const mockAIResponse = '```typescript\nimport React from "react";\n```';
 
-            vi.mocked(fetch).mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({
-                    choices: [{
-                        message: { content: mockAIResponse }
-                    }]
+            server.use(
+                http.post('https://api.mistral.ai/v1/chat/completions', () => {
+                    return HttpResponse.json({
+                        choices: [{ message: { content: mockAIResponse } }]
+                    });
                 })
-            } as Response);
+            );
 
             const result = await generateCodeFix(mockVulnerability, mockFileContent);
 
@@ -83,7 +80,11 @@ export function Component({ userInput }: { userInput: string }) {
         });
 
         it('should fallback to pattern fix if AI fails', async () => {
-            vi.mocked(fetch).mockRejectedValueOnce(new Error('API error'));
+            server.use(
+                http.post('https://api.mistral.ai/v1/chat/completions', () => {
+                    return new HttpResponse(null, { status: 500 });
+                })
+            );
 
             const result = await generateCodeFix(mockVulnerability, mockFileContent);
 
@@ -93,24 +94,29 @@ export function Component({ userInput }: { userInput: string }) {
         });
 
         it('should use random API key from pool', async () => {
-            vi.mocked(fetch).mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({
-                    choices: [{ message: { content: 'fixed code' } }]
+            let capturedKey = '';
+            server.use(
+                http.post('https://api.mistral.ai/v1/chat/completions', ({ request }) => {
+                    capturedKey = request.headers.get('Authorization') || '';
+                    return HttpResponse.json({
+                        choices: [{ message: { content: 'function fix() {}' } }]
+                    });
                 })
-            } as Response);
+            );
 
             await generateCodeFix(mockVulnerability, mockFileContent);
 
-            const callArgs = vi.mocked(fetch).mock.calls[0];
-            const headers = callArgs[1]?.headers as Record<string, string>;
-            expect(headers.Authorization).toMatch(/Bearer mock-key-[12]/);
+            expect(capturedKey).toMatch(/Bearer mock-key-[12]/);
         });
     });
 
     describe('Pattern-Based Fixes', () => {
         it('should add DOMPurify import if missing', async () => {
-            vi.mocked(fetch).mockRejectedValueOnce(new Error('API unavailable'));
+            server.use(
+                http.post('https://api.mistral.ai/v1/chat/completions', () => {
+                    return new HttpResponse(null, { status: 500 });
+                })
+            );
 
             const result = await generateCodeFix(mockVulnerability, mockFileContent);
 
@@ -118,7 +124,11 @@ export function Component({ userInput }: { userInput: string }) {
         });
 
         it('should wrap dangerouslySetInnerHTML with DOMPurify', async () => {
-            vi.mocked(fetch).mockRejectedValueOnce(new Error('API unavailable'));
+            server.use(
+                http.post('https://api.mistral.ai/v1/chat/completions', () => {
+                    return new HttpResponse(null, { status: 500 });
+                })
+            );
 
             const result = await generateCodeFix(mockVulnerability, mockFileContent);
 
@@ -130,7 +140,11 @@ export function Component({ userInput }: { userInput: string }) {
 <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }} />
             `;
 
-            vi.mocked(fetch).mockRejectedValueOnce(new Error('API unavailable'));
+            server.use(
+                http.post('https://api.mistral.ai/v1/chat/completions', () => {
+                    return new HttpResponse(null, { status: 500 });
+                })
+            );
 
             const result = await generateCodeFix(mockVulnerability, alreadySanitized);
 
@@ -141,14 +155,13 @@ export function Component({ userInput }: { userInput: string }) {
 
     describe('Validation', () => {
         it('should reject AI response that is too short', async () => {
-            vi.mocked(fetch).mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({
-                    choices: [{
-                        message: { content: 'x' } // Too short
-                    }]
+            server.use(
+                http.post('https://api.mistral.ai/v1/chat/completions', () => {
+                    return HttpResponse.json({
+                        choices: [{ message: { content: 'x' } }]
+                    });
                 })
-            } as Response);
+            );
 
             const result = await generateCodeFix(mockVulnerability, mockFileContent);
 
@@ -157,14 +170,13 @@ export function Component({ userInput }: { userInput: string }) {
         });
 
         it('should reject AI response that does not look like code', async () => {
-            vi.mocked(fetch).mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({
-                    choices: [{
-                        message: { content: 'This is just text without any code keywords' }
-                    }]
+            server.use(
+                http.post('https://api.mistral.ai/v1/chat/completions', () => {
+                    return HttpResponse.json({
+                        choices: [{ message: { content: 'This is just text without any code keywords' } }]
+                    });
                 })
-            } as Response);
+            );
 
             const result = await generateCodeFix(mockVulnerability, mockFileContent);
 
@@ -188,14 +200,15 @@ export function Component({ userInput }: { userInput: string }) {
                 ['src/Component.tsx', mockFileContent]
             ]);
 
-            vi.mocked(fetch).mockResolvedValue({
-                ok: true,
-                json: async () => ({
-                    choices: [{
-                        message: { content: mockFileContent.replace('userInput', 'DOMPurify.sanitize(userInput)') }
-                    }]
+            server.use(
+                http.post('https://api.mistral.ai/v1/chat/completions', () => {
+                    return HttpResponse.json({
+                        choices: [{
+                            message: { content: mockFileContent.replace('userInput', 'DOMPurify.sanitize(userInput)') }
+                        }]
+                    });
                 })
-            } as Response);
+            );
 
             const results = await generateBatchFixes(vulnerabilities, fileContents);
 
@@ -216,19 +229,20 @@ export function Component({ userInput }: { userInput: string }) {
 
     describe('Diff Generation', () => {
         it('should generate meaningful diff', async () => {
-            vi.mocked(fetch).mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({
-                    choices: [{
-                        message: {
-                            content: mockFileContent.replace(
-                                'dangerouslySetInnerHTML={{ __html: userInput }}',
-                                'dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userInput) }}'
-                            )
-                        }
-                    }]
+            server.use(
+                http.post('https://api.mistral.ai/v1/chat/completions', () => {
+                    return HttpResponse.json({
+                        choices: [{
+                            message: {
+                                content: mockFileContent.replace(
+                                    'dangerouslySetInnerHTML={{ __html: userInput }}',
+                                    'dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userInput) }}'
+                                )
+                            }
+                        }]
+                    });
                 })
-            } as Response);
+            );
 
             const result = await generateCodeFix(mockVulnerability, mockFileContent);
 
@@ -240,12 +254,13 @@ export function Component({ userInput }: { userInput: string }) {
 
     describe('Commit Messages', () => {
         it('should generate semantic commit message', async () => {
-            vi.mocked(fetch).mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({
-                    choices: [{ message: { content: 'fixed' } }]
+            server.use(
+                http.post('https://api.mistral.ai/v1/chat/completions', () => {
+                    return HttpResponse.json({
+                        choices: [{ message: { content: 'function fix() {}' } }]
+                    });
                 })
-            } as Response);
+            );
 
             const result = await generateCodeFix(mockVulnerability, mockFileContent);
 

@@ -40,7 +40,7 @@ function test() {
             const code = `function test(a, b { return a + b; }`;
             const result = validateGeneratedCode(code, []);
             expect(result.valid).toBe(false);
-            expect(result.warnings[0]).toContain('unbalanced parentheses');
+            expect(result.errors[0].toLowerCase()).toContain('unbalanced parentheses');
         });
     });
 

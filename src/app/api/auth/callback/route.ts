@@ -50,6 +50,15 @@ export async function GET(request: NextRequest) {
 
         const userData = await userResponse.json();
 
+        // Upsert user in Convex DB
+        const { convex, api } = await import('@/lib/convex/client');
+        const convexUserId = await convex.mutation(api.users.upsertUser, {
+            githubId: userData.id,
+            email: userData.email || `${userData.login}@github.placeholder`,
+            name: userData.name || userData.login,
+            avatarUrl: userData.avatar_url,
+        });
+
         const response = NextResponse.redirect(new URL('/dashboard', request.url));
 
         // Set secure httpOnly cookies with domain for cross-subdomain access
@@ -63,6 +72,9 @@ export async function GET(request: NextRequest) {
         };
 
         response.cookies.set('github_token', tokenData.access_token, cookieOptions);
+
+        // Store Convex user ID for quick lookups
+        response.cookies.set('convex_user_id', convexUserId, cookieOptions);
 
         response.cookies.set('session', JSON.stringify({
             user: {

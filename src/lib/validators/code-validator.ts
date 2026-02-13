@@ -30,7 +30,7 @@ export function validateGeneratedCode(code: string, availablePackages: string[] 
     const openParens = (code.match(/\(/g) || []).length;
     const closeParens = (code.match(/\)/g) || []).length;
     if (openParens !== closeParens) {
-        warnings.push(`Potential unbalanced parentheses: ${openParens} open vs ${closeParens} close`);
+        errors.push(`Unbalanced parentheses: ${openParens} open vs ${closeParens} close`);
     }
 
     // 2. Dependency Check
@@ -106,6 +106,7 @@ export function validateGeneratedCode(code: string, availablePackages: string[] 
         '// ...',
         '/* ... */',
         '// rest of code',
+        '/* rest of code */',
         '// TODO',
         '// FIXME',
         '...',  // Only if it's a comment or placeholder, not spread operator
