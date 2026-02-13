@@ -19,6 +19,7 @@ Convex handles your database and token logic.
     Add the following to your Vercel Project Settings (Environment Variables):
     *   `CONVEX_DEPLOYMENT`: Found in the `process.env` Section of the dashboard (looks like `production:xxx-xxx-123`).
     *   `NEXT_PUBLIC_CONVEX_URL`: Your Deployment URL (e.g., `https://smiling-penguin-123.convex.cloud`).
+    *   `CONVEX_DEPLOY_KEY`: (CRITICAL) Go to **Settings** → **Deploy Key**. Generate a new key. This allows the Vercel build to run `npx convex codegen`.
 
 ---
 
@@ -58,6 +59,7 @@ In your **Vercel Project Dashboard** → **Settings** → **Environment Variable
 | Key | Example Value |
 | :--- | :--- |
 | `CONVEX_DEPLOYMENT` | `production:vibrant-ant-99` |
+| `CONVEX_DEPLOY_KEY` | `prod:xxx...` (From Convex Settings) |
 | `NEXT_PUBLIC_CONVEX_URL` | `https://vibrant-ant-99.convex.cloud` |
 | `DODO_API_KEY` | `test_sk_...` |
 | `DODO_PAYMENTS_WEBHOOK_SECRET` | `whsec_...` |
