@@ -66,5 +66,7 @@ In your **Vercel Project Dashboard** → **Settings** → **Environment Variable
 | `GITHUB_CLIENT_SECRET` | `0b5xxx...` |
 | `UPSTASH_REDIS_REST_URL` | `https://xxx.upstash.io` |
 | `UPSTASH_REDIS_REST_TOKEN` | `Axxx...` |
+| `MISTRAL_API_KEYS` | `sk-...,sk-...` (Rotational) |
+| `OLLAMA_API_KEYS` | `ollama-...,ollama-...` (Rotational) |
 
 **Note:** After adding these, you must trigger a **Redeploy** on Vercel for the changes to take effect.
