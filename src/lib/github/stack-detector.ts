@@ -57,13 +57,20 @@ export async function detectStack(
     );
 
     // Only probe the first 8 subdirectories to prevent rate limit exhaustion
-    for (const dir of subDirs.slice(0, 8)) {
-        const nestedPath = `${dir.path}/package.json`;
-        const nestedPackage = await getFileContent(accessToken, owner, repo, nestedPath);
+    // We use Promise.all to check them concurrently for better performance
+    const probeDirs = subDirs.slice(0, 8);
+    const probeResults = await Promise.all(
+        probeDirs.map(async (dir) => {
+            const nestedPath = `${dir.path}/package.json`;
+            const nestedPackage = await getFileContent(accessToken, owner, repo, nestedPath);
+            return { dir, nestedPackage, nestedPath };
+        })
+    );
 
-        if (nestedPackage) {
-            console.log(`[Stack Detection] Found project manifest at: ${nestedPath}`);
-            return parsePackageJson(nestedPackage.content, dir.path);
+    for (const result of probeResults) {
+        if (result.nestedPackage) {
+            console.log(`[Stack Detection] Found project manifest at: ${result.nestedPath}`);
+            return parsePackageJson(result.nestedPackage.content, result.dir.path);
         }
     }
 
