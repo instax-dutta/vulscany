@@ -885,9 +885,6 @@ function Dashboard() {
                                                         <p className="text-sm text-white/50 font-mono max-w-md mx-auto mb-4 leading-relaxed">
                                                             While your source code appears clean, critical vulnerabilities have been detected in your <span className="text-red-400 font-bold">project dependencies</span>.
                                                         </p>
-                                                        <p className="text-sm text-white/50 font-mono max-w-md mx-auto mb-4 leading-relaxed">
-                                                            While your source code appears clean, critical vulnerabilities have been detected in your <span className="text-red-400 font-bold">project dependencies</span>.
-                                                        </p>
 
                                                         <RemediationBlock />
 
