@@ -1,6 +1,6 @@
 /**
- * Logout Handler
- * Clears GitHub token from session
+ * Logout handler
+ * Clears GitHub token from session.
  */
 
 import { NextResponse } from 'next/server';
@@ -8,9 +8,7 @@ import { NextResponse } from 'next/server';
 export async function POST() {
     const response = NextResponse.json({ success: true });
 
-    // Clear the token and session cookies across the root domain using expired dates
     const cookieOptions = {
-        domain: '.example.com',
         path: '/',
         expires: new Date(0),
         httpOnly: true,
@@ -20,6 +18,7 @@ export async function POST() {
 
     response.cookies.set('github_token', '', cookieOptions);
     response.cookies.set('session', '', cookieOptions);
+    response.cookies.set('convex_user_id', '', cookieOptions);
 
     return response;
 }

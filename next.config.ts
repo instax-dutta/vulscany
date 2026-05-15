@@ -43,14 +43,9 @@ const nextConfig: NextConfig = {
     return [];
   },
 
-  /* Environment variables */
-  env: {
-    NEXT_PUBLIC_SITE_URL: 'https://example.com',
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
 };
 
 export default nextConfig;
-

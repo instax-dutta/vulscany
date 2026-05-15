@@ -59,7 +59,7 @@ ${threatIntelligence.recommendations.map(r => `  - ${r}`).join('\n')}
         : `I am scanning the project **${repoName}**. No source code vulnerabilities were found, but there are **CRITICAL SUPPLY CHAIN RISKS** that need immediate remediation.`;
 
     return `
-# Aeglyn Master Security Fix Mission 🛡️
+# VullScanny Master Security Fix Mission
 
 ${missionPrompt}
 This project uses **${techStack.framework}** (${techStack.reactVersion}) with **${techStack.isTypeScript ? 'TypeScript' : 'JavaScript'}**.
@@ -118,4 +118,3 @@ ${vuln.snippet}
 Please provide the corrected code block and briefly explain the improvement.
 `;
 }
-

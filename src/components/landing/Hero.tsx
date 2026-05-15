@@ -13,7 +13,6 @@ export function Hero() {
     const [comboIndex, setComboIndex] = useState<number | null>(null)
 
     useEffect(() => {
-        // Randomize on mount to avoid hydration mismatch
         setComboIndex(Math.floor(Math.random() * HERO_COMBOS.length))
 
         const fetchSession = async () => {
@@ -32,7 +31,7 @@ export function Hero() {
         fetchSession()
     }, [])
 
-    const combo = comboIndex !== null ? HERO_COMBOS[comboIndex] : HERO_COMBOS[4]; // Default to "Your AI security copilot" for SSR
+    const combo = comboIndex !== null ? HERO_COMBOS[comboIndex] : HERO_COMBOS[4];
 
     return (
         <section className="min-h-screen flex items-center justify-center overflow-hidden relative">
@@ -56,7 +55,6 @@ export function Hero() {
                     )}
                 </AnimatePresence>
 
-                {/* Primary CTAs */}
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 px-4">
                     {loading ? (
                         <div className="h-12 w-40 bg-white/5 animate-pulse rounded-lg" />
@@ -72,7 +70,7 @@ export function Hero() {
                             <GitHubAuthButton />
                             <a href="/dashboard" className="w-full sm:w-auto">
                                 <Button variant="outline" className="h-12 px-8 font-bold flex items-center gap-2 text-base border-border hover:bg-card/40 w-full sm:w-auto">
-                                    Try it now
+                                    Explore the archive
                                     <ArrowRight className="w-4 h-4" />
                                 </Button>
                             </a>
@@ -80,9 +78,8 @@ export function Hero() {
                     )}
                 </div>
 
-                <p className="text-sm font-mono text-muted-foreground/80 lowercase tracking-widest opacity-60">GDPR compliant • Real-time scanning • Built for vibe coders</p>
+                <p className="text-sm font-mono text-muted-foreground/80 lowercase tracking-widest opacity-60">public archive • scrapped before launch • preserved for reference</p>
 
-                {/* Subtle glow effect */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-primary/10 blur-[120px] rounded-full -z-10" />
             </div>
         </section>

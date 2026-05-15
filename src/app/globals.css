@@ -7,7 +7,7 @@
   --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 
-  /* Aeglyn Design System Tokens (Monochrome Monochrome) */
+  /* VullScanny design system tokens */
   --color-background: oklch(0.145 0 0);
   --color-foreground: oklch(0.985 0 0);
   --color-primary: oklch(0.985 0 0);

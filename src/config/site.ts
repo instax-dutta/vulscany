@@ -1,35 +1,28 @@
 /**
- * Aeglyn Site Configuration
- * 
- * Centralized configuration for cross-site linking and branding
+ * VullScanny site configuration
+ *
+ * Centralized configuration for archive-mode branding and links.
  */
 
 export const SITE_CONFIG = {
-    // Site URLs
     urls: {
-        landing: process.env.NODE_ENV === 'production'
-            ? 'https://example.com'
-            : 'http://localhost:3000',
-        app: process.env.NODE_ENV === 'production'
-            ? 'https://example.com'
-            : 'http://localhost:3000',
+        landing: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+        app: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     },
 
-    // Branding
     branding: {
-        name: 'Aeglyn',
-        tagline: 'Privacy-First React Security Scanner',
-        description: 'AI-Powered Threat Intelligence for React Applications',
-        internalName: 'Aeglyn', // For development/internal use only
+        name: 'VullScanny',
+        tagline: 'Archived AI Security Scanner Prototype',
+        description: 'A public archive of a scrapped security scanning product',
+        internalName: 'VullScanny',
     },
 
-    // Navigation Links
     navigation: {
         landing: [
             { label: 'Home', href: '/' },
-            { label: 'Features', href: '/#features' },
-            { label: 'How It Works', href: '/#how-it-works' },
-            { label: 'Pricing', href: '/#pricing' },
+            { label: 'Why It Was Scrapped', href: '/#why' },
+            { label: 'What Was Built', href: '/#features' },
+            { label: 'Archive Notes', href: '/#archive' },
         ],
         app: [
             { label: 'Dashboard', href: '/dashboard' },
@@ -38,43 +31,36 @@ export const SITE_CONFIG = {
         ],
     },
 
-    // Theme Colors (Aeglyn Cyan)
     colors: {
         primary: '#00d4ff',
         primaryDark: '#00a8cc',
         primaryLight: '#66e5ff',
         gradient: 'linear-gradient(135deg, #00d4ff 0%, #00ffc8 100%)',
-
-        // Severity colors (unchanged)
         critical: '#ff0055',
         high: '#ffaa00',
         medium: '#ffc800',
         low: '#00ff88',
     },
 
-    // Social Links
     social: {
-        github: 'https://github.com/instax-dutta',
+        github: 'https://github.com/instax-dutta/vulscany',
         twitter: '#',
         linkedin: '#',
     },
 
-    // Contact
     contact: {
-        email: 'support@example.com',
-        support: 'https://example.com/support',
+        email: 'opensource@example.invalid',
+        support: '#',
     },
 
-    // SEO
     seo: {
-        title: 'Aeglyn - AI-Powered React Security Scanner',
-        description: 'Privacy-first vulnerability detection for React applications with AI-powered threat intelligence',
-        keywords: ['React security', 'vulnerability scanner', 'AI security', 'code analysis', 'threat intelligence'],
+        title: 'VullScanny - Archived Security Scanner Prototype',
+        description: 'Public archive of a scrapped AI-assisted application security project',
+        keywords: ['security scanner', 'archive', 'prototype', 'appsec', 'public archive'],
         ogImage: '/og-image.png',
     },
 } as const;
 
-// Helper functions
 export const getLandingUrl = (path: string = '') => {
     return `${SITE_CONFIG.urls.landing}${path}`;
 };

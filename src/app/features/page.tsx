@@ -1,11 +1,10 @@
 import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
 import { FeaturesSection } from "@/components/landing/FeaturesSection"
-import { RoadmapSection } from "@/components/landing/RoadmapSection"
 
 export const metadata = {
-    title: "Aeglyn Features | AI-Powered Security for Vibe Coders",
-    description: "Explore Aeglyn's features: GitHub integration, AI-powered bug detection, local-only scanning, and zero-knowledge static analysis.",
+    title: "VullScanny Archive",
+    description: "A snapshot of what VullScanny had built before the product was shelved.",
 }
 
 export default function FeaturesPage() {
@@ -14,7 +13,6 @@ export default function FeaturesPage() {
             <Navbar />
             <main className="flex-grow pt-20">
                 <FeaturesSection />
-                <RoadmapSection />
             </main>
             <Footer />
         </div>

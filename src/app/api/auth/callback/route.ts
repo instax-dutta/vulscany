@@ -1,6 +1,6 @@
 /**
- * GitHub OAuth Callback Handler
- * Exchanges code for access token
+ * GitHub OAuth callback handler
+ * Exchanges code for an access token.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -19,7 +19,6 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        // Exchange code for access token
         const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
             method: 'POST',
             headers: {
@@ -39,18 +38,16 @@ export async function GET(request: NextRequest) {
             return NextResponse.redirect(new URL(`/?error=${tokenData.error}`, request.url));
         }
 
-        // Fetch user info from GitHub to create a session
         const userResponse = await fetch('https://api.github.com/user', {
             headers: {
                 'Authorization': `token ${tokenData.access_token}`,
                 'Accept': 'application/json',
-                'User-Agent': 'VulnScany/1.0.0'
+                'User-Agent': 'VullScanny/1.0.0'
             }
         });
 
         const userData = await userResponse.json();
 
-        // Upsert user in Convex DB
         const { convex, api } = await import('@/lib/convex/client');
         const convexUserId = await convex.mutation(api.users.upsertUser, {
             githubId: userData.id,
@@ -61,21 +58,16 @@ export async function GET(request: NextRequest) {
 
         const response = NextResponse.redirect(new URL('/dashboard', request.url));
 
-        // Set secure httpOnly cookies with domain for cross-subdomain access
         const cookieOptions = {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax' as const,
-            maxAge: 60 * 60 * 2, // 2 hours
+            maxAge: 60 * 60 * 2,
             path: '/',
-            ...(process.env.NODE_ENV === 'production' ? { domain: '.example.com' } : {})
         };
 
         response.cookies.set('github_token', tokenData.access_token, cookieOptions);
-
-        // Store Convex user ID for quick lookups
         response.cookies.set('convex_user_id', convexUserId, cookieOptions);
-
         response.cookies.set('session', JSON.stringify({
             user: {
                 id: userData.id,
@@ -86,7 +78,6 @@ export async function GET(request: NextRequest) {
         }), cookieOptions);
 
         return response;
-
     } catch (error) {
         console.error('[OAuth] Error:', error);
         return NextResponse.redirect(new URL('/?error=auth_failed', request.url));

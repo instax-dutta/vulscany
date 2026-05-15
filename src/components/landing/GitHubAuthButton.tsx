@@ -8,10 +8,17 @@ export function GitHubAuthButton() {
     const [isLoading, setIsLoading] = useState(false)
 
     const handleAuth = () => {
+        const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID
+
+        if (!clientId) {
+            window.alert("GitHub OAuth is disabled in this public archive. Add NEXT_PUBLIC_GITHUB_CLIENT_ID locally if you want to test auth.")
+            return
+        }
+
         setIsLoading(true)
 
         const params = new URLSearchParams({
-            client_id: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID || 'GITHUB_CLIENT_ID_PLACEHOLDER',
+            client_id: clientId,
             redirect_uri: window.location.origin + '/api/auth/callback',
             scope: 'read:user repo',
             state: Math.random().toString(36).substring(7), // CSRF protection

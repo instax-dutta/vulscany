@@ -17,4 +17,4 @@ Allow: /
 User-agent: Applebot-Extended
 Allow: /
 
-Sitemap: https://example.com/sitemap.xml
+Sitemap: https://vullscanny.example.invalid/sitemap.xml

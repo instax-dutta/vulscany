@@ -106,7 +106,7 @@ const isValidUrl = (url: string) => {
         ]
     },
 
-    // @vulscany-ignore: Educational content about eval() dangers
+    // @vullscanny-ignore: Educational content about eval() dangers
     'code-execution-pattern': {
         type: 'code-execution-pattern',
         title: 'Remote Code Execution via eval',
@@ -122,10 +122,10 @@ const isValidUrl = (url: string) => {
         },
         examples: {
             vulnerable: `// ❌ VULNERABLE: User input in eval
-const result = window['eval'](userInput); // @vulscany-ignore: Educational example
+const result = window['eval'](userInput); // @vullscanny-ignore: Educational example
 
 // ❌ ALSO VULNERABLE:
-const fn = new globalThis['Function']('return ' + userInput); // @vulscany-ignore: Educational example`,
+const fn = new globalThis['Function']('return ' + userInput); // @vullscanny-ignore: Educational example`,
             secure: `// ✅ SECURE: Use JSON.parse for data
 const data = JSON.parse(userInput);
 

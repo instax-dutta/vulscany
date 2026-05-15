@@ -116,8 +116,8 @@ function Dashboard() {
 
     // Check if user has completed onboarding
     useEffect(() => {
-        const onboardingComplete = localStorage.getItem('vulscany_onboarding_complete');
-        const savedName = localStorage.getItem('vulscany_user_name');
+        const onboardingComplete = localStorage.getItem('vullscanny_onboarding_complete');
+        const savedName = localStorage.getItem('vullscanny_user_name');
 
         if (!onboardingComplete) {
             setShowOnboarding(true);
@@ -488,12 +488,12 @@ function Dashboard() {
                     <div className="flex items-center gap-2">
                         <div className="w-8 h-8 flex items-center justify-center rounded-lg overflow-hidden bg-white/5 border border-white/10 p-1">
                             <img
-                                src="https://mirror.sdad.pro/vulscany-logo-nobg.png"
-                                alt="AEGLYN"
+                                src="/favicon.png"
+                                alt="VULLSCANNY"
                                 className="w-full h-full object-contain invert brightness-200"
                             />
                         </div>
-                        <span className="font-mono font-bold tracking-tighter text-lg text-white">AEGLYN</span>
+                        <span className="font-mono font-bold tracking-tighter text-lg text-white">VULLSCANNY</span>
                     </div>
                     {userName && (
                         <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer">

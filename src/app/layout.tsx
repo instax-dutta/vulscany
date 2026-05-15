@@ -15,39 +15,32 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const siteUrl = 'https://example.com';
-const siteName = 'Aeglyn';
-const siteDescription = 'Aeglyn is a GDPR compliant AI vulnerability detection tool with zero-knowledge security. Real-time AI code security with no data logging for vibe coders and indie developers.';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+const siteName = 'VullScanny';
+const siteDescription = 'VullScanny is a public archive of a scrapped AI-assisted security scanning product that was never launched.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Aeglyn | Zero-Log AI Vulnerability Scanner 2026',
+    default: 'VullScanny | Public Archive',
     template: `%s | ${siteName}`
   },
   description: siteDescription,
   keywords: [
-    'zero-log AI vulnerability scanner 2026',
-    'real-time AI code security no logging',
-    'privacy-first SAST AI tool',
-    'fast developer AI security scanner no slowdown',
-    'GDPR compliant AI vulnerability detection',
-    'offline AI code scanner no data upload',
-    'instant AI security feedback IDE plugin 2026',
-    'zero-knowledge AI app sec pipeline',
-    'Aeglyn',
-    'security scanner',
-    'vibe coding',
-    'react security',
-    'automated vulnerability detection'
+    'VullScanny',
+    'public archive',
+    'scrapped startup',
+    'security scanner prototype',
+    'application security',
+    'open source competition'
   ],
-  generator: 'VulkanorAI Engine',
+  generator: 'VullScanny Archive',
   authors: [
     { name: 'Sai Dutta Abhishek Dash' },
     { name: 'Tejes Munde' }
   ],
-  creator: 'Aeglyn',
-  publisher: 'Aeglyn',
+  creator: 'VullScanny',
+  publisher: 'VullScanny',
   formatDetection: {
     email: false,
     address: false,
@@ -57,32 +50,32 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: siteUrl,
-    title: 'Aeglyn | Privacy-First AI Code Security Scanner 2026',
-    description: 'Secure your vibe coding with zero-knowledge static analysis and local-only secrets scanning.',
-    siteName: 'Aeglyn',
+    title: 'VullScanny | Scrapped Product Archive',
+    description: 'A public archive of a near-launch security product that was shelved after open source alternatives eroded the original moat.',
+    siteName: 'VullScanny',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Aeglyn Security Scanner',
+        alt: 'VullScanny archive',
         type: 'image/png',
       }
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Aeglyn | AI Code Security Scanner',
-    description: 'GDPR-compliant, real-time AI code scan tool with no data logging.',
+    title: 'VullScanny | Public Archive',
+    description: 'A scrapped AI security scanner preserved as a public code archive.',
     images: ['/og-image.png'],
-    creator: '@AeglynHQ',
+    creator: '@VullScanny',
   },
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
     googleBot: {
-      index: true,
-      follow: true,
+      index: false,
+      follow: false,
       'max-video-preview': -1,
       'max-image-preview': 'large',
       'max-snippet': -1,
@@ -97,10 +90,10 @@ export const metadata: Metadata = {
     canonical: siteUrl,
   },
   category: 'technology',
-  classification: 'Security Tools',
+  classification: 'Software Archive',
   appleWebApp: {
     capable: true,
-    title: 'Aeglyn',
+    title: 'VullScanny',
     statusBarStyle: 'black-translucent',
   },
 };
@@ -114,7 +107,6 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased text-foreground selection:bg-primary/30 min-h-screen flex flex-col`}>
         <SmoothScroll>
-          {/* Subtle Grid Background */}
           <div className="landing-grid" />
           {children}
         </SmoothScroll>

@@ -1,75 +1,50 @@
-# 🛡️ Aeglyn | Proprietary Security Engine
+# VullScanny
 
-**Internal Engineering Documentation**  
-*Confidential - For Internal Use Only*
+VullScanny is a public archive of a scrapped AI-assisted application security product.
 
----
+We built this project all the way to the edge of launch and monetization, but the original moat we were aiming for weakened materially once aggressive open source alternatives started landing in the market. Rather than force a commercial rollout we no longer believed in, we chose to clean the repository up and publish it as an archive.
 
-## 🏗️ Core Doctrine
-Aeglyn is a privacy-first, enterprise-grade React security sentinel designed for high-velocity "Vibe Coding" environments. It operates on a **Single Deployment Architecture**, unifying the marketing surface and the functional scanning engine into a single Next.js 15+ primitive.
+## Archive Status
 
-### 🔑 Security & Privacy Compliance
-1. **Zero-Retention Scanning**: Source code is processed in transient memory and never persists in any database.
-2. **Stateless Auth**: GitHub OAuth tokens mapped to `httpOnly` secure cookies with 2-hour sliding expirations.
-3. **Deterministic Persistence**: Redis is used strictly for User Stats, Achievements, and AI Pattern caching (70-80% cost reduction).
+- Product status: Scrapped before launch
+- Repository status: Public archive
+- Maintenance status: No active product roadmap
+- Branding note: The original product name has been replaced with VullScanny throughout the codebase
 
----
+## What This Repo Still Shows
 
-## ⚡ Technical Specification
+- A Next.js application shell for a security-scanning product
+- GitHub OAuth and dashboard workflows
+- Scanner, validation, and AI-assisted remediation experiments
+- Threat intel, onboarding, and UX work that was close to launch
 
-### Tech Stack
-- **Framework**: Next.js 15 (App Router), React 19
-- **Style**: Tailwind CSS v4.0 (CSS-first configuration)
-- **State/Caching**: Upstash Redis (Global REST Layer)
-- **AI Engine**: Dual-Stream (Local Ollama Mistral-7B / Cloud Mistral Large)
-- **Infrastructure**: Vercel Edge Runtime (API/Middleware)
+## Publication Cleanup
 
-### System Components
-- **Scanner Engine**: Recursive DFS depth-limited crawling (Depth=6).
-- **Validation Engine**: Pre-commit blocking gate (HTTP 422) for AI-generated code.
-- **Threat Intel**: Real-time CVE ingestion via NVD & GitHub Security Advisories.
+Before opening this repository up, we removed or neutralized:
 
----
+- Hardcoded credential defaults and live-looking OAuth fallbacks
+- Production-specific cookie and CORS assumptions
+- Launch, pricing, and monetization messaging that implied a live service
+- Old brand references tied to the original product name
 
-## 🚀 Internal Setup
+## Running It Locally
 
-### Prerequisites
-- Node.js 20+
-- GitHub OAuth Internal App Credentials
-- Upstash Redis Instance (Global)
-- AI Provider Keys (Mistral / Ollama)
+This codebase can still be explored locally, but it now expects you to provide your own environment variables and third-party service configuration explicitly.
 
-### Local Launch
 ```bash
-git clone [internal-repo-url]
 npm install
-cp .env.example .env.local
-# Configure internal keys
+cp env.example .env.local
 npm run dev
 ```
 
-### Environment Variables (Internal Schema)
-```env
-# AUTH (Internal Security)
-GITHUB_CLIENT_ID=prod_int_...
-GITHUB_CLIENT_SECRET=prod_sec_...
-SESSION_SECRET=...
+## Why Keep It Public
 
-# AI INFRA
-MISTRAL_API_KEY=...
-UPSTASH_REDIS_REST_URL=...
-UPSTASH_REDIS_REST_TOKEN=...
-```
+The code still has value as:
 
----
+- A reference implementation for productized security tooling UX
+- A snapshot of our technical and design decisions before launch
+- A record of a project that was commercially rational to stop
 
-## 🛠️ Operations & DevOps
-- **Merchant of Record**: Dodo Payments (Local INR/UPI & Global Stripe)
-- **Telemetry**: Sentry (Error Tracking) & PostHog (Product Analytics)
-- **Deployment**: Consolidated `example.com` (Production)
+## License
 
----
-
-## ⚖️ Ownership
-**Founders**: Sai Dutta Abhishek Dash (Architecture) & Tejes Munde (Security Ops)  
-**License**: Proprietary - Private Repository. Unauthorized reproduction is strictly prohibited.
+No additional public-use guarantees are implied by the archive status alone. Review the repository license and any third-party dependencies before reusing the code.

@@ -1,7 +1,7 @@
 {
-    "name": "Aeglyn",
-    "short_name": "Aeglyn",
-    "description": "Privacy-First AI Code Security Scanner",
+    "name": "VullScanny",
+    "short_name": "VullScanny",
+    "description": "Public archive of a scrapped AI code security scanner prototype",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#000000",

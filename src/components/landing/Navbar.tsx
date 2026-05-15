@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Shield, Zap, Cpu, Eye, CreditCard, Github, ChevronRight, ArrowRight, Loader2, Menu, X, User } from "lucide-react"
+import { Github, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from 'next/link'
 
@@ -20,8 +20,7 @@ export function Navbar() {
     const [onboardingName, setOnboardingName] = useState<string | null>(null)
 
     useEffect(() => {
-        // Get name from onboarding if exists
-        const savedName = localStorage.getItem('vulscany_user_name')
+        const savedName = localStorage.getItem('vullscanny_user_name')
         if (savedName) setOnboardingName(savedName)
 
         const fetchSession = async () => {
@@ -48,26 +47,22 @@ export function Navbar() {
                 <Link href="/" className="flex items-center gap-2.5 group cursor-pointer py-1">
                     <div className="relative w-9 h-9 flex items-center justify-center">
                         <img
-                            src="https://mirror.sdad.pro/vulscany-logo-nobg.png"
-                            alt="Aeglyn Logo"
+                            src="/favicon.png"
+                            alt="VullScanny Logo"
                             className="w-full h-full object-contain relative z-10 group-hover:scale-110 transition-all duration-300 invert brightness-200"
                         />
                     </div>
                     <span className="font-mono font-bold tracking-tighter text-xl text-white">
-                        AEGLYN
+                        VULLSCANNY
                     </span>
                 </Link>
 
-                {/* Desktop Nav */}
                 <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground mr-auto ml-12">
                     <Link href="/why" className="hover:text-foreground transition-colors">
-                        Why
+                        Why Scrapped
                     </Link>
                     <Link href="/features" className="hover:text-foreground transition-colors">
-                        Features
-                    </Link>
-                    <Link href="/pricing" className="hover:text-foreground transition-colors">
-                        Pricing
+                        Archive
                     </Link>
                 </nav>
 
@@ -96,13 +91,12 @@ export function Navbar() {
                                 className="font-mono border-primary/20 hover:bg-primary/5 hover:border-primary/40 bg-transparent"
                             >
                                 <Github className="w-4 h-4 mr-2" />
-                                Login
+                                Open App
                             </Button>
                         </Link>
                     )}
                 </div>
 
-                {/* Mobile Menu Toggle */}
                 <button
                     className="md:hidden p-2 text-muted-foreground hover:text-foreground"
                     onClick={toggleMenu}
@@ -111,18 +105,14 @@ export function Navbar() {
                 </button>
             </div>
 
-            {/* Mobile Nav Overlay */}
             {isMenuOpen && (
                 <div className="md:hidden absolute top-16 left-0 w-full bg-background/95 backdrop-blur-lg border-b border-border/50 py-6 px-4 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
                     <nav className="flex flex-col gap-4">
                         <Link href="/why" className="text-lg font-medium text-muted-foreground hover:text-foreground py-2" onClick={toggleMenu}>
-                            Why Aeglyn
+                            Why Scrapped
                         </Link>
                         <Link href="/features" className="text-lg font-medium text-muted-foreground hover:text-foreground py-2" onClick={toggleMenu}>
-                            Features
-                        </Link>
-                        <Link href="/pricing" className="text-lg font-medium text-muted-foreground hover:text-foreground py-2" onClick={toggleMenu}>
-                            Pricing
+                            Archive
                         </Link>
                     </nav>
                     <div className="pt-4 border-t border-border/50">
@@ -148,7 +138,7 @@ export function Navbar() {
                             <Link href="/dashboard" className="block" onClick={toggleMenu}>
                                 <Button className="w-full font-mono py-6">
                                     <Github className="w-5 h-5 mr-3" />
-                                    Sign In with GitHub
+                                    Open Dashboard
                                 </Button>
                             </Link>
                         )}
