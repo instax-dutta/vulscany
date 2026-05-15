@@ -6,8 +6,8 @@
 
 export const SITE_CONFIG = {
     urls: {
-        landing: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-        app: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+        landing: 'http://localhost:3000',
+        app: 'http://localhost:3000',
     },
 
     branding: {
@@ -20,7 +20,7 @@ export const SITE_CONFIG = {
     navigation: {
         landing: [
             { label: 'Home', href: '/' },
-            { label: 'Why It Was Scrapped', href: '/#why' },
+            { label: 'Why It Was Archived', href: '/#why' },
             { label: 'What Was Built', href: '/#features' },
             { label: 'Archive Notes', href: '/#archive' },
         ],
@@ -44,20 +44,6 @@ export const SITE_CONFIG = {
 
     social: {
         github: 'https://github.com/instax-dutta/vulscany',
-        twitter: '#',
-        linkedin: '#',
-    },
-
-    contact: {
-        email: 'opensource@example.invalid',
-        support: '#',
-    },
-
-    seo: {
-        title: 'VullScanny - Archived Security Scanner Prototype',
-        description: 'Public archive of a scrapped AI-assisted application security project',
-        keywords: ['security scanner', 'archive', 'prototype', 'appsec', 'public archive'],
-        ogImage: '/og-image.png',
     },
 } as const;
 

@@ -12,12 +12,13 @@ export function RoadmapSection() {
                         {[
                             "Branding changed to VullScanny across the codebase",
                             "Hardcoded live credential defaults removed from the application",
-                            "Static domains and export filenames neutralized for public release",
+                            "Static domains, sitemap entries, and manifest packaging removed",
                             "Launch, pricing, and monetization copy replaced with archive messaging",
-                            "Legal-style live service pages collapsed into simple archival notices",
-                            "Original architectural experiments preserved for study and reuse",
-                            "Docs retained where useful, but reframed as historical context",
-                            "Repository prepared for public archival rather than active deployment",
+                            "Live-service pages collapsed into simple archival notices",
+                            "Turnkey setup and deployment guides intentionally stripped out",
+                            "Original architectural experiments preserved as product archaeology",
+                            "Operational docs reduced to historical context only",
+                            "Repository prepared for public archival rather than easy relaunch",
                         ].map((item, i) => (
                             <div
                                 key={i}

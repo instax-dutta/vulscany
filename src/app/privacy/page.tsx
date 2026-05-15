@@ -3,13 +3,8 @@ import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
 
 export const metadata: Metadata = {
-    title: "VullScanny Publication Safety",
+    title: "Publication Safety",
     description: "Notes on what was removed to make the VullScanny repository safer to publish.",
-    openGraph: {
-        title: "VullScanny Publication Safety",
-        description: "Repository cleanup notes for the public archive.",
-        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/privacy`,
-    },
 }
 
 export default function PrivacyPage() {
@@ -35,15 +30,16 @@ export default function PrivacyPage() {
                             <li>Hardcoded credential defaults and live-looking OAuth fallbacks</li>
                             <li>Production-specific domains, cookie scopes, and cross-origin assumptions</li>
                             <li>Launch, pricing, and monetization copy that implied an active commercial product</li>
+                            <li>SEO and app-distribution files such as sitemaps, robots allowances, and web manifest metadata</li>
+                            <li>Turnkey setup, deployment, and payment-integration guides</li>
                             <li>Old brand references tied to the original product name</li>
                         </ul>
                     </section>
                     <section className="space-y-4">
                         <h2 className="text-2xl font-bold text-foreground">What remains</h2>
                         <p className="text-foreground/80 leading-relaxed">
-                            The repository still contains code paths that expect environment variables and external services if you choose
-                            to run the app locally. Those integrations now require explicit configuration instead of inheriting embedded
-                            defaults from the codebase.
+                            The repository still contains preserved product code, but it is no longer packaged as a launch-ready app
+                            template. Running any of it now requires deliberate reconstruction of configuration and supporting services.
                         </p>
                     </section>
                 </div>

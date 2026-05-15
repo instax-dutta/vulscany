@@ -1,49 +1,16 @@
 "use client"
 
-import { useState } from "react"
-import { Github, Loader2 } from "lucide-react"
+import { Github } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function GitHubAuthButton() {
-    const [isLoading, setIsLoading] = useState(false)
-
-    const handleAuth = () => {
-        const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID
-
-        if (!clientId) {
-            window.alert("GitHub OAuth is disabled in this public archive. Add NEXT_PUBLIC_GITHUB_CLIENT_ID locally if you want to test auth.")
-            return
-        }
-
-        setIsLoading(true)
-
-        const params = new URLSearchParams({
-            client_id: clientId,
-            redirect_uri: window.location.origin + '/api/auth/callback',
-            scope: 'read:user repo',
-            state: Math.random().toString(36).substring(7), // CSRF protection
-        })
-
-        window.location.href = `https://github.com/login/oauth/authorize?${params}`
-    }
-
     return (
         <Button
-            onClick={handleAuth}
-            disabled={isLoading}
+            disabled
             className="h-12 px-8 bg-white text-black hover:bg-white/90 font-bold flex items-center gap-2 text-base transition-all duration-300 shadow-lg shadow-white/10"
         >
-            {isLoading ? (
-                <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Connecting...
-                </>
-            ) : (
-                <>
-                    <Github className="w-4 h-4" />
-                    Connect with GitHub
-                </>
-            )}
+            <Github className="w-4 h-4" />
+            GitHub auth removed in archive
         </Button>
     )
 }

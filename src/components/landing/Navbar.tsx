@@ -1,43 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Github, Menu, X } from "lucide-react"
+import { useState } from "react"
+import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from 'next/link'
 
-interface UserSession {
-    user: {
-        login: string
-        name: string
-        avatar_url: string
-    } | null
-}
-
 export function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
-    const [session, setSession] = useState<UserSession | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [onboardingName, setOnboardingName] = useState<string | null>(null)
-
-    useEffect(() => {
-        const savedName = localStorage.getItem('vullscanny_user_name')
-        if (savedName) setOnboardingName(savedName)
-
-        const fetchSession = async () => {
-            try {
-                const res = await fetch(`/api/auth/session`)
-                if (res.ok) {
-                    const data = await res.json()
-                    setSession(data)
-                }
-            } catch (err) {
-                console.error("Failed to fetch session", err)
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchSession()
-    }, [])
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
 
@@ -59,42 +28,26 @@ export function Navbar() {
 
                 <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground mr-auto ml-12">
                     <Link href="/why" className="hover:text-foreground transition-colors">
-                        Why Scrapped
+                        Why Archived
                     </Link>
                     <Link href="/features" className="hover:text-foreground transition-colors">
-                        Archive
+                        Preserved Work
+                    </Link>
+                    <Link href="/privacy" className="hover:text-foreground transition-colors">
+                        Cleanup Notes
                     </Link>
                 </nav>
 
                 <div className="hidden md:flex items-center gap-4">
-                    {loading ? (
-                        <div className="w-8 h-8 rounded-full bg-primary/10 animate-pulse" />
-                    ) : session?.user ? (
-                        <Link
-                            href="/dashboard"
-                            className="flex items-center gap-3 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
+                    <Link href="/terms">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="font-mono border-primary/20 hover:bg-primary/5 hover:border-primary/40 bg-transparent"
                         >
-                            <img
-                                src={session.user.avatar_url}
-                                alt={session.user.login}
-                                className="w-6 h-6 rounded-full border border-primary/20"
-                            />
-                            <span className="text-sm font-mono font-medium text-primary uppercase">
-                                {onboardingName || session.user.name || session.user.login}
-                            </span>
-                        </Link>
-                    ) : (
-                        <Link href="/dashboard">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="font-mono border-primary/20 hover:bg-primary/5 hover:border-primary/40 bg-transparent"
-                            >
-                                <Github className="w-4 h-4 mr-2" />
-                                Open App
-                            </Button>
-                        </Link>
-                    )}
+                            Archive Note
+                        </Button>
+                    </Link>
                 </div>
 
                 <button
@@ -109,39 +62,21 @@ export function Navbar() {
                 <div className="md:hidden absolute top-16 left-0 w-full bg-background/95 backdrop-blur-lg border-b border-border/50 py-6 px-4 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
                     <nav className="flex flex-col gap-4">
                         <Link href="/why" className="text-lg font-medium text-muted-foreground hover:text-foreground py-2" onClick={toggleMenu}>
-                            Why Scrapped
+                            Why Archived
                         </Link>
                         <Link href="/features" className="text-lg font-medium text-muted-foreground hover:text-foreground py-2" onClick={toggleMenu}>
-                            Archive
+                            Preserved Work
+                        </Link>
+                        <Link href="/privacy" className="text-lg font-medium text-muted-foreground hover:text-foreground py-2" onClick={toggleMenu}>
+                            Cleanup Notes
                         </Link>
                     </nav>
                     <div className="pt-4 border-t border-border/50">
-                        {session?.user ? (
-                            <Link
-                                href="/dashboard"
-                                className="flex items-center gap-3 p-3 rounded-xl border border-primary/20 bg-primary/5"
-                                onClick={toggleMenu}
-                            >
-                                <img
-                                    src={session.user.avatar_url}
-                                    alt={session.user.login}
-                                    className="w-10 h-10 rounded-full border border-primary/20"
-                                />
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-mono font-bold text-primary uppercase">
-                                        {onboardingName || session.user.name || session.user.login}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">Go to Dashboard</span>
-                                </div>
-                            </Link>
-                        ) : (
-                            <Link href="/dashboard" className="block" onClick={toggleMenu}>
-                                <Button className="w-full font-mono py-6">
-                                    <Github className="w-5 h-5 mr-3" />
-                                    Open Dashboard
-                                </Button>
-                            </Link>
-                        )}
+                        <Link href="/terms" className="block" onClick={toggleMenu}>
+                            <Button className="w-full font-mono py-6">
+                                Archive Note
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             )}

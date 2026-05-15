@@ -1,20 +1,17 @@
 User-agent: *
-Allow: /
+Disallow: /
 
-# Specific AI Scrapers
 User-agent: GPTBot
-Allow: /
+Disallow: /
 
 User-agent: ChatGPT-User
-Allow: /
+Disallow: /
 
 User-agent: Claude-Web
-Allow: /
+Disallow: /
 
 User-agent: ClaudeBot
-Allow: /
+Disallow: /
 
 User-agent: Applebot-Extended
-Allow: /
-
-Sitemap: https://vullscanny.example.invalid/sitemap.xml
+Disallow: /

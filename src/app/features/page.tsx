@@ -3,8 +3,8 @@ import { Footer } from "@/components/landing/Footer"
 import { FeaturesSection } from "@/components/landing/FeaturesSection"
 
 export const metadata = {
-    title: "VullScanny Archive",
-    description: "A snapshot of what VullScanny had built before the product was shelved.",
+    title: "Preserved Work",
+    description: "A proof-of-concept snapshot of what VullScanny had built before the product was shelved.",
 }
 
 export default function FeaturesPage() {

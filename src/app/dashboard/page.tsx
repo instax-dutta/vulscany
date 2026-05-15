@@ -400,7 +400,7 @@ function Dashboard() {
             const data = await res.json();
             setMasterPrompt(data.prompt);
             setIsMasterDrawerOpen(true);
-            showSuccess('Prompt Generated', 'Unified patch protocol is ready for deployment.');
+            showSuccess('Prompt Generated', 'Unified patch protocol is ready for review.');
         } catch (err) {
             console.error(err);
             showToast({ type: 'warning', title: 'PROCESS FAILED', message: 'Unable to generate master patch.', icon: '⚠️' });
@@ -996,7 +996,7 @@ function Dashboard() {
                     isOpen={isMasterDrawerOpen}
                     onClose={() => setIsMasterDrawerOpen(false)}
                     prompt={masterPrompt}
-                    onCopy={() => showToast({ type: 'success', title: 'SYCHRONIZED', message: 'Payload ready for deployment', icon: '🚀' })}
+                    onCopy={() => showToast({ type: 'success', title: 'SYCHRONIZED', message: 'Payload ready for review', icon: '🚀' })}
                     repoName={currentRepoKey?.split('/')[1]}
                 />
             </AnimatePresence>

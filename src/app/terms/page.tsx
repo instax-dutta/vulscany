@@ -3,13 +3,8 @@ import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
 
 export const metadata: Metadata = {
-    title: "VullScanny Archive Note",
+    title: "Archive Note",
     description: "Archive note for the scrapped VullScanny project.",
-    openGraph: {
-        title: "VullScanny Archive Note",
-        description: "This project is no longer an active service.",
-        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/terms`,
-    },
 }
 
 export default function TermsPage() {
@@ -38,8 +33,9 @@ export default function TermsPage() {
                             not present itself as a live SaaS offering.
                         </p>
                         <p className="text-foreground/80 leading-relaxed">
-                            If you choose to run or fork this code, you are doing so on your own terms and with your own infrastructure,
-                            credentials, and compliance obligations.
+                            The public archive intentionally omits turnkey deployment guidance, packaged environment templates, and
+                            launch-ready metadata. Anyone studying the code is responsible for their own infrastructure, credentials,
+                            and compliance decisions.
                         </p>
                     </section>
                 </div>

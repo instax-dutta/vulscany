@@ -142,8 +142,8 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
         },
         {
             title: `Ready for entry, ${userName || 'Commander'}`,
-            subtitle: "Choose your primary deployment goal",
-            content: "Our AI engines will optimize their heuristic analysis based on your selection:",
+            subtitle: "Choose your primary review goal",
+            content: "The archived workflow adapts its heuristic analysis based on your selection:",
             icon: <Zap className="w-12 h-12 text-yellow-500" />,
             type: "selection",
             options: [

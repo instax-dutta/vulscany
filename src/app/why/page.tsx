@@ -3,7 +3,7 @@ import { Footer } from "@/components/landing/Footer"
 import { WhySection } from "@/components/landing/WhySection"
 
 export const metadata = {
-    title: "Why VullScanny Was Scrapped",
+    title: "Why It Was Archived",
     description: "Why the VullScanny team archived the project instead of launching it.",
 }
 
