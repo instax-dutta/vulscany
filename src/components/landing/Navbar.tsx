@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Menu, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import Link from 'next/link'
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from 'next/link';
 
 export function Navbar() {
-    const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
+    const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
     return (
         <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
@@ -81,5 +81,5 @@ export function Navbar() {
                 </div>
             )}
         </header>
-    )
+    );
 }

@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { Github } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Github } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function GitHubAuthButton() {
     return (
@@ -12,5 +12,5 @@ export function GitHubAuthButton() {
             <Github className="w-4 h-4" />
             GitHub auth removed in archive
         </Button>
-    )
+    );
 }

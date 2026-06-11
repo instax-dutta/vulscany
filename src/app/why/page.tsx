@@ -1,11 +1,11 @@
-import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
-import { WhySection } from "@/components/landing/WhySection"
+import { Navbar } from "@/components/landing/Navbar";
+import { Footer } from "@/components/landing/Footer";
+import { WhySection } from "@/components/landing/WhySection";
 
 export const metadata = {
     title: "Why It Was Archived",
     description: "Why the vulscany team archived the project instead of launching it.",
-}
+};
 
 export default function WhyPage() {
     return (
@@ -16,5 +16,5 @@ export default function WhyPage() {
             </main>
             <Footer />
         </div>
-    )
+    );
 }

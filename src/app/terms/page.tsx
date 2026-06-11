@@ -1,11 +1,11 @@
-import type { Metadata } from "next"
-import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
+import type { Metadata } from "next";
+import { Navbar } from "@/components/landing/Navbar";
+import { Footer } from "@/components/landing/Footer";
 
 export const metadata: Metadata = {
     title: "Archive Note",
     description: "Archive note for the scrapped vulscany project.",
-}
+};
 
 export default function TermsPage() {
     return (
@@ -42,5 +42,5 @@ export default function TermsPage() {
             </main>
             <Footer />
         </>
-    )
+    );
 }

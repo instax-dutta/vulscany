@@ -1,5 +1,5 @@
-import { Zap, Cpu, Eye, Github, Shield, Archive } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
+import { Zap, Cpu, Eye, Github, Shield, Archive } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function FeaturesSection() {
     return (
@@ -61,5 +61,5 @@ export function FeaturesSection() {
                 </div>
             </div>
         </section>
-    )
+    );
 }

@@ -314,7 +314,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                                                     className={`p-4 border-2 rounded-2xl flex items-center justify-between text-left transition-all ${selection.includes(opt.value)
                                                         ? 'border-primary bg-primary/5'
                                                         : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.05]'
-                                                        }`}
+                                                    }`}
                                                 >
                                                     <div>
                                                         <div className={`text-xs font-black font-mono uppercase ${selection.includes(opt.value) ? 'text-primary' : 'text-white'}`}>
@@ -344,7 +344,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                                         className={`flex-[2] py-4 rounded-2xl text-[11px] font-black font-mono tracking-widest transition-all ${canProceed()
                                             ? 'bg-white text-black hover:scale-[1.02] active:scale-[0.98]'
                                             : 'bg-white/5 text-white/20'
-                                            }`}
+                                        }`}
                                     >
                                         {step === steps.length - 1 ? 'LAUNCH CONSOLE →' : 'NEXT STEP →'}
                                     </button>
@@ -356,7 +356,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
                                         <div
                                             key={i}
                                             className={`h-1 rounded-full transition-all duration-500 ${i === step ? 'w-8 bg-primary shadow-[0_0_10px_rgba(0,255,136,0.4)]' : 'w-2 bg-white/10'
-                                                }`}
+                                            }`}
                                         />
                                     ))}
                                 </div>

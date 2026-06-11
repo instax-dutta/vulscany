@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react"
+import { ChevronRight } from "lucide-react";
 
 export function RoadmapSection() {
     return (
@@ -33,5 +33,5 @@ export function RoadmapSection() {
             </div>
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-3xl rounded-full" />
         </section>
-    )
+    );
 }

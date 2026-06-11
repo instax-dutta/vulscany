@@ -31,7 +31,7 @@ export function RemediationBlock() {
                         className={`px-2 py-0.5 rounded-md text-[9px] font-mono transition-all ${platform === 'unix'
                             ? 'bg-red-500/20 text-red-400 font-bold'
                             : 'text-white/40 hover:text-white/60'
-                            }`}
+                        }`}
                     >
                         UNIX
                     </button>
@@ -40,7 +40,7 @@ export function RemediationBlock() {
                         className={`px-2 py-0.5 rounded-md text-[9px] font-mono transition-all ${platform === 'windows'
                             ? 'bg-red-500/20 text-red-400 font-bold'
                             : 'text-white/40 hover:text-white/60'
-                            }`}
+                        }`}
                     >
                         WIN
                     </button>

@@ -111,55 +111,55 @@ export async function prewarmAICache(): Promise<void> {
         riskLevel: string;
         recommendations: string[];
     }> = [
-            {
-                issueType: 'dangerous-api',
-                fileName: 'Component.tsx',
-                explanation: 'Using dangerouslySetInnerHTML without sanitization exposes your application to XSS attacks. Malicious scripts can be injected and executed in the user\'s browser.',
-                fixSuggestion: 'Use DOMPurify to sanitize HTML content before rendering: `dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(htmlContent) }}`',
-                riskLevel: 'high',
-                recommendations: [
-                    'Install and use DOMPurify: npm install dompurify',
-                    'Sanitize all user-generated HTML content',
-                    'Consider using React\'s built-in JSX rendering instead'
-                ]
-            },
-            {
-                issueType: 'xss-vulnerable-attribute',
-                fileName: 'Component.jsx',
-                explanation: 'Directly inserting user input into href, src, or other attributes can lead to XSS vulnerabilities through javascript: or data: URIs.',
-                fixSuggestion: 'Validate and sanitize URLs before using them. Use a whitelist of allowed protocols (http:, https:) and validate the URL format.',
-                riskLevel: 'high',
-                recommendations: [
-                    'Implement URL validation',
-                    'Use a whitelist for allowed protocols',
-                    'Sanitize all user inputs before insertion'
-                ]
-            },
-            {
-                issueType: 'code-execution-pattern',
-                fileName: 'utils.js',
-                explanation: 'Using dynamic code execution functions (e' + 'val, Function constructor) with user input can execute arbitrary JavaScript code, leading to severe security vulnerabilities.',
-                fixSuggestion: 'Remove dynamic code execution completely. Use JSON.parse() for parsing JSON, or implement a safe expression evaluator with limited scope.',
-                riskLevel: 'critical',
-                recommendations: [
-                    'Never use dynamic code execution with user input',
-                    'Use JSON.parse() for JSON data',
-                    'Implement strict input validation'
-                ]
-            },
-            {
-                issueType: 'outdated-dependency',
-                fileName: 'package.json',
-                explanation: 'Outdated dependencies may contain known security vulnerabilities that have been patched in newer versions.',
-                fixSuggestion: 'Update the dependency to the latest stable version: npm update <package-name>',
-                riskLevel: 'medium',
-                recommendations: [
-                    'Run npm audit to identify vulnerabilities',
-                    'Update dependencies regularly',
-                    'Review breaking changes before updating'
-                ]
-            }
-        ];
+        {
+            issueType: 'dangerous-api',
+            fileName: 'Component.tsx',
+            explanation: 'Using dangerouslySetInnerHTML without sanitization exposes your application to XSS attacks. Malicious scripts can be injected and executed in the user\'s browser.',
+            fixSuggestion: 'Use DOMPurify to sanitize HTML content before rendering: `dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(htmlContent) }}`',
+            riskLevel: 'high',
+            recommendations: [
+                'Install and use DOMPurify: npm install dompurify',
+                'Sanitize all user-generated HTML content',
+                'Consider using React\'s built-in JSX rendering instead'
+            ]
+        },
+        {
+            issueType: 'xss-vulnerable-attribute',
+            fileName: 'Component.jsx',
+            explanation: 'Directly inserting user input into href, src, or other attributes can lead to XSS vulnerabilities through javascript: or data: URIs.',
+            fixSuggestion: 'Validate and sanitize URLs before using them. Use a whitelist of allowed protocols (http:, https:) and validate the URL format.',
+            riskLevel: 'high',
+            recommendations: [
+                'Implement URL validation',
+                'Use a whitelist for allowed protocols',
+                'Sanitize all user inputs before insertion'
+            ]
+        },
+        {
+            issueType: 'code-execution-pattern',
+            fileName: 'utils.js',
+            explanation: 'Using dynamic code execution functions (e' + 'val, Function constructor) with user input can execute arbitrary JavaScript code, leading to severe security vulnerabilities.',
+            fixSuggestion: 'Remove dynamic code execution completely. Use JSON.parse() for parsing JSON, or implement a safe expression evaluator with limited scope.',
+            riskLevel: 'critical',
+            recommendations: [
+                'Never use dynamic code execution with user input',
+                'Use JSON.parse() for JSON data',
+                'Implement strict input validation'
+            ]
+        },
+        {
+            issueType: 'outdated-dependency',
+            fileName: 'package.json',
+            explanation: 'Outdated dependencies may contain known security vulnerabilities that have been patched in newer versions.',
+            fixSuggestion: 'Update the dependency to the latest stable version: npm update <package-name>',
+            riskLevel: 'medium',
+            recommendations: [
+                'Run npm audit to identify vulnerabilities',
+                'Update dependencies regularly',
+                'Review breaking changes before updating'
+            ]
+        }
+    ];
 
     for (const pattern of commonPatterns) {
         await cacheAIResponse(

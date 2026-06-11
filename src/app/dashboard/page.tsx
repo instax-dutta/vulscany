@@ -572,19 +572,19 @@ function Dashboard() {
                                             className={`w-full group text-left px-3 py-2 rounded-lg transition-all border flex items-center justify-between ${isActive
                                                 ? 'bg-white/10 border-white/20 text-white'
                                                 : 'bg-transparent border-transparent text-white/50 hover:bg-white/5 hover:text-white/80'
-                                                } ${selectedRepos.has(repo.id) ? 'ring-1 ring-primary/50' : ''}`}
+                                            } ${selectedRepos.has(repo.id) ? 'ring-1 ring-primary/50' : ''}`}
                                         >
                                             <div className="flex items-center gap-2.5 min-w-0">
                                                 <div className={`w-2 h-2 rounded-full flex-shrink-0 ${repo.scanStatus === 'critical' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' :
                                                     repo.scanStatus === 'issues' ? 'bg-amber-500' :
                                                         repo.scanStatus === 'safe' ? 'bg-emerald-500' :
                                                             'bg-white/20'
-                                                    }`} />
+                                                }`} />
                                                 <span className="text-xs font-medium truncate leading-none pt-0.5">{repo.name}</span>
                                             </div>
                                             {repo.issueCount !== undefined && repo.issueCount > 0 && (
                                                 <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded-md ${repo.scanStatus === 'critical' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
-                                                    }`}>
+                                                }`}>
                                                     {repo.issueCount}
                                                 </span>
                                             )}
@@ -634,7 +634,7 @@ function Dashboard() {
                             className={`px-3 py-1.5 text-[10px] font-bold font-mono rounded-lg border transition-all ${batchMode
                                 ? 'bg-primary text-black border-primary'
                                 : 'bg-white/5 text-white/60 border-white/10 hover:border-white/20'
-                                }`}
+                            }`}
                         >
                             {batchMode ? 'BATCH ACTIVE' : 'BATCH MODE'}
                         </button>
@@ -758,7 +758,7 @@ function Dashboard() {
                                                                     <div className={`mt-1 p-2 rounded-lg ${vuln.severity === 'critical' ? 'bg-red-500/10 text-red-500' :
                                                                         vuln.severity === 'high' ? 'bg-orange-500/10 text-orange-500' :
                                                                             'bg-amber-500/10 text-amber-500'
-                                                                        }`}>
+                                                                    }`}>
                                                                         <AlertTriangle className="w-5 h-5" />
                                                                     </div>
                                                                     <div className="min-w-0">
@@ -767,7 +767,7 @@ function Dashboard() {
                                                                             <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold font-mono tracking-tighter uppercase ${vuln.severity === 'critical' ? 'bg-red-500 text-white' :
                                                                                 vuln.severity === 'high' ? 'bg-orange-500 text-white' :
                                                                                     'bg-amber-500 text-black'
-                                                                                }`}>
+                                                                            }`}>
                                                                                 {vuln.severity}
                                                                             </span>
                                                                         </div>
@@ -847,7 +847,7 @@ function Dashboard() {
                                                                                                     }
                                                                                                 }}
                                                                                                 className={`mt-4 w-full py-2.5 rounded-lg text-[10px] font-bold font-mono flex items-center justify-center gap-2 transition-all ${copiedFix[vulnKey] ? 'bg-emerald-500 text-black' : 'bg-white/10 text-emerald-400 hover:bg-emerald-500/10'
-                                                                                                    }`}
+                                                                                                }`}
                                                                                             >
                                                                                                 {copiedFix[vulnKey] ? (
                                                                                                     <CheckCircle2 className="w-3.5 h-3.5" />

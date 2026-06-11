@@ -1,11 +1,11 @@
-import type { Metadata } from "next"
-import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
+import type { Metadata } from "next";
+import { Navbar } from "@/components/landing/Navbar";
+import { Footer } from "@/components/landing/Footer";
 
 export const metadata: Metadata = {
     title: "Commercial Path Abandoned",
     description: "A short explanation of why vulscany was archived before launch.",
-}
+};
 
 export default function PricingPage() {
     return (
@@ -27,5 +27,5 @@ export default function PricingPage() {
             </main>
             <Footer />
         </div>
-    )
+    );
 }

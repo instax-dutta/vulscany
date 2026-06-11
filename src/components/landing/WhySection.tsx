@@ -1,4 +1,4 @@
-import { Eye } from "lucide-react"
+import { Eye } from "lucide-react";
 
 export function WhySection() {
     return (
@@ -52,5 +52,5 @@ export function WhySection() {
                 </div>
             </div>
         </section>
-    )
+    );
 }

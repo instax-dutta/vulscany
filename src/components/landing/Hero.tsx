@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { GitHubAuthButton } from "./GitHubAuthButton"
-import { HERO_COMBOS } from "@/constants/hero-texts"
-import { motion, AnimatePresence } from "framer-motion"
+import { useState } from "react";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { GitHubAuthButton } from "./GitHubAuthButton";
+import { HERO_COMBOS } from "@/constants/hero-texts";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function Hero() {
-    const [comboIndex] = useState(() => Math.floor(Math.random() * HERO_COMBOS.length))
-    const combo = HERO_COMBOS[comboIndex] ?? HERO_COMBOS[4]
+    const [comboIndex] = useState(() => Math.floor(Math.random() * HERO_COMBOS.length));
+    const combo = HERO_COMBOS[comboIndex] ?? HERO_COMBOS[4];
 
     return (
         <section className="min-h-screen flex items-center justify-center overflow-hidden relative">
@@ -46,5 +46,5 @@ export function Hero() {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-primary/10 blur-[120px] rounded-full -z-10" />
             </div>
         </section>
-    )
+    );
 }

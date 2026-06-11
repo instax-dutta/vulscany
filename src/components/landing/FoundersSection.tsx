@@ -38,5 +38,5 @@ export function FoundersSection() {
                 </div>
             </div>
         </section>
-    )
+    );
 }

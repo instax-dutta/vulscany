@@ -1,11 +1,11 @@
-import type { Metadata } from "next"
-import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
+import type { Metadata } from "next";
+import { Navbar } from "@/components/landing/Navbar";
+import { Footer } from "@/components/landing/Footer";
 
 export const metadata: Metadata = {
     title: "Publication Safety",
     description: "Notes on what was removed to make the vulscany repository safer to publish.",
-}
+};
 
 export default function PrivacyPage() {
     return (
@@ -46,5 +46,5 @@ export default function PrivacyPage() {
             </main>
             <Footer />
         </>
-    )
+    );
 }

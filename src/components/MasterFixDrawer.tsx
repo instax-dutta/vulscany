@@ -92,7 +92,7 @@ export function MasterFixDrawer({ isOpen, onClose, prompt, onCopy, repoName }: M
                                     <button
                                         onClick={handleCopy}
                                         className={`px-3 py-1.5 rounded-lg text-[10px] font-bold font-mono flex items-center gap-2 transition-all ${copied ? 'bg-emerald-500 text-black' : 'bg-primary text-black hover:scale-105'
-                                            }`}
+                                        }`}
                                     >
                                         {copied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                                         {copied ? 'PAYLOAD COPIED' : 'COPY MASTER PROMPT'}
