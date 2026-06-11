@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({ repositories: repos });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('[API] Failed to fetch repositories:', error);
         return NextResponse.json(
             { error: 'Failed to fetch repositories' },
@@ -195,10 +195,10 @@ export async function POST(request: NextRequest) {
             cached: false
         });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('[API] Scan failed:', error);
         return NextResponse.json(
-            { error: 'Scan failed', message: error.message },
+            { error: 'Scan failed', message: error instanceof Error ? error.message : 'Unknown error' },
             { status: 500 }
         );
     }

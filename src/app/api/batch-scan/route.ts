@@ -127,12 +127,12 @@ export async function POST(request: NextRequest) {
                     error: null
                 };
 
-            } catch (error: any) {
-                console.error(`[Batch Scan] Failed to scan ${repo.owner}/${repo.name}:`, error.message);
+            } catch (error: unknown) {
+                console.error(`[Batch Scan] Failed to scan ${repo.owner}/${repo.name}:`, error instanceof Error ? error.message : String(error));
                 return {
                     repoName: repo.name,
                     owner: repo.owner,
-                    error: error.message || 'Scan failed',
+                    error: error instanceof Error ? error.message : 'Scan failed',
                     status: 'error'
                 };
             }
@@ -161,10 +161,10 @@ export async function POST(request: NextRequest) {
             results
         });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('[Batch Scan API] Error:', error);
         return NextResponse.json(
-            { error: 'Batch scan failed', details: error.message },
+            { error: 'Batch scan failed', details: error instanceof Error ? error.message : 'Unknown error' },
             { status: 500 }
         );
     }
