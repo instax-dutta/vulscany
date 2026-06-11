@@ -100,6 +100,6 @@ export async function exportUserData(githubId: number): Promise<{
   scanHistory: ScanRecord[];
 }> {
   const user = await getUser(githubId);
-  const history = await getScanHistory(githubId);
+  const scanHistory = await getScanHistory(githubId);
   return { user, scanHistory };
 }
