@@ -5,6 +5,13 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  // Style rules — normalize to project standard
+  {
+    rules: {
+      indent: ["error", 4, { SwitchCase: 1 }],
+      semi: ["error", "always"],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
