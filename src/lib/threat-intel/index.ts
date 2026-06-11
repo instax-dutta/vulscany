@@ -119,7 +119,7 @@ export async function prewarmThreatCache(): Promise<void> {
     console.log('[ThreatIntel] Cache pre-warming complete');
 }
 
-function hashDependencies(deps: Record<string, string>): string {
+export function hashDependencies(deps: Record<string, string>): string {
     const sorted = Object.keys(deps).sort().map(k => `${k}@${deps[k]}`).join(',');
     const hash = crypto.createHash('sha256').update(sorted).digest('hex');
     return hash.substring(0, 12);
