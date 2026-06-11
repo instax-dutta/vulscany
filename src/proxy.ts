@@ -44,6 +44,14 @@ export function proxy(request: NextRequest) {
     }
   }
 
+  // 6. Auth check for API routes (exclude /api/auth/* which are public)
+  if (request.nextUrl.pathname.startsWith('/api/') && !request.nextUrl.pathname.startsWith('/api/auth/')) {
+    const token = request.cookies.get('github_token')
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+  }
+
   return response
 }
 
