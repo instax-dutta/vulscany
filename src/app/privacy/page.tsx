@@ -4,7 +4,7 @@ import { Footer } from "@/components/landing/Footer"
 
 export const metadata: Metadata = {
     title: "Publication Safety",
-    description: "Notes on what was removed to make the VullScanny repository safer to publish.",
+    description: "Notes on what was removed to make the vulscany repository safer to publish.",
 }
 
 export default function PrivacyPage() {

@@ -9,7 +9,7 @@ export function WhySection() {
                         <h2 className="text-3xl font-bold tracking-tight">Why this project was scrapped.</h2>
                         <div className="space-y-4">
                             {[
-                                "VullScanny was built to create a defensible, privacy-first application security workflow for fast-moving teams.",
+                                "vulscany was built to create a defensible, privacy-first application security workflow for fast-moving teams.",
                                 "By the time we were nearly ready to launch and monetize, aggressive open source alternatives had weakened the moat we were building toward.",
                                 "Rather than force a go-to-market story we no longer believed in, we chose to archive the work publicly as a proof of concept.",
                             ].map((item, i) => (
@@ -35,7 +35,7 @@ export function WhySection() {
                                     <span className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/40" />
                                     <span className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/40" />
                                 </div>
-                                <div className="text-foreground/40">$ vullscanny archive status</div>
+                                <div className="text-foreground/40">$ vulscany archive status</div>
                                 <div className="text-primary animate-pulse">Project archived before launch...</div>
                                 <div className="space-y-2">
                                     <div className="text-yellow-500/80">[Market] Open source competition compressed differentiation</div>

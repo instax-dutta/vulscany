@@ -33,7 +33,7 @@ export function AIFixPreviewModal({ isOpen, onClose, vulnerability, repoName }: 
     };
 
     const handleCopyCommand = () => {
-        const command = `npx vullscanny --test ${vulnerability.file}`;
+        const command = `npx vulscany --test ${vulnerability.file}`;
         navigator.clipboard.writeText(command);
         setCommandCopied(true);
         setTimeout(() => setCommandCopied(false), 2500);
@@ -358,7 +358,7 @@ export function AIFixPreviewModal({ isOpen, onClose, vulnerability, repoName }: 
                             padding: '0.25rem 0.5rem',
                             borderRadius: '0.25rem',
                             color: '#94a3b8'
-                        }}>npx vullscanny --test {vulnerability.file}</code>
+                        }}>npx vulscany --test {vulnerability.file}</code>
                     </div>
                 </motion.div>
             </motion.div>

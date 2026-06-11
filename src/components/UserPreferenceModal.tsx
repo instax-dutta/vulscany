@@ -19,8 +19,8 @@ export function UserPreferenceModal({ isOpen, onComplete }: UserPreferenceModalP
     const handleSelect = (mode: 'simple' | 'pro') => {
         setSelectedMode(mode);
         // Store preference in localStorage
-        localStorage.setItem('vullscanny_user_mode', mode);
-        localStorage.setItem('vullscanny_onboarding_complete', 'true');
+        localStorage.setItem('vulscany_user_mode', mode);
+        localStorage.setItem('vulscany_onboarding_complete', 'true');
 
         // Delay to show selection animation
         setTimeout(() => {
@@ -100,7 +100,7 @@ export function UserPreferenceModal({ isOpen, onComplete }: UserPreferenceModalP
                                 fontFamily: 'var(--font-mono)',
                                 marginBottom: '0.75rem'
                             }}>
-                                Welcome to VullScanny!
+                                Welcome to vulscany!
                             </h2>
                             <p style={{
                                 fontSize: '1rem',
@@ -253,11 +253,11 @@ export function UserPreferenceModal({ isOpen, onComplete }: UserPreferenceModalP
 // Helper to check if onboarding is needed
 export function shouldShowOnboarding(): boolean {
     if (typeof window === 'undefined') return false;
-    return !localStorage.getItem('vullscanny_onboarding_complete');
+    return !localStorage.getItem('vulscany_onboarding_complete');
 }
 
 // Get stored user mode
 export function getUserMode(): 'simple' | 'pro' {
     if (typeof window === 'undefined') return 'simple';
-    return (localStorage.getItem('vullscanny_user_mode') as 'simple' | 'pro') || 'simple';
+    return (localStorage.getItem('vulscany_user_mode') as 'simple' | 'pro') || 'simple';
 }

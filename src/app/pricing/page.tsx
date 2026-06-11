@@ -4,7 +4,7 @@ import { Footer } from "@/components/landing/Footer"
 
 export const metadata: Metadata = {
     title: "Commercial Path Abandoned",
-    description: "A short explanation of why VullScanny was archived before launch.",
+    description: "A short explanation of why vulscany was archived before launch.",
 }
 
 export default function PricingPage() {
@@ -15,7 +15,7 @@ export default function PricingPage() {
                 <div className="max-w-3xl mx-auto space-y-6">
                     <h1 className="text-4xl sm:text-5xl font-bold">Commercial path abandoned</h1>
                     <p className="text-lg text-muted-foreground">
-                        VullScanny once had a pricing page because the product was headed toward launch.
+                        vulscany once had a pricing page because the product was headed toward launch.
                     </p>
                     <p className="text-foreground/80 leading-relaxed">
                         The original business thesis depended on a product moat around a privacy-first, AI-assisted security workflow.

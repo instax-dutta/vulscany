@@ -33,7 +33,7 @@ export const DEFAULT_PATTERNS: CommunityPattern[] = [
         category: 'config',
         framework: 'generic',
         recommendation: 'Remove console.log statements containing sensitive data before deploying',
-        submittedBy: 'VullScanny Team',
+        submittedBy: 'vulscany Team',
         submittedAt: '2024-01-01T00:00:00Z',
         votes: 42,
         verified: true
@@ -47,7 +47,7 @@ export const DEFAULT_PATTERNS: CommunityPattern[] = [
         category: 'auth',
         framework: 'generic',
         recommendation: 'Move API keys to environment variables. Never commit secrets to source control.',
-        submittedBy: 'VullScanny Team',
+        submittedBy: 'vulscany Team',
         submittedAt: '2024-01-01T00:00:00Z',
         votes: 156,
         verified: true
@@ -61,7 +61,7 @@ export const DEFAULT_PATTERNS: CommunityPattern[] = [
         category: 'auth',
         framework: 'generic',
         recommendation: 'Use httpOnly cookies for sensitive tokens. localStorage is accessible to XSS attacks.',
-        submittedBy: 'VullScanny Team',
+        submittedBy: 'vulscany Team',
         submittedAt: '2024-01-01T00:00:00Z',
         votes: 89,
         verified: true
@@ -75,7 +75,7 @@ export const DEFAULT_PATTERNS: CommunityPattern[] = [
         category: 'xss',
         framework: 'react',
         recommendation: 'Use React state and JSX instead of direct DOM manipulation',
-        submittedBy: 'VullScanny Team',
+        submittedBy: 'vulscany Team',
         submittedAt: '2024-01-01T00:00:00Z',
         votes: 34,
         verified: true
@@ -89,7 +89,7 @@ export const DEFAULT_PATTERNS: CommunityPattern[] = [
         category: 'injection',
         framework: 'nextjs',
         recommendation: 'Validate and sanitize all query parameters before using in database queries',
-        submittedBy: 'VullScanny Team',
+        submittedBy: 'vulscany Team',
         submittedAt: '2024-01-01T00:00:00Z',
         votes: 67,
         verified: true
@@ -103,7 +103,7 @@ export const DEFAULT_PATTERNS: CommunityPattern[] = [
         category: 'other',
         framework: 'generic',
         recommendation: 'Use atomic groups or possessive quantifiers. Test regex with long inputs.',
-        submittedBy: 'VullScanny Team',
+        submittedBy: 'vulscany Team',
         submittedAt: '2024-01-01T00:00:00Z',
         votes: 23,
         verified: true
@@ -117,7 +117,7 @@ export const DEFAULT_PATTERNS: CommunityPattern[] = [
         category: 'crypto',
         framework: 'generic',
         recommendation: 'Use SHA-256 or stronger algorithms. MD5 and SHA1 are broken.',
-        submittedBy: 'VullScanny Team',
+        submittedBy: 'vulscany Team',
         submittedAt: '2024-01-01T00:00:00Z',
         votes: 78,
         verified: true
@@ -131,7 +131,7 @@ export const DEFAULT_PATTERNS: CommunityPattern[] = [
         category: 'config',
         framework: 'generic',
         recommendation: 'Enable strict mode for better type safety and fewer runtime errors',
-        submittedBy: 'VullScanny Team',
+        submittedBy: 'vulscany Team',
         submittedAt: '2024-01-01T00:00:00Z',
         votes: 45,
         verified: true
@@ -146,7 +146,7 @@ export function loadCommunityPatterns(): CommunityPattern[] {
         return DEFAULT_PATTERNS;
     }
 
-    const stored = localStorage.getItem('vullscanny_community_patterns');
+    const stored = localStorage.getItem('vulscany_community_patterns');
     if (stored) {
         try {
             const custom = JSON.parse(stored) as CommunityPattern[];
@@ -166,7 +166,7 @@ export function saveCommunityPatterns(patterns: CommunityPattern[]): void {
     if (typeof window === 'undefined') return;
     // Only save user-submitted patterns
     const custom = patterns.filter(p => !p.id.startsWith('comm-'));
-    localStorage.setItem('vullscanny_community_patterns', JSON.stringify(custom));
+    localStorage.setItem('vulscany_community_patterns', JSON.stringify(custom));
 }
 
 /**
@@ -210,7 +210,7 @@ export function voteForPattern(patternId: string): void {
     if (typeof window === 'undefined') return;
 
     // Track user votes
-    const votedKey = 'vullscanny_voted_patterns';
+    const votedKey = 'vulscany_voted_patterns';
     const voted = JSON.parse(localStorage.getItem(votedKey) || '[]');
 
     if (voted.includes(patternId)) {
@@ -235,7 +235,7 @@ export function voteForPattern(patternId: string): void {
  */
 export function hasVotedFor(patternId: string): boolean {
     if (typeof window === 'undefined') return false;
-    const voted = JSON.parse(localStorage.getItem('vullscanny_voted_patterns') || '[]');
+    const voted = JSON.parse(localStorage.getItem('vulscany_voted_patterns') || '[]');
     return voted.includes(patternId);
 }
 

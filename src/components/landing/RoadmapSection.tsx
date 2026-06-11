@@ -10,7 +10,7 @@ export function RoadmapSection() {
                     </h2>
                     <div className="grid sm:grid-cols-2 gap-4">
                         {[
-                            "Branding changed to VullScanny across the codebase",
+                            "Branding changed to vulscany across the codebase",
                             "Hardcoded live credential defaults removed from the application",
                             "Static domains, sitemap entries, and manifest packaging removed",
                             "Launch, pricing, and monetization copy replaced with archive messaging",

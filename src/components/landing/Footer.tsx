@@ -6,10 +6,10 @@ export function Footer() {
                     <div className="flex items-center gap-2 translate-y-[-2px]">
                         <img
                             src="/favicon.png"
-                            alt="VullScanny Logo"
+                            alt="vulscany Logo"
                             className="w-5 h-5 object-contain invert brightness-200"
                         />
-                        <span className="font-mono font-bold tracking-tighter opacity-80">VULLSCANNY</span>
+                        <span className="font-mono font-bold tracking-tighter opacity-80">vulscany</span>
                     </div>
                     <div className="flex gap-8 text-sm text-muted-foreground font-mono">
                         <a href="/terms" className="hover:text-foreground">

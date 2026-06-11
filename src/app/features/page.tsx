@@ -4,7 +4,7 @@ import { FeaturesSection } from "@/components/landing/FeaturesSection"
 
 export const metadata = {
     title: "Preserved Work",
-    description: "A proof-of-concept snapshot of what VullScanny had built before the product was shelved.",
+    description: "A proof-of-concept snapshot of what vulscany had built before the product was shelved.",
 }
 
 export default function FeaturesPage() {

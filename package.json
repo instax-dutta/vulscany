@@ -2,7 +2,7 @@
   "name": "vulscany",
   "version": "0.1.0",
   "private": true,
-  "description": "VullScanny public archive of a scrapped AI-assisted security scanner prototype",
+  "description": "vulscany public archive of a scrapped AI-assisted security scanner prototype",
   "scripts": {
     "dev": "next dev",
     "build": "npx convex codegen && next build",

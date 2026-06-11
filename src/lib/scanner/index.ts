@@ -225,7 +225,7 @@ function scanFileContent(
         let line = lines[i].trim();
         const lineNum = i + 1;
 
-        if (!line || line.includes('@vullscanny-ignore')) continue;
+        if (!line || line.includes('@vulscany-ignore')) continue;
 
         // Skip comments
         if (line.includes('/*')) inBlockComment = true;

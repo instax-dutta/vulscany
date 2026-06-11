@@ -15,13 +15,13 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const siteName = "VullScanny";
+const siteName = "vulscany";
 const siteDescription =
-  "VullScanny is a public archive of a scrapped AI-assisted security scanning product that was never launched.";
+  "vulscany is a public archive of a scrapped AI-assisted security scanning product that was never launched.";
 
 export const metadata: Metadata = {
   title: {
-    default: "VullScanny | Archive",
+    default: "vulscany | Archive",
     template: `%s | ${siteName}`,
   },
   description: siteDescription,

@@ -4,7 +4,7 @@ import { Footer } from "@/components/landing/Footer"
 
 export const metadata: Metadata = {
     title: "Archive Note",
-    description: "Archive note for the scrapped VullScanny project.",
+    description: "Archive note for the scrapped vulscany project.",
 }
 
 export default function TermsPage() {
@@ -21,7 +21,7 @@ export default function TermsPage() {
                             Last Updated: May 15, 2026
                         </p>
                         <p className="text-foreground/80 leading-relaxed">
-                            VullScanny is no longer an active product or service. This repository is published as a historical archive
+                            vulscany is no longer an active product or service. This repository is published as a historical archive
                             of work that was close to launch but ultimately shelved.
                         </p>
                     </div>

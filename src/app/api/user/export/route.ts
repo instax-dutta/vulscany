@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
             data: userData,
         }, {
             headers: {
-                'Content-Disposition': `attachment; filename="vullscanny-export-${Date.now()}.json"`,
+                'Content-Disposition': `attachment; filename="vulscany-export-${Date.now()}.json"`,
                 'Content-Type': 'application/json',
             },
         });

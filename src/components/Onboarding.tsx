@@ -12,8 +12,8 @@ interface OnboardingProps {
 
 // Demo scan data for interactive tour
 const createDemoData = (userName: string) => ({
-    [`${userName || 'developer'}/vullscanny-secure-webapp`]: {
-        repoName: 'vullscanny-secure-webapp',
+    [`${userName || 'developer'}/vulscany-secure-webapp`]: {
+        repoName: 'vulscany-secure-webapp',
         owner: userName || 'developer',
         scanTimestamp: new Date().toISOString(),
         status: 'needs-attention' as const,
@@ -39,7 +39,7 @@ const createDemoData = (userName: string) => ({
                 file: 'src/components/ReviewBox.tsx',
                 line: 104,
                 snippet: '<div dangerouslySetInnerHTML={{ __html: commentText }} />',
-                recommendation: 'Apply VullScanny-recommended DOMPurify sanitization or use standard React text rendering.'
+                recommendation: 'Apply vulscany-recommended DOMPurify sanitization or use standard React text rendering.'
             },
             {
                 id: 'demo-injection-1',
@@ -120,7 +120,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
 
     const steps = [
         {
-            title: "Welcome to VullScanny",
+            title: "Welcome to vulscany",
             subtitle: "Your AI-Powered Security Command Center",
             content: "Meet the world's most private security scanner. We help you find and fix vulnerabilities across 6+ web stacks without ever moving your code to our servers.",
             icon: <Shield className="w-12 h-12 text-primary" />,
@@ -129,7 +129,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
         {
             title: "Zero-Knowledge Security",
             subtitle: "Privacy is our primary directive",
-            content: "VullScanny was designed to be trust-minimizing and privacy-first. The archived product focused on on-device style workflows, zero-retention goals, and safer developer ergonomics.",
+            content: "vulscany was designed to be trust-minimizing and privacy-first. The archived product focused on on-device style workflows, zero-retention goals, and safer developer ergonomics.",
             icon: <History className="w-12 h-12 text-emerald-500" />,
             type: "intro"
         },
@@ -192,15 +192,15 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
         if (step < steps.length - 1) {
             setStep(step + 1);
         } else {
-            localStorage.setItem('vullscanny_onboarding_complete', 'true');
-            localStorage.setItem('vullscanny_user_name', userName);
-            localStorage.setItem('vullscanny_user_goal', JSON.stringify(selection));
+            localStorage.setItem('vulscany_onboarding_complete', 'true');
+            localStorage.setItem('vulscany_user_name', userName);
+            localStorage.setItem('vulscany_user_goal', JSON.stringify(selection));
             onComplete();
         }
     };
 
     const handleSkip = () => {
-        localStorage.setItem('vullscanny_onboarding_complete', 'true');
+        localStorage.setItem('vulscany_onboarding_complete', 'true');
         if (onDemoDataChange) onDemoDataChange(null);
         onComplete();
     };

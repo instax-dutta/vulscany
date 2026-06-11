@@ -1,5 +1,5 @@
 /**
- * VullScanny site configuration
+ * vulscany site configuration
  *
  * Centralized configuration for archive-mode branding and links.
  */
@@ -11,10 +11,10 @@ export const SITE_CONFIG = {
     },
 
     branding: {
-        name: 'VullScanny',
+        name: 'vulscany',
         tagline: 'Archived AI Security Scanner Prototype',
         description: 'A public archive of a scrapped security scanning product',
-        internalName: 'VullScanny',
+        internalName: 'vulscany',
     },
 
     navigation: {

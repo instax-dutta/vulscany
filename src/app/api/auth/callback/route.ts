@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
             headers: {
                 'Authorization': `token ${tokenData.access_token}`,
                 'Accept': 'application/json',
-                'User-Agent': 'VullScanny/1.0.0'
+                'User-Agent': 'vulscany/1.0.0'
             }
         });
 

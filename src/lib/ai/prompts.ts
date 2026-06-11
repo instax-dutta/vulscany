@@ -59,7 +59,7 @@ ${threatIntelligence.recommendations.map(r => `  - ${r}`).join('\n')}
         : `I am scanning the project **${repoName}**. No source code vulnerabilities were found, but there are **CRITICAL SUPPLY CHAIN RISKS** that need immediate remediation.`;
 
     return `
-# VullScanny Master Security Fix Mission
+# vulscany Master Security Fix Mission
 
 ${missionPrompt}
 This project uses **${techStack.framework}** (${techStack.reactVersion}) with **${techStack.isTypeScript ? 'TypeScript' : 'JavaScript'}**.

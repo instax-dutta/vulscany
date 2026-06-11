@@ -17,12 +17,12 @@ export function Navbar() {
                     <div className="relative w-9 h-9 flex items-center justify-center">
                         <img
                             src="/favicon.png"
-                            alt="VullScanny Logo"
+                            alt="vulscany Logo"
                             className="w-full h-full object-contain relative z-10 group-hover:scale-110 transition-all duration-300 invert brightness-200"
                         />
                     </div>
                     <span className="font-mono font-bold tracking-tighter text-xl text-white">
-                        VULLSCANNY
+                        vulscany
                     </span>
                 </Link>
 

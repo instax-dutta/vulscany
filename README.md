@@ -1,6 +1,6 @@
-# VullScanny
+# vulscany
 
-VullScanny is a public archive of a scrapped AI-assisted application security product.
+vulscany is a public archive of a scrapped AI-assisted application security product.
 
 We built this project to the edge of launch, but the moat we were working toward weakened materially once aggressive open source alternatives started landing in the market. Rather than push a commercialization story we no longer believed in, we cleaned the repository up and kept it as a proof-of-concept archive.
 
@@ -9,7 +9,7 @@ We built this project to the edge of launch, but the moat we were working toward
 - Product status: Scrapped before launch
 - Repository status: Public archive
 - Maintenance status: No active product roadmap or launch plan
-- Branding note: The original product name has been replaced with VullScanny throughout the codebase
+- Branding note: The original product name has been replaced with vulscany throughout the codebase
 
 ## What This Repo Preserves
 

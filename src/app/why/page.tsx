@@ -4,7 +4,7 @@ import { WhySection } from "@/components/landing/WhySection"
 
 export const metadata = {
     title: "Why It Was Archived",
-    description: "Why the VullScanny team archived the project instead of launching it.",
+    description: "Why the vulscany team archived the project instead of launching it.",
 }
 
 export default function WhyPage() {
