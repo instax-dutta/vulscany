@@ -4,7 +4,7 @@
  * Reduces AI API calls and improves performance
  */
 
-import { getCachedThreatData, setCachedThreatData, getMultipleCachedThreatData } from '../threat-intel/redis-cache';
+import { getCachedThreatData, setCachedThreatData, getMultipleCachedThreatData } from '../threat-intel/memory-cache';
 
 interface CachedAIResponse {
     explanation: string;
@@ -183,7 +183,7 @@ export async function getAICacheStats(): Promise<{
     mostPopular: Array<{ key: string; hits: number }>;
 }> {
     try {
-        const { getCachedKeys } = await import('../threat-intel/redis-cache');
+        const { getCachedKeys } = await import('../threat-intel/memory-cache');
         const keys = await getCachedKeys(`${AI_CACHE_PREFIX}*`);
 
         const results = await getMultipleCachedThreatData(keys);
