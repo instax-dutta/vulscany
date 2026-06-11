@@ -23,8 +23,8 @@
 **Plans:** 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Rename redis-cache.ts to memory-cache.ts, update all imports, fix user-agent
-- [ ] 01-02-PLAN.md — Fix TS bug, migrate middleware→proxy with nonce CSP, consolidate headers, remove ignoreBuildErrors
+- [x] 01-01-PLAN.md — Rename redis-cache.ts to memory-cache.ts, update all imports, fix user-agent
+- [x] 01-02-PLAN.md — Fix TS bug, migrate middleware→proxy with nonce CSP, consolidate headers, remove ignoreBuildErrors
 
 **Depends on:** None
 
@@ -46,6 +46,14 @@ Plans:
 
 **Depends on:** Phase 1
 
+**Plans:** 4 plans
+
+Plans:
+- [x] 02-01-PLAN.md — Standardize API auth in proxy.ts, add defense-in-depth checks to unguarded routes, verify key rotation
+- [x] 02-02-PLAN.md — Replace hashDependencies with crypto.createHash('sha256'), verify cookie security attributes
+- [x] 02-03-PLAN.md — Fix error:any → unknown in API route catch blocks (7 files, 10 instances)
+- [x] 02-04-PLAN.md — Fix error:any → unknown in library catch blocks (5 files, 15 instances)
+
 ---
 
 ## Phase 3: Code Quality & Architecture Refinement
@@ -64,6 +72,15 @@ Plans:
 | Style | Inconsistent semicolon usage | Configure ESLint to enforce |
 
 **Depends on:** Phase 2
+
+**Plans:** 5 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Extract SSR injection check from scanFileContent into ssr-detector.ts
+- [ ] 03-02-PLAN.md — Replace naive line-by-line diff with proper diff library
+- [ ] 03-03-PLAN.md — Normalize indentation and semicolon style via ESLint
+- [ ] 03-04-PLAN.md — Split DashboardFeatures.tsx into focused modules
+- [ ] 03-05-PLAN.md — Refactor dashboard/page.tsx into smaller components
 
 ---
 
