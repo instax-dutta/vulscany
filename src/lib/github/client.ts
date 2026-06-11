@@ -32,7 +32,7 @@ export interface FileContent {
 export function createGitHubClient(accessToken: string): Octokit {
     return new Octokit({
         auth: accessToken,
-        userAgent: 'VulnScany/1.0.0',
+        userAgent: 'vulscany/1.0.0',
     });
 }
 
