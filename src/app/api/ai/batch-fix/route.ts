@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { generateMasterFixPrompt } from '@/lib/ai/prompts';
 
 export async function POST(request: Request) {
     try {
+        const cookieStore = await cookies();
+        const token = cookieStore.get('github_token')?.value;
+        if (!token) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const { repoName, vulnerabilities, techStack, threatIntelligence } = await request.json();
 
         if (!vulnerabilities || !Array.isArray(vulnerabilities)) {

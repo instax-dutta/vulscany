@@ -4,9 +4,16 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { getLatestThreats, analyzeRepositoryThreats, getPackageVulnerabilities } from '@/lib/threat-intel';
 
 export async function GET(request: NextRequest) {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('github_token')?.value;
+    if (!token) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const action = searchParams.get('action');
 
@@ -47,6 +54,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
+        const cookieStore = await cookies();
+        const token = cookieStore.get('github_token')?.value;
+        if (!token) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const body = await request.json();
         const { dependencies } = body;
 
