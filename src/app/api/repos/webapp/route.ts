@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
                         repo,
                         isWebapp: !!stackInfo
                     };
-                } catch (error) {
+                } catch (error: unknown) {
                     console.error(`[Webapp Repos] Failed to check ${repo.owner}/${repo.name}:`, error);
                     return {
                         repo,
@@ -63,10 +63,10 @@ export async function GET(request: NextRequest) {
             webappRepos: webappRepos.length
         });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('[React Repos API] Error:', error);
         return NextResponse.json(
-            { error: 'Failed to fetch repositories', details: error.message },
+            { error: 'Failed to fetch repositories', details: error instanceof Error ? error.message : 'Unknown error' },
             { status: 500 }
         );
     }

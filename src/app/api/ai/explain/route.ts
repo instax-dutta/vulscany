@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
             vibePrompt
         });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('[AI API] Error:', error);
         return NextResponse.json(
             { error: 'Failed to generate AI response' },

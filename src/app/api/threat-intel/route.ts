@@ -43,10 +43,10 @@ export async function GET(request: NextRequest) {
                     { status: 400 }
                 );
         }
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('[ThreatIntel API] Error:', error);
         return NextResponse.json(
-            { error: 'Failed to fetch threat intelligence', details: error.message },
+            { error: 'Failed to fetch threat intelligence', details: error instanceof Error ? error.message : 'Unknown error' },
             { status: 500 }
         );
     }
@@ -73,10 +73,10 @@ export async function POST(request: NextRequest) {
         const intelligence = await analyzeRepositoryThreats(dependencies);
         return NextResponse.json(intelligence);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('[ThreatIntel API] Error:', error);
         return NextResponse.json(
-            { error: 'Failed to analyze threats', details: error.message },
+            { error: 'Failed to analyze threats', details: error instanceof Error ? error.message : 'Unknown error' },
             { status: 500 }
         );
     }

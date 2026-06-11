@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ prompt });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('[AI Coder Prompt API] Error:', error);
         return NextResponse.json(
             { error: 'Failed to generate prompt' },

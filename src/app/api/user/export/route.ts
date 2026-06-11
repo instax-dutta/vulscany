@@ -34,10 +34,10 @@ export async function GET(request: NextRequest) {
                 'Content-Type': 'application/json',
             },
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('[API] Data export failed:', error);
         return NextResponse.json(
-            { error: 'Export failed', message: error.message },
+            { error: 'Export failed', message: error instanceof Error ? error.message : 'Unknown error' },
             { status: 500 }
         );
     }
