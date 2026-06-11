@@ -3,6 +3,7 @@
  * Generates ACTUAL code fixes for security vulnerabilities using Mistral AI
  */
 
+import { createTwoFilesPatch } from 'diff';
 import type { Vulnerability } from '../scanner';
 
 export interface FixResult {
@@ -307,27 +308,16 @@ export async function generateCodeFix(
  * Generate a unified diff between original and fixed code
  */
 function generateDiff(original: string, fixed: string): string {
-    const originalLines = original.split('\n');
-    const fixedLines = fixed.split('\n');
-
-    let diff = '';
-    const maxLines = Math.max(originalLines.length, fixedLines.length);
-
-    for (let i = 0; i < maxLines; i++) {
-        const origLine = originalLines[i] || '';
-        const fixedLine = fixedLines[i] || '';
-
-        if (origLine !== fixedLine) {
-            if (origLine) {
-                diff += `- ${origLine}\n`;
-            }
-            if (fixedLine) {
-                diff += `+ ${fixedLine}\n`;
-            }
-        }
-    }
-
-    return diff || '(no changes detected)';
+    const patch = createTwoFilesPatch(
+        'original',
+        'fixed',
+        original,
+        fixed,
+        undefined,
+        undefined,
+        { context: 3 }
+    );
+    return patch || '(no changes detected)';
 }
 
 /**
