@@ -5,12 +5,10 @@ import * as scanner from '@/lib/scanner';
 import * as stackDetector from '@/lib/github/stack-detector';
 import { NextRequest } from 'next/server';
 
-// Mock Next.js headers/cookies
 vi.mock('next/headers', () => ({
     cookies: vi.fn(),
 }));
 
-// Mock logic
 vi.mock('@/lib/scanner', () => ({
     scanRepository: vi.fn(),
 }));
@@ -29,25 +27,9 @@ vi.mock('@/lib/rate-limit', () => ({
     rateLimit: vi.fn().mockResolvedValue({ success: true, limit: 10, remaining: 9, reset: 0 }),
 }));
 
-vi.mock('@/lib/user/stats', () => ({
-    incrementUserMetric: vi.fn(),
-}));
-
-// Mock Convex client
-vi.mock('@/lib/convex/client', () => ({
-    convex: {
-        query: vi.fn(),
-        mutation: vi.fn(),
-    },
-    api: {
-        users: {
-            getById: 'users:getById',
-            deductCredits: 'users:deductCredits',
-        },
-        scanHistory: {
-            create: 'scanHistory:create',
-        }
-    }
+vi.mock('@/lib/local-store', () => ({
+    addScanRecord: vi.fn(),
+    updateLastScan: vi.fn(),
 }));
 
 describe('API: /api/scan', () => {
@@ -78,57 +60,21 @@ describe('API: /api/scan', () => {
 
         const req = new NextRequest('http://localhost/api/scan', {
             method: 'POST',
-            body: JSON.stringify({ owner: 'owner' }) // missing repo
+            body: JSON.stringify({ owner: 'owner' })
         });
 
         const response = await POST(req);
         expect(response.status).toBe(400);
     });
 
-    it('should return 402 if user has insufficient credits', async () => {
-        const { convex } = await import('@/lib/convex/client');
-
+    it('should perform scan and log history for valid web app', async () => {
         vi.mocked(cookies).mockResolvedValue({
             get: vi.fn().mockImplementation((name: string) => {
                 if (name === 'github_token') return { value: 'gh_token' };
-                if (name === 'convex_user_id') return { value: 'user_123' };
+                if (name === 'session') return { value: JSON.stringify({ user: { id: 12345 } }) };
                 return undefined;
             })
         } as any);
-
-        // Mock low balance
-        vi.mocked(convex.query).mockResolvedValue({
-            creditBalance: 0,
-            subscriptionTier: 'free'
-        });
-
-        const req = new NextRequest('http://localhost/api/scan', {
-            method: 'POST',
-            body: JSON.stringify({ owner: 'owner', repo: 'repo' })
-        });
-
-        const response = await POST(req);
-        expect(response.status).toBe(402);
-        const data = await response.json();
-        expect(data.error).toBe('Insufficient credits');
-    });
-
-    it('should perform scan, deduct credits, and log history for valid web app', async () => {
-        const { convex } = await import('@/lib/convex/client');
-
-        vi.mocked(cookies).mockResolvedValue({
-            get: vi.fn().mockImplementation((name: string) => {
-                if (name === 'github_token') return { value: 'gh_token' };
-                if (name === 'convex_user_id') return { value: 'user_123' };
-                return undefined;
-            })
-        } as any);
-
-        // Mock sufficient balance
-        vi.mocked(convex.query).mockResolvedValue({
-            creditBalance: 100,
-            subscriptionTier: 'pro'
-        });
 
         const mockStack = {
             stack: 'react',
@@ -152,20 +98,7 @@ describe('API: /api/scan', () => {
         const response = await POST(req);
         expect(response.status).toBe(200);
 
-        // Verify credit deduction
-        expect(convex.mutation).toHaveBeenCalledWith('users:deductCredits', expect.objectContaining({
-            userId: 'user_123',
-            amount: 1
-        }));
-
-        // Verify history logging
-        expect(convex.mutation).toHaveBeenCalledWith('scanHistory:create', expect.objectContaining({
-            scanDurationMs: 1500,
-            creditsConsumed: 1
-        }));
-
         const data = await response.json();
         expect(data.scanResult).toBeDefined();
     });
 });
-

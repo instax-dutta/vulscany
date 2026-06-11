@@ -18,7 +18,6 @@ export async function POST() {
 
     response.cookies.set('github_token', '', cookieOptions);
     response.cookies.set('session', '', cookieOptions);
-    response.cookies.set('convex_user_id', '', cookieOptions);
 
     return response;
 }

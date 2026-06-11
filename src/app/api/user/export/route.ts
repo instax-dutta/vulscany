@@ -5,23 +5,28 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { convex, api } from '@/lib/convex/client';
 
 export async function GET(request: NextRequest) {
     const cookieStore = await cookies();
-    const convexUserId = cookieStore.get('convex_user_id')?.value;
+    const sessionCookie = cookieStore.get('session');
 
-    if (!convexUserId) {
+    if (!sessionCookie) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     try {
-        const userData = await convex.query(api.users.exportUserData, {
-            userId: convexUserId as any,
-        });
+        const session = JSON.parse(sessionCookie.value);
+        const githubId = session?.user?.id;
+
+        if (!githubId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const { exportUserData } = await import('@/lib/local-store');
+        const userData = await exportUserData(githubId);
 
         return NextResponse.json({
-            message: 'User data export (GDPR Article 20 compliance)',
+            message: 'User data export',
             data: userData,
         }, {
             headers: {

@@ -16,7 +16,7 @@ Privacy-first React security scanner with AI-powered threat intelligence.
 
 - **Framework:** Next.js (App Router)
 - **Language:** TypeScript
-- **Database:** Convex (schema, users, subscriptions, scan history)
+- **Storage:** Local JSON file (`.vulscany/data.json`) — zero external services
 - **AI:** Ollama / Mistral AI for fix generation and analysis
 - **Styling:** Custom CSS with design tokens
 - **Testing:** Vitest
@@ -26,9 +26,8 @@ Privacy-first React security scanner with AI-powered threat intelligence.
 
 - Node.js 18+
 - npm
-- A Convex account (for database)
 - GitHub OAuth app (for authentication)
-- Ollama or Mistral API key (for AI features)
+- Ollama or Mistral API key (optional, for AI features)
 
 ## Getting Started
 
@@ -48,22 +47,18 @@ Privacy-first React security scanner with AI-powered threat intelligence.
    cp env.example .env.local
    ```
    Fill in the required environment variables:
-   - `CONVEX_DEPLOY_KEY` — from your Convex dashboard
    - `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` — from GitHub OAuth app
-   - `MISTRAL_API_KEY` or Ollama endpoint — for AI features
    - `SESSION_SECRET` — a random string for session encryption
+   - `MISTRAL_API_KEY` — optional, for AI-generated fix suggestions
 
-4. **Run Convex dev server**
-   ```bash
-   npx convex dev
-   ```
-
-5. **Start the development server**
+4. **Start the development server**
    ```bash
    npm run dev
    ```
 
-6. Open [http://localhost:3000](http://localhost:3000)
+5. Open [http://localhost:3000](http://localhost:3000)
+
+> All data (users, scan history) is stored locally in `.vulscany/data.json`. No database, no external services required. Your data never leaves your machine.
 
 ## Available Scripts
 
@@ -98,9 +93,9 @@ src/
 │   └── ...           # Feature components
 ├── lib/
 │   ├── ai/           # AI integration (Mistral, Ollama, prompts)
-│   ├── cache/        # Caching layer
-│   ├── convex/       # Convex client
+│   ├── cache/        # In-memory caching layer
 │   ├── github/       # GitHub API client
+│   ├── local-store.ts # Local JSON file storage
 │   ├── scanner/      # Code scanner engine
 │   ├── threat-intel/ # Threat intelligence (CVE, advisories)
 │   └── validators/   # Code validators
@@ -122,13 +117,15 @@ npm start
 
 Deploy with the Vercel CLI or connect your GitHub repo to Vercel. Set all environment variables from `.env.example` in your Vercel project dashboard.
 
-### Convex
+## Privacy
 
-This project uses Convex as its database. Deploy your Convex backend:
+This application is designed for complete privacy when self-hosted:
 
-```bash
-npx convex deploy
-```
+- **No external database** — all data stored in a local JSON file
+- **No telemetry** — zero data sent to external services
+- **No credit system** — unlimited scanning
+- **No payments** — no payment infrastructure
+- **Scan metadata only** — source code is never stored, only vulnerability metadata
 
 ## License
 

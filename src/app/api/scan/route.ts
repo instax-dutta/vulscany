@@ -8,9 +8,6 @@ import { cookies } from 'next/headers';
 import { fetchUserRepositories } from '@/lib/github/client';
 import { detectStack } from '@/lib/github/stack-detector';
 import { scanRepository } from '@/lib/scanner';
-import { validateGeneratedCode, formatValidationReport } from '@/lib/validators/code-validator';
-import type { Vulnerability } from '@/lib/scanner';
-import { incrementUserMetric } from '@/lib/user/stats';
 import { rateLimit } from '@/lib/rate-limit';
 
 // Risk calculation utility for static scan findings
@@ -82,38 +79,6 @@ export async function POST(request: NextRequest) {
 
         if (!owner || !repo) {
             return NextResponse.json({ error: 'Missing owner or repo' }, { status: 400 });
-        }
-
-        // Check Convex credit balance BEFORE scanning
-        const convexUserId = cookieStore.get('convex_user_id')?.value;
-        if (convexUserId) {
-            try {
-                const { convex, api } = await import('@/lib/convex/client');
-                const user = await convex.query(api.users.getById, { userId: convexUserId as any });
-
-                const SCAN_COST = 1; // 1 credit per scan
-                if (user && user.creditBalance < SCAN_COST) {
-                    return NextResponse.json({
-                        error: 'Insufficient credits',
-                        balance: user.creditBalance,
-                        required: SCAN_COST,
-                        subscriptionTier: user.subscriptionTier
-                    }, { status: 402 }); // Payment Required
-                }
-
-                // Deduct credits immediately
-                if (user) {
-                    await convex.mutation(api.users.deductCredits, {
-                        userId: convexUserId as any,
-                        amount: SCAN_COST,
-                        operation: 'scan',
-                        repoName: `${owner}/${repo}`,
-                    });
-                }
-            } catch (error) {
-                console.error('[API] Convex credit check failed:', error);
-                // Continue with scan even if Convex fails (fallback)
-            }
         }
 
         // Check cache first (privacy-compliant - no source code cached)
@@ -197,48 +162,31 @@ export async function POST(request: NextRequest) {
             // Continue even if caching fails
         }
 
-        // Increment Redis stats (non-blocking)
+        // Log scan to local storage (metadata only - NO source code)
         const sessionCookie = cookieStore.get('session');
         if (sessionCookie) {
             try {
                 const session = JSON.parse(sessionCookie.value);
-                const userId = session.id;
-                if (userId) {
-                    incrementUserMetric(userId, 'totalScans');
-                    if (scanResult.vulnerabilities?.length > 0) {
-                        incrementUserMetric(userId, 'vulnerabilitiesFound', scanResult.vulnerabilities.length);
-                    }
+                const githubId = session?.user?.id;
+                if (githubId) {
+                    const { addScanRecord, updateLastScan } = await import('@/lib/local-store');
+                    const vulnerabilities = scanResult.vulnerabilities || [];
+                    await addScanRecord({
+                        githubId,
+                        repoName: `${owner}/${repo}`,
+                        repoUrl: `https://github.com/${owner}/${repo}`,
+                        scanType: 'quick',
+                        vulnerabilitiesFound: vulnerabilities.length,
+                        criticalCount: vulnerabilities.filter((v: any) => v.severity === 'critical').length,
+                        highCount: vulnerabilities.filter((v: any) => v.severity === 'high').length,
+                        mediumCount: vulnerabilities.filter((v: any) => v.severity === 'medium').length,
+                        lowCount: vulnerabilities.filter((v: any) => v.severity === 'low').length,
+                        scanDurationMs: scanResult.scanDuration || 0,
+                    });
+                    await updateLastScan(githubId);
                 }
-            } catch (err) {
-                console.error('[API] Failed to increment scan stats:', err);
-            }
-        }
-
-        // Log scan to Convex scanHistory (metadata only - NO source code)
-        if (convexUserId) {
-            try {
-                const { convex, api } = await import('@/lib/convex/client');
-                const vulnerabilities = scanResult.vulnerabilities || [];
-                const criticalCount = vulnerabilities.filter((v: any) => v.severity === 'critical').length;
-                const highCount = vulnerabilities.filter((v: any) => v.severity === 'high').length;
-                const mediumCount = vulnerabilities.filter((v: any) => v.severity === 'medium').length;
-                const lowCount = vulnerabilities.filter((v: any) => v.severity === 'low').length;
-
-                await convex.mutation(api.scanHistory.create, {
-                    userId: convexUserId as any,
-                    repoName: `${owner}/${repo}`,
-                    repoUrl: `https://github.com/${owner}/${repo}`,
-                    scanType: 'quick',
-                    vulnerabilitiesFound: vulnerabilities.length,
-                    criticalCount,
-                    highCount,
-                    mediumCount,
-                    lowCount,
-                    creditsConsumed: 1,
-                    scanDurationMs: scanResult.scanDuration || 0,
-                });
             } catch (error) {
-                console.error('[API] Failed to log scan history to Convex:', error);
+                console.error('[API] Failed to log scan history:', error);
             }
         }
 

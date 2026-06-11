@@ -48,8 +48,8 @@ export async function GET(request: NextRequest) {
 
         const userData = await userResponse.json();
 
-        const { convex, api } = await import('@/lib/convex/client');
-        const convexUserId = await convex.mutation(api.users.upsertUser, {
+        const { upsertUser } = await import('@/lib/local-store');
+        await upsertUser({
             githubId: userData.id,
             email: userData.email || `${userData.login}@github.placeholder`,
             name: userData.name || userData.login,
@@ -67,7 +67,6 @@ export async function GET(request: NextRequest) {
         };
 
         response.cookies.set('github_token', tokenData.access_token, cookieOptions);
-        response.cookies.set('convex_user_id', convexUserId, cookieOptions);
         response.cookies.set('session', JSON.stringify({
             user: {
                 id: userData.id,
