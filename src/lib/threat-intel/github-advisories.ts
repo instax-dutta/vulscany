@@ -62,8 +62,8 @@ export async function fetchReactAdvisories(limit: number = 50): Promise<GitHubAd
         console.log(`[GitHub] Fetched ${result.length} advisories`);
         return result;
 
-    } catch (error: any) {
-        console.error('[GitHub] Fetch error:', error.message);
+    } catch (error: unknown) {
+        console.error('[GitHub] Fetch error:', error instanceof Error ? error.message : String(error));
         return [];
     }
 }
@@ -99,8 +99,8 @@ export async function fetchAdvisoriesForPackage(packageName: string): Promise<Gi
 
         return parsed;
 
-    } catch (error: any) {
-        console.error(`[GitHub] Error fetching advisories for ${packageName}:`, error.message);
+    } catch (error: unknown) {
+        console.error(`[GitHub] Error fetching advisories for ${packageName}:`, error instanceof Error ? error.message : String(error));
         return [];
     }
 }
@@ -169,8 +169,8 @@ export async function searchAdvisoriesByKeyword(keyword: string): Promise<GitHub
 
         return filtered;
 
-    } catch (error: any) {
-        console.error(`[GitHub] Search error for "${keyword}":`, error.message);
+    } catch (error: unknown) {
+        console.error(`[GitHub] Search error for "${keyword}":`, error instanceof Error ? error.message : String(error));
         return [];
     }
 }
