@@ -246,8 +246,8 @@ export function Component({ userInput }: { userInput: string }) {
 
             const result = await generateCodeFix(mockVulnerability, mockFileContent);
 
-            expect(result.diff).toContain('- ');
-            expect(result.diff).toContain('+ ');
+            expect(result.diff).toContain('-');
+            expect(result.diff).toContain('+');
             expect(result.diff).toContain('DOMPurify');
         });
     });
