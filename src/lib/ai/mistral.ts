@@ -119,9 +119,10 @@ Be direct and actionable.`;
 
         return result;
 
-    } catch (error: any) {
-        rotator.markKeyFailed(apiKey, error.message);
-        console.error(`[Mistral] Failed:`, error.message);
+    } catch (error: unknown) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        rotator.markKeyFailed(apiKey, errMsg);
+        console.error(`[Mistral] Failed:`, errMsg);
         return null;
     }
 }
@@ -176,8 +177,9 @@ Return ONLY the fixed code in diff format.`;
         const data = await response.json();
         return data.choices?.[0]?.message?.content || null;
 
-    } catch (error: any) {
-        rotator.markKeyFailed(apiKey, error.message);
+    } catch (error: unknown) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        rotator.markKeyFailed(apiKey, errMsg);
         return null;
     }
 }

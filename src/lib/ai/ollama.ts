@@ -83,8 +83,8 @@ export async function searchVulnerabilityKnowledge(query: string): Promise<Ollam
         console.log(`[Ollama Search] Success for query: ${query}`);
         return result;
 
-    } catch (error: any) {
-        console.error(`[Ollama Search] Failed:`, error.message);
+    } catch (error: unknown) {
+        console.error(`[Ollama Search] Failed:`, error instanceof Error ? error.message : String(error));
         return null;
     }
 }
@@ -160,9 +160,10 @@ Be direct and actionable.`;
             recommendations: extractRecommendations(content)
         };
 
-    } catch (error: any) {
-        rotator.markKeyFailed(apiKey, error.message);
-        console.error(`[Ollama] Failed:`, error.message);
+    } catch (error: unknown) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        rotator.markKeyFailed(apiKey, errMsg);
+        console.error(`[Ollama] Failed:`, errMsg);
         // Fallback or return null
         return null;
     }
@@ -221,8 +222,9 @@ Provide ONLY the fixed code as a diff. No explanation.`;
         const data = await response.json();
         return data.message?.content || null;
 
-    } catch (error: any) {
-        rotator.markKeyFailed(apiKey, error.message);
+    } catch (error: unknown) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        rotator.markKeyFailed(apiKey, errMsg);
         return null;
     }
 }
