@@ -88,8 +88,8 @@ export async function fetchUserRepositories(
         }
 
         return repositories;
-    } catch (error: any) {
-        console.error('[GitHub] Failed to fetch repositories:', error.message);
+    } catch (error: unknown) {
+        console.error('[GitHub] Failed to fetch repositories:', error instanceof Error ? error.message : String(error));
         throw new Error('Failed to fetch repositories from GitHub');
     }
 }
@@ -129,11 +129,11 @@ export async function getFileContent(
             content,
             sha: data.sha
         };
-    } catch (error: any) {
-        if (error.status === 404) {
+    } catch (error: unknown) {
+        if (error instanceof Object && 'status' in error && (error as { status: number }).status === 404) {
             return null; // File doesn't exist
         }
-        console.error(`[GitHub] Failed to get file ${path}:`, error.message);
+        console.error(`[GitHub] Failed to get file ${path}:`, error instanceof Error ? error.message : String(error));
         return null;
     }
 }
@@ -156,7 +156,7 @@ export async function hasFile(
             path
         });
         return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
         return false;
     }
 }
@@ -189,12 +189,12 @@ export async function getDirectoryContents(
             type: item.type,
             size: item.size || 0
         }));
-    } catch (error: any) {
-        if (error.status === 404) {
+    } catch (error: unknown) {
+        if (error instanceof Object && 'status' in error && (error as { status: number }).status === 404) {
             // Directory doesn't exist - this is common and expected during scanning
             return [];
         }
-        console.error(`[GitHub] Failed to get directory ${path}:`, error.message);
+        console.error(`[GitHub] Failed to get directory ${path}:`, error instanceof Error ? error.message : String(error));
         return [];
     }
 }
@@ -217,8 +217,8 @@ export async function checkRateLimit(accessToken: string): Promise<{
             remaining: data.rate.remaining,
             reset: new Date(data.rate.reset * 1000)
         };
-    } catch (error: any) {
-        console.error('[GitHub] Failed to check rate limit:', error.message);
+    } catch (error: unknown) {
+        console.error('[GitHub] Failed to check rate limit:', error instanceof Error ? error.message : String(error));
         throw error;
     }
 }
