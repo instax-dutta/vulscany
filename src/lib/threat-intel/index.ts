@@ -6,7 +6,7 @@
 import { fetchReactCVEs } from './cve-fetcher';
 import { fetchReactAdvisories } from './github-advisories';
 import { generateThreatIntelligence, analyzePackageRisk } from './risk-analyzer';
-import { getCachedThreatData, setCachedThreatData } from './redis-cache';
+import { getCachedThreatData, setCachedThreatData } from './memory-cache';
 import type { ThreatIntelligence, CVEData, GitHubAdvisory, PackageVulnerability } from './types';
 
 /**

@@ -4,7 +4,7 @@
  */
 
 import { GitHubAdvisory } from './types';
-import { getCachedThreatData, setCachedThreatData } from './redis-cache';
+import { getCachedThreatData, setCachedThreatData } from './memory-cache';
 
 const GITHUB_API_BASE = 'https://api.github.com';
 
