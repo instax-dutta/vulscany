@@ -1,41 +1,135 @@
 # vulscany
 
-vulscany is a public archive of a scrapped AI-assisted application security product.
+Privacy-first React security scanner with AI-powered threat intelligence.
 
-We built this project to the edge of launch, but the moat we were working toward weakened materially once aggressive open source alternatives started landing in the market. Rather than push a commercialization story we no longer believed in, we cleaned the repository up and kept it as a proof-of-concept archive.
+## Features
 
-## Archive Status
+- Scan codebases for vulnerabilities and security issues
+- AI-powered fix generation and remediation suggestions
+- GitHub integration for PR-based scanning
+- Dashboard with real-time scan results and analytics
+- Threat intelligence feeds (CVE, GitHub Advisories)
+- Batch scanning for large codebases
+- Rate limiting and caching for API efficiency
 
-- Product status: Scrapped before launch
-- Repository status: Public archive
-- Maintenance status: No active product roadmap or launch plan
-- Branding note: The original product name has been replaced with vulscany throughout the codebase
+## Tech Stack
 
-## What This Repo Preserves
+- **Framework:** Next.js (App Router)
+- **Language:** TypeScript
+- **Database:** Convex (schema, users, subscriptions, scan history)
+- **AI:** Ollama / Mistral AI for fix generation and analysis
+- **Styling:** Custom CSS with design tokens
+- **Testing:** Vitest
+- **Auth:** GitHub OAuth
 
-- A Next.js application shell for a security-scanning product
-- Dashboard, onboarding, and scanning UX experiments
-- Scanner, validation, and AI-assisted remediation experiments
-- Architecture and implementation ideas that were close to launch
+## Prerequisites
 
-## Publication Cleanup
+- Node.js 18+
+- npm
+- A Convex account (for database)
+- GitHub OAuth app (for authentication)
+- Ollama or Mistral API key (for AI features)
 
-Before opening this repository up, we removed or neutralized:
+## Getting Started
 
-- Hardcoded credential defaults and live-looking OAuth fallbacks
-- Production-specific cookie and CORS assumptions
-- Launch, pricing, and monetization messaging that implied a live service
-- SEO and app-distribution metadata that made the project look production-ready
-- Turnkey setup, deployment, and payment configuration guides
-- Old brand references tied to the original product name
+1. **Clone the repo**
+   ```bash
+   git clone https://github.com/instax-dutta/vulscany.git
+   cd vulscany
+   ```
 
-## What Was Intentionally Not Preserved
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-- A ready-to-deploy environment template
-- Vercel or payment onboarding instructions
-- Search-engine-facing metadata, sitemap, or manifest packaging
-- Any promise that this repository is maintained as a reusable starter
+3. **Configure environment**
+   ```bash
+   cp env.example .env.local
+   ```
+   Fill in the required environment variables:
+   - `CONVEX_DEPLOY_KEY` — from your Convex dashboard
+   - `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` — from GitHub OAuth app
+   - `MISTRAL_API_KEY` or Ollama endpoint — for AI features
+   - `SESSION_SECRET` — a random string for session encryption
+
+4. **Run Convex dev server**
+   ```bash
+   npx convex dev
+   ```
+
+5. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+6. Open [http://localhost:3000](http://localhost:3000)
+
+## Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start dev server |
+| `npm run build` | Production build |
+| `npm start` | Start production server |
+| `npm run test` | Run tests |
+| `npm run test:coverage` | Run tests with coverage |
+| `npm run lint` | Lint codebase |
+| `npm run typecheck` | TypeScript type checking |
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── api/          # API routes (auth, scan, batch-scan, AI, threat-intel)
+│   ├── dashboard/    # Dashboard page
+│   ├── features/     # Features page
+│   ├── pricing/      # Pricing page
+│   ├── privacy/      # Privacy policy
+│   ├── terms/        # Terms of service
+│   ├── why/          # Why page
+│   ├── layout.tsx    # Root layout
+│   ├── page.tsx      # Landing page
+│   └── globals.css   # Global styles
+├── components/       # React components
+│   ├── landing/      # Landing page components
+│   ├── ui/           # Base UI components
+│   └── ...           # Feature components
+├── lib/
+│   ├── ai/           # AI integration (Mistral, Ollama, prompts)
+│   ├── cache/        # Caching layer
+│   ├── convex/       # Convex client
+│   ├── github/       # GitHub API client
+│   ├── scanner/      # Code scanner engine
+│   ├── threat-intel/ # Threat intelligence (CVE, advisories)
+│   └── validators/   # Code validators
+├── config/           # Site configuration
+├── constants/        # Constants
+└── middleware.ts     # Auth middleware
+```
+
+## Self-Hosting
+
+### Production Build
+
+```bash
+npm run build
+npm start
+```
+
+### Deploy to Vercel
+
+Deploy with the Vercel CLI or connect your GitHub repo to Vercel. Set all environment variables from `.env.example` in your Vercel project dashboard.
+
+### Convex
+
+This project uses Convex as its database. Deploy your Convex backend:
+
+```bash
+npx convex deploy
+```
 
 ## License
 
-No additional public-use guarantees are implied by the archive status alone. Review the repository license and any third-party dependencies before reusing the code.
+MIT
