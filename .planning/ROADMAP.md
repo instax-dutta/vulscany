@@ -76,11 +76,11 @@ Plans:
 **Plans:** 5 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Extract SSR injection check from scanFileContent into ssr-detector.ts
-- [ ] 03-02-PLAN.md — Replace naive line-by-line diff with proper diff library
-- [ ] 03-03-PLAN.md — Normalize indentation and semicolon style via ESLint
-- [ ] 03-04-PLAN.md — Split DashboardFeatures.tsx into focused modules
-- [ ] 03-05-PLAN.md — Refactor dashboard/page.tsx into smaller components
+- [x] 03-01-PLAN.md — Extract SSR injection check from scanFileContent into ssr-detector.ts
+- [x] 03-02-PLAN.md — Replace naive line-by-line diff with proper diff library
+- [x] 03-03-PLAN.md — Normalize indentation and semicolon style via ESLint
+- [x] 03-04-PLAN.md — Split DashboardFeatures.tsx into focused modules
+- [x] 03-05-PLAN.md — Refactor dashboard/page.tsx into smaller components
 
 ---
 
@@ -99,5 +99,15 @@ Plans:
 | Auth flow | `GitHubAuthButton.test.tsx` exists | Full OAuth callback + session |
 | Scan pipeline | Unit tests exist | Integration test: scan → cache → store |
 | AI fallback | Not explicitly tested | AI fail → pattern fix → comment path |
+
+**Plans:** 6 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Unit tests for src/lib/local-store.ts (CRUD + I/O mocking)
+- [ ] 04-02-PLAN.md — Unit tests for src/proxy.ts (CSP generation + auth guard)
+- [ ] 04-03-PLAN.md — Unit tests for threat-intel: memory-cache + cve-fetcher
+- [ ] 04-04-PLAN.md — Unit tests for threat-intel: github-advisories + risk-analyzer
+- [ ] 04-05-PLAN.md — Unit tests for threat-intel index orchestrator + hashDependencies
+- [ ] 04-06-PLAN.md — Integration test for scan-fix pipeline
 
 **Depends on:** Phase 3
