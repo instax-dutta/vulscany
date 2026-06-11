@@ -2,7 +2,7 @@
   "name": "vulscany",
   "version": "0.1.0",
   "private": true,
-  "description": "Privacy-first React security scanner with AI-powered threat intelligence",
+  "description": "Private, self-hostable AI-powered code security agent. Scan repositories for vulnerabilities, get AI-generated fixes, and keep your code on your machine.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
