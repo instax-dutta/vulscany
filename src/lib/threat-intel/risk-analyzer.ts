@@ -58,7 +58,7 @@ export async function generateThreatIntelligence(
     };
 }
 
-function calculatePackageRiskScore(
+export function calculatePackageRiskScore(
     cves: CVEData[],
     advisories: GitHubAdvisory[],
     currentVersion: string
@@ -111,7 +111,7 @@ function calculatePackageRiskScore(
     return Math.min(score, 100);
 }
 
-function calculateRiskFactors(
+export function calculateRiskFactors(
     cves: CVEData[],
     advisories: GitHubAdvisory[],
     dependencies: Record<string, string>
@@ -129,7 +129,7 @@ function calculateRiskFactors(
     };
 }
 
-function calculateOverallRiskScore(factors: RiskFactors): number {
+export function calculateOverallRiskScore(factors: RiskFactors): number {
     let score = 0;
 
     // Direct Critical/High CVEs are the most dangerous
@@ -159,14 +159,14 @@ function calculateOverallRiskScore(factors: RiskFactors): number {
     return Math.min(score, 100);
 }
 
-function getRiskLevel(score: number): ThreatIntelligence['riskLevel'] {
+export function getRiskLevel(score: number): ThreatIntelligence['riskLevel'] {
     if (score >= 75) return 'CRITICAL';
     if (score >= 50) return 'HIGH';
     if (score >= 25) return 'MEDIUM';
     return 'LOW';
 }
 
-function generateThreatSummary(
+export function generateThreatSummary(
     factors: RiskFactors,
     cves: CVEData[],
     advisories: GitHubAdvisory[]
@@ -194,7 +194,7 @@ function generateThreatSummary(
         : 'No significant threats detected';
 }
 
-function generateRecommendations(
+export function generateRecommendations(
     factors: RiskFactors,
     cves: CVEData[],
     advisories: GitHubAdvisory[]
@@ -225,7 +225,7 @@ function generateRecommendations(
     return recommendations;
 }
 
-function isVersionAffected(currentVersion: string, advisory: GitHubAdvisory): boolean {
+export function isVersionAffected(currentVersion: string, advisory: GitHubAdvisory): boolean {
     // Simplified version checking - would need semver library for production
     for (const vuln of advisory.vulnerabilities) {
         if (vuln.vulnerableVersionRange === '*') {
@@ -239,7 +239,7 @@ function isVersionAffected(currentVersion: string, advisory: GitHubAdvisory): bo
     return false;
 }
 
-function findSafeVersion(advisories: GitHubAdvisory[], currentVersion: string): string | undefined {
+export function findSafeVersion(advisories: GitHubAdvisory[], currentVersion: string): string | undefined {
     for (const advisory of advisories) {
         for (const vuln of advisory.vulnerabilities) {
             if (vuln.firstPatchedVersion) {

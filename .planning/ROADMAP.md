@@ -100,14 +100,14 @@ Plans:
 | Scan pipeline | Unit tests exist | Integration test: scan → cache → store |
 | AI fallback | Not explicitly tested | AI fail → pattern fix → comment path |
 
-**Plans:** 6 plans
+**Plans:** 6/6 plans complete
 
 Plans:
-- [ ] 04-01-PLAN.md — Unit tests for src/lib/local-store.ts (CRUD + I/O mocking)
-- [ ] 04-02-PLAN.md — Unit tests for src/proxy.ts (CSP generation + auth guard)
-- [ ] 04-03-PLAN.md — Unit tests for threat-intel: memory-cache + cve-fetcher
-- [ ] 04-04-PLAN.md — Unit tests for threat-intel: github-advisories + risk-analyzer
-- [ ] 04-05-PLAN.md — Unit tests for threat-intel index orchestrator + hashDependencies
-- [ ] 04-06-PLAN.md — Integration test for scan-fix pipeline
+- [x] 04-01-PLAN.md — Unit tests for src/lib/local-store.ts (CRUD + I/O mocking)
+- [x] 04-02-PLAN.md — Unit tests for src/proxy.ts (CSP generation + auth guard)
+- [x] 04-03-PLAN.md — Unit tests for threat-intel: memory-cache + cve-fetcher
+- [x] 04-04-PLAN.md — Unit tests for threat-intel: github-advisories + risk-analyzer
+- [x] 04-05-PLAN.md — Unit tests for threat-intel index orchestrator + hashDependencies
+- [x] 04-06-PLAN.md — Integration test for scan-fix pipeline
 
 **Depends on:** Phase 3
