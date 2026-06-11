@@ -113,6 +113,28 @@ src/
 └── middleware.ts
 ```
 
+## For AI Coding Agents
+
+This repo includes a pre-built **knowledge graph** (`graphify`) that AI coding assistants (Claude Code, Cursor, Copilot, etc.) can use to explore the codebase with minimal token overhead.
+
+Instead of dumping every file into context, point your agent to:
+
+| Artifact | Purpose |
+|----------|---------|
+| `.planning/graphs/GRAPH_REPORT.md` | High-level summary — communities, god nodes (core abstractions), surprising connections, and import cycles |
+| `.planning/graphs/graph.json` | Full graph data (541 nodes, 884 edges) for structured queries |
+| `.planning/graphs/graph.html` | Interactive visual graph — open in browser to explore dependencies visually |
+
+**How to use it:**
+
+1. Start a session: *"Read GRAPH_REPORT.md in .planning/graphs to understand the codebase, then help me with..."*
+2. For deep dives into a specific area, reference a community or god node by name.
+3. After code changes, rebuild locally with no API cost: `graphify update .`
+
+The graph extracts relationships from imports, exports, function calls, and type references — no AI API key needed. It saves roughly 60-80% of the tokens you'd otherwise spend re-discovering the architecture.
+
+> **Tip:** Include `.planning/graphs/GRAPH_REPORT.md` in your agent's context initialization to give it a map of the codebase before it reads a single source file.
+
 ## The Backstory
 
 vulscany was originally the core product of a venture-backed security startup. We raised money, built a team, and spent months engineering a production-grade code security platform — AI-powered scanning, threat intelligence, automated remediation, the works.
