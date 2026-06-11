@@ -7,6 +7,7 @@ import { fetchReactCVEs } from './cve-fetcher';
 import { fetchReactAdvisories } from './github-advisories';
 import { generateThreatIntelligence, analyzePackageRisk } from './risk-analyzer';
 import { getCachedThreatData, setCachedThreatData } from './memory-cache';
+import crypto from 'crypto';
 import type { ThreatIntelligence, CVEData, GitHubAdvisory, PackageVulnerability } from './types';
 
 /**
@@ -120,12 +121,6 @@ export async function prewarmThreatCache(): Promise<void> {
 
 function hashDependencies(deps: Record<string, string>): string {
     const sorted = Object.keys(deps).sort().map(k => `${k}@${deps[k]}`).join(',');
-    // Simple hash for cache key
-    let hash = 0;
-    for (let i = 0; i < sorted.length; i++) {
-        const char = sorted.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-    }
-    return Math.abs(hash).toString(36);
+    const hash = crypto.createHash('sha256').update(sorted).digest('hex');
+    return hash.substring(0, 12);
 }
