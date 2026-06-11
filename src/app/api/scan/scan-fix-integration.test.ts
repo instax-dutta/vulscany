@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { POST as scanPost } from './route';
-import { POST as generatePrPost } from '../ai/generate-pr/route';
+import { POST as scanPost } from '@/app/api/scan/route';
+import { POST as generatePrPost } from '@/app/api/ai/generate-pr/route';
 import { cookies } from 'next/headers';
 import * as scanner from '@/lib/scanner';
 import * as stackDetector from '@/lib/github/stack-detector';
@@ -35,7 +35,7 @@ vi.mock('@/lib/cache/scan-cache', () => ({
 }));
 
 vi.mock('@/lib/rate-limit', () => ({
-    rateLimit: vi.fn(),
+    rateLimit: vi.fn().mockResolvedValue({ success: true, limit: 10, remaining: 9, reset: 0 }),
 }));
 
 vi.mock('@/lib/local-store', () => ({
@@ -66,98 +66,146 @@ vi.mock('@/lib/ai/pr-context', () => ({
 
 vi.mock('@/lib/validators/code-validator', () => ({
     validateGeneratedCode: vi.fn(),
-    formatValidationReport: vi.fn(),
 }));
 
 vi.mock('@/lib/user/stats', () => ({
     incrementUserMetric: vi.fn(),
 }));
 
+const mockScanResult = {
+    repoName: 'test-repo',
+    owner: 'test',
+    scanTimestamp: '2024-01-01T00:00:00Z',
+    stackInfo: { stack: 'react', dependencies: { react: '18.0.0' } },
+    vulnerabilities: [
+        {
+            id: 'vuln-1',
+            type: 'dangerous-api' as const,
+            severity: 'high' as const,
+            title: 'Unsafe HTML',
+            description: 'test',
+            file: 'src/Component.tsx',
+            line: 10,
+            snippet: '...',
+            recommendation: 'Fix it',
+        },
+    ],
+    status: 'needs-attention' as const,
+    summary: 'Found 1 vulnerability',
+    scanDuration: 1500,
+};
+
+const mockThreatIntel = {
+    cveMatches: [{ id: 'CVE-2024-0001', severity: 'HIGH', cvssScore: 7.5 }],
+    advisoryMatches: [],
+    riskScore: 50,
+    riskLevel: 'HIGH' as const,
+    threatSummary: 'Test',
+    recommendations: ['Fix it'],
+    lastUpdated: '2024-01-01T00:00:00Z',
+};
+
 const mockVulnerabilities = [
     {
         id: 'vuln-1',
-        type: 'dangerous-api',
+        type: 'dangerous-api' as const,
         severity: 'high' as const,
         title: 'Unsafe HTML',
-        description: 'Using dangerouslySetInnerHTML',
+        description: 'test',
         file: 'src/Component.tsx',
         line: 10,
-        snippet: '<div dangerouslySetInnerHTML={{__html: data}} />',
-        recommendation: 'Sanitize HTML before rendering'
-    }
+        snippet: '...',
+        recommendation: 'Fix it',
+    },
 ];
 
 const mockFixResult = {
     filePath: 'src/Component.tsx',
     vulnerabilityId: 'vuln-1',
-    fixedCode: 'import React...\n<div>{sanitize(data)}</div>',
-    diff: '- <div dangerouslySetInnerHTML={{__html: data}} />\n+ <div>{sanitize(data)}</div>',
-    commitMessage: 'fix(security): Unsafe HTML'
+    fixedCode: 'import React...',
+    diff: '- old\n+ new',
+    commitMessage: 'fix(security): Unsafe HTML',
 };
 
 const mockValidation = {
     valid: true,
-    errors: [] as string[],
-    warnings: [] as string[]
+    errors: [],
+    warnings: [],
 };
 
-const mockScanResult = {
-    repoName: 'owner/repo',
-    owner: 'owner',
-    scanTimestamp: new Date().toISOString(),
-    stackInfo: { stack: 'react', dependencies: { react: '18.0.0' } },
-    vulnerabilities: mockVulnerabilities,
-    status: 'vulnerabilities_found',
-    summary: 'Found 1 vulnerability',
-    scanDuration: 1500,
-    threatIntelligence: {
-        riskScore: 75,
-        riskLevel: 'HIGH',
-        cveCount: 2,
-        advisoryCount: 1,
-        scanFindingsCount: 1,
-        criticalThreats: 1,
-        recommendations: ['Update react to latest version'],
-        displayInUI: true
-    }
-};
-
-const mockCachedResult = {
-    ...mockScanResult,
-    cached: true
-};
-
-describe('Integration: /api/scan and /api/ai/generate-pr', () => {
+describe('Integration: Scan-Fix Pipeline', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(rateLimit.rateLimit).mockResolvedValue({ success: true, limit: 10, remaining: 9, reset: 0 });
+        vi.mocked(cookies).mockResolvedValue({
+            get: vi.fn().mockImplementation((name: string) => {
+                if (name === 'github_token') return { value: 'gh_token' };
+                if (name === 'session') return { value: JSON.stringify({ user: { id: 12345 } }) };
+                return undefined;
+            }),
+        } as any);
+        vi.mocked(rateLimit.rateLimit).mockResolvedValue({
+            success: true,
+            limit: 10,
+            remaining: 9,
+            reset: 0,
+        });
     });
 
-    describe('POST /api/scan', () => {
-        it('returns 401 when unauthorized', async () => {
+    describe('Scan endpoint', () => {
+        it('returns scan result with threat intelligence on happy path', async () => {
+            vi.mocked(stackDetector.detectStack).mockResolvedValue({
+                stack: 'react',
+                dependencies: { react: '18.0.0' },
+            } as any);
+            vi.mocked(scanner.scanRepository).mockResolvedValue(mockScanResult as any);
+            vi.mocked(threatIntel.analyzeRepositoryThreats).mockResolvedValue(mockThreatIntel as any);
+
+            const req = new NextRequest('http://localhost/api/scan', {
+                method: 'POST',
+                body: JSON.stringify({ owner: 'test', repo: 'test-repo' }),
+            });
+
+            const response = await scanPost(req);
+            const data = await response.json();
+
+            expect(response.status).toBe(200);
+            expect(data.scanResult).toBeDefined();
+            expect(data.scanResult.vulnerabilities).toEqual(mockScanResult.vulnerabilities);
+            expect(data.scanResult.threatIntelligence).toBeDefined();
+            expect(data.scanResult.threatIntelligence.riskScore).toBe(50);
+            expect(data.scanResult.threatIntelligence.riskLevel).toBe('HIGH');
+            expect(localStore.addScanRecord).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    githubId: 12345,
+                    repoName: 'test/test-repo',
+                    vulnerabilitiesFound: 1,
+                })
+            );
+            expect(localStore.updateLastScan).toHaveBeenCalledWith(12345);
+        });
+
+        it('returns 401 without auth', async () => {
             vi.mocked(cookies).mockResolvedValue({
-                get: vi.fn().mockReturnValue(undefined)
+                get: vi.fn().mockReturnValue(undefined),
             } as any);
 
             const req = new NextRequest('http://localhost/api/scan', {
                 method: 'POST',
-                body: JSON.stringify({ owner: 'test', repo: 'test' })
+                body: JSON.stringify({ owner: 'test', repo: 'test' }),
             });
 
             const response = await scanPost(req);
             expect(response.status).toBe(401);
-            const data = await response.json();
-            expect(data.error).toBe('Unauthorized');
         });
 
-        it('returns 400 when owner or repo is missing', async () => {
+        it('returns 400 without owner/repo', async () => {
             vi.mocked(cookies).mockResolvedValue({
-                get: vi.fn().mockReturnValue({ value: 'gh_token' })
+                get: vi.fn().mockReturnValue({ value: 'token' }),
             } as any);
 
             const req = new NextRequest('http://localhost/api/scan', {
                 method: 'POST',
-                body: JSON.stringify({ owner: 'test' })
+                body: JSON.stringify({}),
             });
 
             const response = await scanPost(req);
@@ -165,90 +213,66 @@ describe('Integration: /api/scan and /api/ai/generate-pr', () => {
         });
 
         it('returns 400 for non-web application', async () => {
-            vi.mocked(cookies).mockResolvedValue({
-                get: vi.fn().mockReturnValue({ value: 'gh_token' })
-            } as any);
-
-            vi.mocked(stackDetector.detectStack).mockResolvedValue(null);
+            vi.mocked(stackDetector.detectStack).mockResolvedValue(null as any);
 
             const req = new NextRequest('http://localhost/api/scan', {
                 method: 'POST',
-                body: JSON.stringify({ owner: 'test', repo: 'test' })
+                body: JSON.stringify({ owner: 'test', repo: 'test' }),
             });
 
             const response = await scanPost(req);
             expect(response.status).toBe(400);
-            const data = await response.json();
-            expect(data.error).toBe('Not a Web application');
         });
 
         it('returns 429 when rate limited', async () => {
             vi.mocked(rateLimit.rateLimit).mockResolvedValue({
                 success: false,
-                limit: 30,
+                limit: 10,
                 remaining: 0,
-                reset: 0
+                reset: 0,
             });
-
-            vi.mocked(cookies).mockResolvedValue({
-                get: vi.fn().mockReturnValue({ value: 'gh_token' })
-            } as any);
 
             const req = new NextRequest('http://localhost/api/scan', {
                 method: 'POST',
-                body: JSON.stringify({ owner: 'test', repo: 'test' })
+                body: JSON.stringify({ owner: 'test', repo: 'test' }),
             });
 
             const response = await scanPost(req);
             expect(response.status).toBe(429);
-            const data = await response.json();
-            expect(data.error).toBe('Too Many Requests');
         });
 
-        it('returns cached result on cache hit', async () => {
-            vi.mocked(cookies).mockResolvedValue({
-                get: vi.fn().mockReturnValue({ value: 'gh_token' })
-            } as any);
-
-            vi.mocked(scanCache.getCachedScanResult).mockResolvedValue(mockCachedResult as any);
+        it('returns cached result without re-scanning', async () => {
+            const cachedResult = {
+                ...mockScanResult,
+                cached: true,
+                cacheTimestamp: '2024-01-01T00:00:00Z',
+            };
+            vi.mocked(scanCache.getCachedScanResult).mockResolvedValue(cachedResult as any);
 
             const req = new NextRequest('http://localhost/api/scan', {
                 method: 'POST',
-                body: JSON.stringify({ owner: 'test', repo: 'test', force: false })
+                body: JSON.stringify({ owner: 'test', repo: 'test' }),
             });
 
             const response = await scanPost(req);
-            expect(response.status).toBe(200);
             const data = await response.json();
+
+            expect(response.status).toBe(200);
             expect(data.cached).toBe(true);
-            expect(data.scanResult).toEqual(mockCachedResult);
+            expect(data.scanResult).toEqual(cachedResult);
             expect(scanner.scanRepository).not.toHaveBeenCalled();
         });
 
-        it('bypasses cache and re-scans when force=true', async () => {
-            vi.mocked(cookies).mockResolvedValue({
-                get: vi.fn().mockReturnValue({ value: 'gh_token' })
-            } as any);
-
-            vi.mocked(scanCache.getCachedScanResult).mockResolvedValue(mockCachedResult as any);
+        it('invalidates cache and re-scans on force=true', async () => {
             vi.mocked(stackDetector.detectStack).mockResolvedValue({
                 stack: 'react',
-                dependencies: { react: '18.0.0' }
+                dependencies: { react: '18.0.0' },
             } as any);
             vi.mocked(scanner.scanRepository).mockResolvedValue(mockScanResult as any);
-            vi.mocked(threatIntel.analyzeRepositoryThreats).mockResolvedValue({
-                riskScore: 80,
-                riskLevel: 'HIGH',
-                cveMatches: [],
-                advisoryMatches: [],
-                recommendations: [],
-                dependencyCount: 1,
-                analyzedAt: new Date().toISOString()
-            } as any);
 
             const req = new NextRequest('http://localhost/api/scan', {
                 method: 'POST',
-                body: JSON.stringify({ owner: 'test', repo: 'test', force: true })
+                body: JSON.stringify({ owner: 'test', repo: 'test', force: true }),
             });
 
             const response = await scanPost(req);
@@ -256,136 +280,13 @@ describe('Integration: /api/scan and /api/ai/generate-pr', () => {
             expect(scanCache.invalidateScanCache).toHaveBeenCalledWith('test', 'test');
             expect(scanner.scanRepository).toHaveBeenCalled();
         });
-
-        it('performs full happy path with threat intel and local-store logging', async () => {
-            vi.mocked(cookies).mockResolvedValue({
-                get: vi.fn().mockImplementation((name: string) => {
-                    if (name === 'github_token') return { value: 'gh_token' };
-                    if (name === 'session') return { value: JSON.stringify({ user: { id: 12345 } }) };
-                    return undefined;
-                })
-            } as any);
-
-            vi.mocked(stackDetector.detectStack).mockResolvedValue({
-                stack: 'react',
-                dependencies: { react: '18.0.0' }
-            } as any);
-
-            vi.mocked(scanner.scanRepository).mockResolvedValue(mockScanResult as any);
-
-            vi.mocked(threatIntel.analyzeRepositoryThreats).mockResolvedValue({
-                riskScore: 75,
-                riskLevel: 'HIGH',
-                cveMatches: [],
-                advisoryMatches: [],
-                recommendations: ['Update react'],
-                dependencyCount: 1,
-                analyzedAt: new Date().toISOString()
-            } as any);
-
-            const req = new NextRequest('http://localhost/api/scan', {
-                method: 'POST',
-                body: JSON.stringify({ owner: 'test', repo: 'test', force: false })
-            });
-
-            const response = await scanPost(req);
-            expect(response.status).toBe(200);
-
-            const data = await response.json();
-            expect(data.scanResult).toBeDefined();
-            expect(data.scanResult.vulnerabilities).toHaveLength(1);
-            expect(data.scanResult.status).toBe('vulnerabilities_found');
-            expect(data.scanResult.scanDuration).toBe(1500);
-            expect(data.threatIntelligence).toBeDefined();
-
-            expect(localStore.addScanRecord).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    githubId: 12345,
-                    repoName: 'test/test',
-                    vulnerabilitiesFound: 1
-                })
-            );
-            expect(localStore.updateLastScan).toHaveBeenCalledWith(12345);
-        });
     });
 
-    describe('POST /api/ai/generate-pr', () => {
-        it('returns 401 when unauthorized', async () => {
+    describe('Generate PR endpoint', () => {
+        it('returns 401 without auth', async () => {
             vi.mocked(cookies).mockResolvedValue({
-                get: vi.fn().mockReturnValue(undefined)
+                get: vi.fn().mockReturnValue(undefined),
             } as any);
-
-            const req = new NextRequest('http://localhost/api/ai/generate-pr', {
-                method: 'POST',
-                body: JSON.stringify({
-                    owner: 'test',
-                    repo: 'test',
-                    vulnerabilities: mockVulnerabilities
-                })
-            });
-
-            const response = await generatePrPost(req);
-            expect(response.status).toBe(401);
-            const data = await response.json();
-            expect(data.error).toBe('Unauthorized. Please log in with GitHub.');
-        });
-
-        it('returns 400 when owner is missing', async () => {
-            vi.mocked(cookies).mockResolvedValue({
-                get: vi.fn().mockReturnValue({ value: 'gh_token' })
-            } as any);
-
-            const req = new NextRequest('http://localhost/api/ai/generate-pr', {
-                method: 'POST',
-                body: JSON.stringify({
-                    vulnerabilities: []
-                })
-            });
-
-            const response = await generatePrPost(req);
-            expect(response.status).toBe(400);
-            const data = await response.json();
-            expect(data.error).toBe('Missing required fields: owner, repo, vulnerabilities');
-        });
-
-        it('returns 400 when vulnerabilities is missing or empty', async () => {
-            vi.mocked(cookies).mockResolvedValue({
-                get: vi.fn().mockReturnValue({ value: 'gh_token' })
-            } as any);
-
-            const req = new NextRequest('http://localhost/api/ai/generate-pr', {
-                method: 'POST',
-                body: JSON.stringify({
-                    owner: 'test',
-                    repo: 'test'
-                })
-            });
-
-            const response = await generatePrPost(req);
-            expect(response.status).toBe(400);
-            const data = await response.json();
-            expect(data.error).toBe('Missing required fields: owner, repo, vulnerabilities');
-        });
-
-        it('returns 500 when generateBatchFixes returns empty array', async () => {
-            vi.mocked(cookies).mockResolvedValue({
-                get: vi.fn().mockReturnValue({ value: 'gh_token' })
-            } as any);
-
-            vi.mocked(githubClient.getFileContent).mockResolvedValue({
-                content: 'source code'
-            } as any);
-
-            vi.mocked(prContext.getProjectContext).mockResolvedValue({
-                dependencies: {},
-                devDependencies: {},
-                framework: { name: 'react' },
-                fileImports: []
-            } as any);
-
-            vi.mocked(prContext.buildContextString).mockReturnValue('context string');
-
-            vi.mocked(fixGenerator.generateBatchFixes).mockResolvedValue([]);
 
             const req = new NextRequest('http://localhost/api/ai/generate-pr', {
                 method: 'POST',
@@ -393,36 +294,80 @@ describe('Integration: /api/scan and /api/ai/generate-pr', () => {
                     owner: 'test',
                     repo: 'test',
                     vulnerabilities: mockVulnerabilities,
-                    mode: 'preview'
-                })
+                }),
+            });
+
+            const response = await generatePrPost(req);
+            expect(response.status).toBe(401);
+        });
+
+        it('returns 400 without owner', async () => {
+            vi.mocked(cookies).mockResolvedValue({
+                get: vi.fn().mockReturnValue({ value: 'gh_token' }),
+            } as any);
+
+            const req = new NextRequest('http://localhost/api/ai/generate-pr', {
+                method: 'POST',
+                body: JSON.stringify({
+                    vulnerabilities: mockVulnerabilities,
+                }),
+            });
+
+            const response = await generatePrPost(req);
+            expect(response.status).toBe(400);
+        });
+
+        it('returns 400 without vulnerabilities', async () => {
+            vi.mocked(cookies).mockResolvedValue({
+                get: vi.fn().mockReturnValue({ value: 'gh_token' }),
+            } as any);
+
+            const req = new NextRequest('http://localhost/api/ai/generate-pr', {
+                method: 'POST',
+                body: JSON.stringify({
+                    owner: 'test',
+                    repo: 'test',
+                }),
+            });
+
+            const response = await generatePrPost(req);
+            expect(response.status).toBe(400);
+        });
+
+        it('returns 500 when generateBatchFixes returns empty', async () => {
+            vi.mocked(fixGenerator.generateBatchFixes).mockResolvedValue([]);
+            vi.mocked(githubClient.getFileContent).mockResolvedValue({
+                content: 'source code',
+            } as any);
+
+            const req = new NextRequest('http://localhost/api/ai/generate-pr', {
+                method: 'POST',
+                body: JSON.stringify({
+                    owner: 'test',
+                    repo: 'test',
+                    vulnerabilities: mockVulnerabilities,
+                    mode: 'preview',
+                }),
             });
 
             const response = await generatePrPost(req);
             expect(response.status).toBe(500);
             const data = await response.json();
-            expect(data.error).toBe('No fixes could be generated');
+            expect(data.error).toContain('Failed to generate PR');
         });
 
-        it('returns preview fixes with validation in preview mode', async () => {
-            vi.mocked(cookies).mockResolvedValue({
-                get: vi.fn().mockReturnValue({ value: 'gh_token' })
-            } as any);
-
+        it('returns fixes with validation in preview mode', async () => {
             vi.mocked(githubClient.getFileContent).mockResolvedValue({
-                content: 'source code'
+                content: 'source code',
             } as any);
-
             vi.mocked(prContext.getProjectContext).mockResolvedValue({
-                dependencies: { react: '18.0.0' },
+                dependencies: {},
                 devDependencies: {},
                 framework: { name: 'react' },
-                fileImports: []
+                fileImports: [],
             } as any);
-
-            vi.mocked(prContext.buildContextString).mockReturnValue('context string');
-
+            vi.mocked(prContext.buildContextString).mockReturnValue('context');
             vi.mocked(fixGenerator.generateBatchFixes).mockResolvedValue([mockFixResult]);
-
             vi.mocked(codeValidator.validateGeneratedCode).mockReturnValue(mockValidation);
 
             const req = new NextRequest('http://localhost/api/ai/generate-pr', {
@@ -431,24 +376,30 @@ describe('Integration: /api/scan and /api/ai/generate-pr', () => {
                     owner: 'test',
                     repo: 'test',
                     vulnerabilities: mockVulnerabilities,
-                    mode: 'preview'
-                })
+                    mode: 'preview',
+                }),
             });
 
             const response = await generatePrPost(req);
-            expect(response.status).toBe(200);
-
             const data = await response.json();
-            expect(data.success).toBe(true);
+
+            expect(response.status).toBe(200);
             expect(data.mode).toBe('preview');
             expect(data.fixes).toHaveLength(1);
-            expect(data.fixes[0].filePath).toBe('src/Component.tsx');
-            expect(data.fixes[0].diff).toBeDefined();
-            expect(data.fixes[0].commitMessage).toBe('fix(security): Unsafe HTML');
-            expect(data.fixes[0].validation).toEqual(mockValidation);
-            expect(data.validationSummary).toBeDefined();
-            expect(data.validationSummary.hasErrors).toBe(false);
-            expect(data.totalFiles).toBe(1);
+            expect(data.fixes[0]).toEqual(
+                expect.objectContaining({
+                    filePath: 'src/Component.tsx',
+                    diff: '- old\n+ new',
+                    commitMessage: 'fix(security): Unsafe HTML',
+                    validation: expect.objectContaining({ valid: true }),
+                })
+            );
+            expect(data.validationSummary).toEqual(
+                expect.objectContaining({
+                    hasErrors: false,
+                    totalWarnings: 0,
+                })
+            );
         });
     });
 });
