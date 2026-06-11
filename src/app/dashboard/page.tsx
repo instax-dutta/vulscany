@@ -8,29 +8,25 @@ import './mobile-responsive.css';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import Lenis from 'lenis';
-import ReactMarkdown from 'react-markdown';
-import { Terminal, Cpu, Zap, History, Search, Github, LogOut, Menu, X, ChevronRight, AlertTriangle, CheckCircle2, Shield, LayoutDashboard, Trophy, BookOpen, Users, Settings, Filter, Download, ExternalLink, RefreshCw, AlertCircle, Info, MoreVertical, Trash2, Play, Box, Calendar, ArrowUpRight, SearchCode, Activity, Lock, Eye, Star, GitBranch, Clock } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
+import { Box, Cpu, RefreshCw, Zap } from 'lucide-react';
 import { type WebAppProjectInfo } from '@/lib/github/stack-detector';
-import rehypeSanitize from 'rehype-sanitize';
 import type { Vulnerability } from '@/lib/scanner';
 import Onboarding from '@/components/Onboarding';
 import {
     SecurityScoreWidget,
-    AchievementsPanel,
-    EducationPanel,
-    CommunityPatternsPanel,
     SecurityTipBanner
 } from '@/components/DashboardFeatures';
 import { ThreatIntelligencePanel } from '@/components/ThreatIntelligencePanel';
 import { MasterFixDrawer } from '@/components/MasterFixDrawer';
-import { RemediationBlock } from '@/components/RemediationBlock';
 import { DashboardErrorBoundary } from '@/components/DashboardErrorBoundary';
 import { loadUserStats, saveUserStats, loadUserStatsFromCloud, syncUserStatsToCloud, updateStatsAfterScan, updateStatsAfterFix, calculateScore, type UserStats } from '@/lib/security-score';
 import { ToastNotifications, useToast } from '@/components/ToastNotification';
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { VulnerabilityCard } from '@/components/dashboard/VulnerabilityCard';
+import { ScanEmptyStates } from '@/components/dashboard/ScanEmptyStates';
+import { PRSuccessModal } from '@/components/dashboard/PRSuccessModal';
 
 
 
@@ -523,18 +519,11 @@ function Dashboard() {
 
                         {/* Results Panel */}
                         <div data-onboarding="results-panel" className="space-y-6">
-                            {scanning && !currentResult ? (
-                                <div className="flex flex-col items-center justify-center py-20 bg-white/[0.02] border border-white/5 rounded-2xl">
-                                    <div className="relative">
-                                        <div className="w-16 h-16 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <Search className="w-6 h-6 text-primary" />
-                                        </div>
-                                    </div>
-                                    <div className="mt-6 text-sm font-mono text-white/40 tracking-widest uppercase">Analyzing codebase...</div>
-                                    <div className="mt-2 text-[10px] font-mono text-primary/60 animate-pulse">Running advanced security heuristics</div>
-                                </div>
-                            ) : null}
+                            <ScanEmptyStates
+                                scanning={scanning}
+                                currentResult={currentResult}
+                                currentRepoKey={currentRepoKey}
+                            />
 
                             {currentResult && (
                                 <>
@@ -614,159 +603,37 @@ function Dashboard() {
                                                     const isExpanded = expandedVulns[vulnKey];
                                                     const isAnalyzing = loadingAnalysis[vulnKey];
                                                     return (
-                                                        <div key={vIdx} className="bg-[#0A0A0A] border border-white/5 rounded-2xl overflow-hidden group hover:border-white/10 transition-colors">
-                                                            {/* Vuln Header */}
-                                                            <div className="p-6 flex items-start justify-between gap-4 border-b border-transparent group-hover:border-white/5 transition-colors">
-                                                                <div className="flex items-start gap-4">
-                                                                    <div className={`mt-1 p-2 rounded-lg ${vuln.severity === 'critical' ? 'bg-red-500/10 text-red-500' :
-                                                                        vuln.severity === 'high' ? 'bg-orange-500/10 text-orange-500' :
-                                                                            'bg-amber-500/10 text-amber-500'
-                                                                    }`}>
-                                                                        <AlertTriangle className="w-5 h-5" />
-                                                                    </div>
-                                                                    <div className="min-w-0">
-                                                                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                                                            <span className="text-lg font-bold text-white leading-tight truncate max-w-[300px]">{vuln.title}</span>
-                                                                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold font-mono tracking-tighter uppercase ${vuln.severity === 'critical' ? 'bg-red-500 text-white' :
-                                                                                vuln.severity === 'high' ? 'bg-orange-500 text-white' :
-                                                                                    'bg-amber-500 text-black'
-                                                                            }`}>
-                                                                                {vuln.severity}
-                                                                            </span>
-                                                                        </div>
-                                                                        <div className="flex items-center gap-3 text-[10px] font-mono text-white/40">
-                                                                            <span className="flex items-center gap-1.5 shrink-0"><Terminal className="w-3 h-3" /> {vuln.file}:{vuln.line}</span>
-                                                                            <span className="w-1 h-1 bg-white/10 rounded-full shrink-0" />
-                                                                            <span className="truncate">{vuln.type.toUpperCase()}</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <button
-                                                                    onClick={() => {
-                                                                        const nextState = !isExpanded;
-                                                                        setExpandedVulns(prev => ({ ...prev, [vulnKey]: nextState }));
-                                                                        if (nextState && !vuln.aiAnalysis && !isAnalyzing) {
-                                                                            getAiFix(vuln, currentRepoKey!);
-                                                                        }
-                                                                    }}
-                                                                    className="p-2 hover:bg-white/5 rounded-lg transition-colors shrink-0"
-                                                                >
-                                                                    <ChevronRight className={`w-5 h-5 text-white/40 transition-transform ${isExpanded ? 'rotate-90 text-white' : ''}`} />
-                                                                </button>
-                                                            </div>
-
-                                                            {/* Expanded Details */}
-                                                            <AnimatePresence>
-                                                                {isExpanded && (
-                                                                    <motion.div
-                                                                        initial={{ height: 0, opacity: 0 }}
-                                                                        animate={{ height: 'auto', opacity: 1 }}
-                                                                        exit={{ height: 0, opacity: 0 }}
-                                                                        className="overflow-hidden"
-                                                                    >
-                                                                        <div className="p-6 pt-2 space-y-6">
-                                                                            {/* Code Context */}
-                                                                            <div className="bg-black/40 rounded-xl border border-white/5 overflow-hidden">
-                                                                                <div className="px-3 py-1.5 bg-white/5 border-b border-white/5 text-[10px] font-mono text-white/40 flex items-center gap-2">
-                                                                                    <div className="w-2 h-2 rounded-full bg-red-500/50" />
-                                                                                    VULNERABLE SNIPPET
-                                                                                </div>
-                                                                                <pre className="p-4 text-xs font-mono text-red-200/70 overflow-x-auto custom-scrollbar">
-                                                                                    <code>{vuln.snippet}</code>
-                                                                                </pre>
-                                                                            </div>
-
-                                                                            {/* AI Analysis */}
-                                                                            <div className="grid lg:grid-cols-2 gap-6">
-                                                                                <div className="space-y-4 min-w-0">
-                                                                                    <div className="flex items-center gap-2 text-[10px] font-bold font-mono text-primary uppercase tracking-widest">
-                                                                                        <Cpu className="w-3.5 h-3.5" /> Technical Analysis
-                                                                                    </div>
-                                                                                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5 prose prose-invert prose-sm max-w-none text-white/60 font-mono text-[13px] leading-relaxed overflow-x-auto custom-scrollbar">
-                                                                                        <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
-                                                                                            {vuln.aiAnalysis?.explanation?.technicalDetails || (isAnalyzing ? 'AI analysis in progress...' : 'Detailed analysis not started.')}
-                                                                                        </ReactMarkdown>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div className="space-y-4 min-w-0">
-                                                                                    <div className="flex items-center gap-2 text-[10px] font-bold font-mono text-emerald-400 uppercase tracking-widest">
-                                                                                        <Zap className="w-3.5 h-3.5" /> Patch Recommendation
-                                                                                    </div>
-                                                                                    <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-5 overflow-x-auto custom-scrollbar">
-                                                                                        <div className="prose prose-emerald prose-invert prose-sm max-w-none text-emerald-100/80 font-mono text-[13px] leading-relaxed">
-                                                                                            <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
-                                                                                                {vuln.aiAnalysis?.fixSuggestion || (isAnalyzing ? 'Generating recommendation...' : 'Fix suggestion pending...')}
-                                                                                            </ReactMarkdown>
-                                                                                        </div>
-                                                                                        {vuln.aiAnalysis?.fixSuggestion && (
-                                                                                            <button
-                                                                                                onClick={() => {
-                                                                                                    const fix = vuln.aiAnalysis?.fixSuggestion;
-                                                                                                    if (fix) {
-                                                                                                        navigator.clipboard.writeText(fix);
-                                                                                                        setCopiedFix({ ...copiedFix, [vulnKey]: true });
-                                                                                                        setTimeout(() => setCopiedFix({ ...copiedFix, [vulnKey]: false }), 2000);
-                                                                                                    }
-                                                                                                }}
-                                                                                                className={`mt-4 w-full py-2.5 rounded-lg text-[10px] font-bold font-mono flex items-center justify-center gap-2 transition-all ${copiedFix[vulnKey] ? 'bg-emerald-500 text-black' : 'bg-white/10 text-emerald-400 hover:bg-emerald-500/10'
-                                                                                                }`}
-                                                                                            >
-                                                                                                {copiedFix[vulnKey] ? (
-                                                                                                    <CheckCircle2 className="w-3.5 h-3.5" />
-                                                                                                ) : (
-                                                                                                    <History className="w-3.5 h-3.5" />
-                                                                                                )}
-                                                                                                {copiedFix[vulnKey] ? 'COPIED TO CLIPBOARD' : 'COPY PATCH SNIPPET'}
-                                                                                            </button>
-                                                                                        )}
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-
-                                                                            <EducationPanel
-                                                                                vulnerabilityType={vuln.type}
-                                                                                isSimpleMode={simpleEducationMode}
-                                                                            />
-                                                                        </div>
-                                                                    </motion.div>
-                                                                )}
-                                                            </AnimatePresence>
-                                                        </div>
+                                                        <VulnerabilityCard
+                                                            key={vIdx}
+                                                            vuln={vuln}
+                                                            vulnKey={vulnKey}
+                                                            isExpanded={isExpanded}
+                                                            isAnalyzing={isAnalyzing}
+                                                            currentRepoKey={currentRepoKey!}
+                                                            getAiFix={getAiFix}
+                                                            onToggleExpand={() => {
+                                                                const nextState = !isExpanded;
+                                                                setExpandedVulns(prev => ({ ...prev, [vulnKey]: nextState }));
+                                                                if (nextState && !vuln.aiAnalysis && !isAnalyzing) {
+                                                                    getAiFix(vuln, currentRepoKey!);
+                                                                }
+                                                            }}
+                                                            copiedFix={copiedFix}
+                                                            onCopyFix={(fix) => {
+                                                                navigator.clipboard.writeText(fix);
+                                                                setCopiedFix(prev => ({ ...prev, [vulnKey]: true }));
+                                                                setTimeout(() => setCopiedFix(prev => ({ ...prev, [vulnKey]: false })), 2000);
+                                                            }}
+                                                            simpleEducationMode={simpleEducationMode}
+                                                        />
                                                     );
                                                 })
                                             ) : (
-                                                currentResult.threatIntelligence && ['HIGH', 'CRITICAL'].includes(currentResult.threatIntelligence.riskLevel) ? (
-                                                    <div className="flex flex-col items-center justify-center py-20 bg-red-500/[0.02] border border-red-500/10 rounded-[32px] text-center px-6 animate-in fade-in duration-500">
-                                                        <div className="w-20 h-20 bg-red-500/10 flex items-center justify-center rounded-2xl mb-6 shadow-[0_0_30px_rgba(239,68,68,0.1)]">
-                                                            <div className="relative">
-                                                                <AlertTriangle className="w-10 h-10 text-red-500" />
-                                                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping" />
-                                                            </div>
-                                                        </div>
-                                                        <h3 className="text-2xl font-bold text-white mb-3">Supply Chain Risks Detected</h3>
-                                                        <p className="text-sm text-white/50 font-mono max-w-md mx-auto mb-4 leading-relaxed">
-                                                            While your source code appears clean, critical vulnerabilities have been detected in your <span className="text-red-400 font-bold">project dependencies</span>.
-                                                        </p>
-
-                                                        <RemediationBlock />
-
-                                                        <button
-                                                            onClick={() => document.getElementById('threat-intel-panel')?.scrollIntoView({ behavior: 'smooth' })}
-                                                            className="h-12 px-8 bg-red-500 hover:bg-red-600 text-white font-bold font-mono text-xs tracking-wider rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-red-500/20"
-                                                        >
-                                                            REVIEW THREAT INTELLIGENCE ↓
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex flex-col items-center justify-center py-24 bg-emerald-500/[0.02] border border-emerald-500/10 rounded-[32px] text-center px-6">
-                                                        <div className="w-16 h-16 bg-emerald-500/10 flex items-center justify-center rounded-2xl mb-6">
-                                                            <CheckCircle2 className="w-8 h-8 text-emerald-500" />
-                                                        </div>
-                                                        <h3 className="text-2xl font-bold text-white mb-2">Codebase is Protected</h3>
-                                                        <p className="text-sm text-white/40 font-mono max-w-sm uppercase tracking-tight">Zero security vulnerabilities have been detected in this audit cycle.</p>
-                                                    </div>
-                                                )
+                                                <ScanEmptyStates
+                                                    scanning={scanning}
+                                                    currentResult={currentResult}
+                                                    currentRepoKey={currentRepoKey}
+                                                />
                                             )}
                                         </div>
 
@@ -784,17 +651,7 @@ function Dashboard() {
                                 </>
                             )}
 
-                            {!currentResult && !scanning && (
-                                <div className="flex flex-col items-center justify-center py-40 bg-white/[0.01] border border-white/5 border-dashed rounded-[40px]">
-                                    <div className="w-20 h-20 bg-white/5 flex items-center justify-center rounded-full mb-8">
-                                        <Search className="w-8 h-8 text-white/20" />
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-white mb-3 tracking-tight">Select a Project</h3>
-                                    <p className="text-white/40 text-sm font-mono max-w-xs text-center leading-relaxed">
-                                        Choose a repository from the left sidebar to initiate a deep security audit.
-                                    </p>
-                                </div>
-                            )}
+
                         </div>
                     </div>
                 </div>
@@ -802,51 +659,12 @@ function Dashboard() {
 
             {/* Modals & Overlays */}
             <AnimatePresence>
-                {showPRSuccess && prResult && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] flex items-center justify-center p-6"
-                        onClick={() => setShowPRSuccess(false)}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.9, y: 20 }}
-                            className="bg-[#0A0A0A] border border-white/10 rounded-[32px] p-10 max-w-xl w-full text-center relative overflow-hidden"
-                            onClick={e => e.stopPropagation()}
-                        >
-                            <div className="relative z-10">
-                                <div className="w-24 h-24 bg-primary/10 flex items-center justify-center rounded-3xl mx-auto mb-8">
-                                    <Shield className="w-12 h-12 text-primary fill-primary/20" />
-                                </div>
-                                <h2 className="text-3xl font-black text-white tracking-tighter mb-4 uppercase">PR GENERATED</h2>
-                                <p className="text-white/50 text-base font-mono mb-8 leading-relaxed px-4">
-                                    The security patch for <span className="text-white">{currentRepoKey}</span> is ready for review.
-                                </p>
-
-                                <div className="space-y-4">
-                                    <a
-                                        href={prResult.prUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="block w-full py-4 bg-white text-black font-black font-mono text-sm rounded-2xl hover:bg-white/90 active:scale-[0.98] transition-all"
-                                    >
-                                        VIEW PULL REQUEST →
-                                    </a>
-                                    <button
-                                        onClick={() => setShowPRSuccess(false)}
-                                        className="block w-full py-4 text-white/40 hover:text-white text-xs font-bold font-mono tracking-widest transition-colors uppercase"
-                                    >
-                                        Dismiss
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 via-white to-primary/50" />
-                        </motion.div>
-                    </motion.div>
-                )}
+                <PRSuccessModal
+                    show={showPRSuccess}
+                    prResult={prResult}
+                    currentRepoKey={currentRepoKey}
+                    onDismiss={() => setShowPRSuccess(false)}
+                />
 
                 {showOnboarding && (
                     <Onboarding
