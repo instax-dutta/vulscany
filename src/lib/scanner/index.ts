@@ -1,6 +1,7 @@
 import { getFileContent, getDirectoryContents } from '../github/client';
 import type { WebAppProjectInfo } from '../github/stack-detector';
 import { detectHighRiskDependencies } from '../github/stack-detector';
+import { checkSsrInjection, extractSnippet } from './ssr-detector';
 
 export interface Vulnerability {
     id: string;
@@ -268,24 +269,9 @@ function scanFileContent(
             }
         }
 
-        // Special check for SSR Injection in Next.js
-        if (stackInfo.stack === 'nextjs' && (cleanLine.includes('getServerSideProps') || cleanLine.includes('getStaticProps'))) {
-            if (/export\s+(async\s+)?(function|const)\s+(getServerSideProps|getStaticProps)/.test(cleanLine)) {
-                const context = lines.slice(Math.max(0, i - 1), Math.min(lines.length, i + 10)).join('\n');
-                if ((context.includes('params') || context.includes('query')) && !context.includes('sanitize')) {
-                    vulnerabilities.push({
-                        id: `${filePath}-${lineNum}-ssr-injection`,
-                        type: 'ssr-injection',
-                        severity: 'critical',
-                        title: 'Server-Side Injection Risk',
-                        description: 'Unsanitized parameters in SSR data fetching can lead to injection attacks',
-                        file: filePath,
-                        line: lineNum,
-                        snippet: extractSnippet(lines, i),
-                        recommendation: 'Always sanitize user-controlled parameters before using them in data fetching logic'
-                    });
-                }
-            }
+        const ssrVuln = checkSsrInjection(cleanLine, lines, i, filePath, stackInfo);
+        if (ssrVuln) {
+            vulnerabilities.push(ssrVuln);
         }
     }
 
@@ -328,12 +314,6 @@ function isLineInStringContext(line: string, pattern: RegExp): boolean {
     }
 
     return inString;
-}
-
-function extractSnippet(lines: string[], lineIndex: number, context: number = 2): string {
-    const start = Math.max(0, lineIndex - context);
-    const end = Math.min(lines.length, lineIndex + context + 1);
-    return lines.slice(start, end).join('\n');
 }
 
 function determineStatus(vulnerabilities: Vulnerability[]): 'safe' | 'needs-attention' | 'high-risk' {
