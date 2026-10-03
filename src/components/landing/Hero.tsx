@@ -35,13 +35,13 @@ export function Hero() {
                     <GitHubAuthButton />
                     <a href="/why" className="w-full sm:w-auto">
                         <Button variant="outline" className="h-12 px-8 font-bold flex items-center gap-2 text-base border-border hover:bg-card/40 w-full sm:w-auto">
-                            Why it was archived
+                            How it works
                             <ArrowRight className="w-4 h-4" />
                         </Button>
                     </a>
                 </div>
 
-                <p className="text-sm font-mono text-muted-foreground/80 lowercase tracking-widest opacity-60">public archive • scrapped before launch • preserved for reference</p>
+                <p className="text-sm font-mono text-muted-foreground/80 lowercase tracking-widest opacity-60">self-hosted • sarif-native • your code never leaves your machine</p>
 
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-primary/10 blur-[120px] rounded-full -z-10" />
             </div>

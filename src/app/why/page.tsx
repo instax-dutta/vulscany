@@ -3,8 +3,8 @@ import { Footer } from "@/components/landing/Footer";
 import { WhySection } from "@/components/landing/WhySection";
 
 export const metadata = {
-    title: "Why It Was Archived",
-    description: "Why the vulscany team archived the project instead of launching it.",
+    title: "Why vulscany",
+    description: "Why vulscany scans your code on your machine instead of uploading it to a SaaS security platform.",
 };
 
 export default function WhyPage() {

@@ -26,10 +26,11 @@ vi.mock('./memory-cache', () => ({
   setCachedThreatData: vi.fn().mockResolvedValue(undefined),
 }));
 
+import type { CVEData, GitHubAdvisory } from './types';
 import * as cveFetcher from './cve-fetcher';
 import * as githubAdvisories from './github-advisories';
 
-const mockCriticalCVE = {
+const mockCriticalCVE: CVEData = {
   id: 'CVE-2024-0001',
   description: 'Critical vuln',
   severity: 'CRITICAL',
@@ -41,7 +42,7 @@ const mockCriticalCVE = {
   exploitAvailable: true,
 };
 
-const mockHighCVE = {
+const mockHighCVE: CVEData = {
   id: 'CVE-2024-0002',
   description: 'High vuln',
   severity: 'HIGH',
@@ -53,7 +54,7 @@ const mockHighCVE = {
   exploitAvailable: false,
 };
 
-const mockMediumCVE = {
+const mockMediumCVE: CVEData = {
   id: 'CVE-2024-0003',
   description: 'Medium vuln',
   severity: 'MEDIUM',
@@ -64,7 +65,7 @@ const mockMediumCVE = {
   references: [],
 };
 
-const mockLowCVE = {
+const mockLowCVE: CVEData = {
   id: 'CVE-2024-0004',
   description: 'Low vuln',
   severity: 'LOW',
@@ -76,7 +77,7 @@ const mockLowCVE = {
   exploitAvailable: false,
 };
 
-const mockCriticalAdvisory = {
+const mockCriticalAdvisory: GitHubAdvisory = {
   id: 'GHSA-crit',
   summary: 'Critical advisory',
   description: 'A critical advisory',
@@ -93,7 +94,7 @@ const mockCriticalAdvisory = {
   references: [{ url: 'https://github.com/advisories/GHSA-crit' }],
 };
 
-const mockHighAdvisory = {
+const mockHighAdvisory: GitHubAdvisory = {
   id: 'GHSA-high',
   summary: 'High advisory',
   description: 'A high advisory',
@@ -109,6 +110,21 @@ const mockHighAdvisory = {
   ],
   references: [{ url: 'https://github.com/advisories/GHSA-high' }],
 };
+
+function advisoryWithRange(vulnerableVersionRange: string): GitHubAdvisory {
+  return {
+    id: 'GHSA-test',
+    summary: 'Test advisory',
+    description: 'Advisory used for version-range assertions',
+    severity: 'HIGH',
+    publishedAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-06-01T00:00:00Z',
+    vulnerabilities: [
+      { package: { name: 'react', ecosystem: 'npm' }, vulnerableVersionRange },
+    ],
+    references: [],
+  };
+}
 
 describe('risk-analyzer – internal functions', () => {
   beforeEach(() => {
@@ -316,33 +332,25 @@ describe('risk-analyzer – internal functions', () => {
   describe('isVersionAffected', () => {
     it('wildcard * always returns true', () => {
       expect(
-        isVersionAffected('18.0.0', {
-          vulnerabilities: [{ vulnerableVersionRange: '*' }],
-        })
+        isVersionAffected('18.0.0', advisoryWithRange('*'))
       ).toBe(true);
     });
 
     it('range containing version string returns true', () => {
       expect(
-        isVersionAffected('16.0.0', {
-          vulnerabilities: [{ vulnerableVersionRange: '>=16.0.0 <18.2.0' }],
-        })
+        isVersionAffected('16.0.0', advisoryWithRange('>=16.0.0 <18.2.0'))
       ).toBe(true);
     });
 
     it('no matching range string returns false', () => {
       expect(
-        isVersionAffected('20.0.0', {
-          vulnerabilities: [{ vulnerableVersionRange: '>=16.0.0 <18.2.0' }],
-        })
+        isVersionAffected('20.0.0', advisoryWithRange('>=16.0.0 <18.2.0'))
       ).toBe(false);
     });
 
     it('no matching range returns false', () => {
       expect(
-        isVersionAffected('20.0.0', {
-          vulnerabilities: [{ vulnerableVersionRange: '>=16.0.0 <18.2.0' }],
-        })
+        isVersionAffected('20.0.0', advisoryWithRange('>=16.0.0 <18.2.0'))
       ).toBe(false);
     });
   });
@@ -358,7 +366,7 @@ describe('risk-analyzer – internal functions', () => {
           [
             {
               ...mockCriticalAdvisory,
-              vulnerabilities: [{ vulnerableVersionRange: '*' }],
+              vulnerabilities: [{ package: { name: 'react', ecosystem: 'npm' }, vulnerableVersionRange: '*' }],
             },
           ],
           '17.0.0'
@@ -375,8 +383,8 @@ describe('risk-analyzer – exported functions', () => {
   });
 
   it('analyzePackageRisk returns PackageVulnerability with correct shape', async () => {
-    cveFetcher.fetchCVEsByPackage.mockResolvedValue([mockCriticalCVE]);
-    githubAdvisories.fetchAdvisoriesForPackage.mockResolvedValue([]);
+    vi.mocked(cveFetcher.fetchCVEsByPackage).mockResolvedValue([mockCriticalCVE]);
+    vi.mocked(githubAdvisories.fetchAdvisoriesForPackage).mockResolvedValue([]);
 
     const result = await analyzePackageRisk('react', '18.0.0');
     expect(result.packageName).toBe('react');
@@ -387,11 +395,11 @@ describe('risk-analyzer – exported functions', () => {
   });
 
   it('generateThreatIntelligence aggregates across dependencies', async () => {
-    cveFetcher.fetchCVEsByPackage.mockImplementation(async (pkg: string) => {
+    vi.mocked(cveFetcher.fetchCVEsByPackage).mockImplementation(async (pkg: string) => {
       if (pkg === 'react') return [mockCriticalCVE];
       return [];
     });
-    githubAdvisories.fetchAdvisoriesForPackage.mockResolvedValue([]);
+    vi.mocked(githubAdvisories.fetchAdvisoriesForPackage).mockResolvedValue([]);
 
     const result = await generateThreatIntelligence({
       react: '18.0.0',
@@ -406,8 +414,8 @@ describe('risk-analyzer – exported functions', () => {
   });
 
   it('generateThreatIntelligence returns LOW/empty for empty dependencies', async () => {
-    cveFetcher.fetchCVEsByPackage.mockResolvedValue([]);
-    githubAdvisories.fetchAdvisoriesForPackage.mockResolvedValue([]);
+    vi.mocked(cveFetcher.fetchCVEsByPackage).mockResolvedValue([]);
+    vi.mocked(githubAdvisories.fetchAdvisoriesForPackage).mockResolvedValue([]);
 
     const result = await generateThreatIntelligence({});
 

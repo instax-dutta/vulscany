@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { server } from '../../../../vitest.setup';
+import { server } from '../../../vitest.setup';
 import { http, HttpResponse } from 'msw';
 import {
     fetchReactAdvisories,

@@ -1,0 +1,31 @@
+name: Feature request
+description: Propose a capability or improvement
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Security vulnerabilities belong in GitHub Security Advisories, not here.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you unable to do today? Describe the situation, not the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+  - type: textarea
+    id: contribution
+    attributes:
+      label: Would you like to implement it
+      description: An outline of the approach is enough to start a conversation.

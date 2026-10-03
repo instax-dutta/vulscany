@@ -122,14 +122,14 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
         {
             title: "Welcome to vulscany",
             subtitle: "Your AI-Powered Security Command Center",
-            content: "Meet the world's most private security scanner. We help you find and fix vulnerabilities across 6+ web stacks without ever moving your code to our servers.",
+            content: "Meet the local-first security scanner. vulscany finds and helps you fix vulnerabilities across 6+ web stacks without ever moving your code off your machine.",
             icon: <Shield className="w-12 h-12 text-primary" />,
             type: "intro"
         },
         {
             title: "Zero-Knowledge Security",
             subtitle: "Privacy is our primary directive",
-            content: "vulscany was designed to be trust-minimizing and privacy-first. The archived product focused on on-device style workflows, zero-retention goals, and safer developer ergonomics.",
+            content: "vulscany is trust-minimizing and privacy-first by architecture. Analysis runs in your own process, results persist to a local file, and there is no telemetry.",
             icon: <History className="w-12 h-12 text-emerald-500" />,
             type: "intro"
         },
@@ -143,7 +143,7 @@ export default function Onboarding({ onComplete, onDemoDataChange }: OnboardingP
         {
             title: `Ready for entry, ${userName || 'Commander'}`,
             subtitle: "Choose your primary review goal",
-            content: "The archived workflow adapts its heuristic analysis based on your selection:",
+            content: "The scan adapts its heuristic analysis based on your selection:",
             icon: <Zap className="w-12 h-12 text-yellow-500" />,
             type: "selection",
             options: [

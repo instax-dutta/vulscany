@@ -1,13 +1,45 @@
 {
   "name": "vulscany",
   "version": "0.1.0",
-  "private": true,
   "description": "Private, self-hostable AI-powered code security agent. Scan repositories for vulnerabilities, get AI-generated fixes, and keep your code on your machine.",
+  "license": "MIT",
+  "author": "vulscany contributors",
+  "homepage": "https://github.com/instax-dutta/vulscany#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/instax-dutta/vulscany.git"
+  },
+  "bugs": {
+    "url": "https://github.com/instax-dutta/vulscany/issues"
+  },
+  "keywords": [
+    "code-security",
+    "sast",
+    "static-analysis",
+    "secret-scanner",
+    "sarif",
+    "dependency-scanning",
+    "cve",
+    "ai-security",
+    "self-hosted",
+    "local-first",
+    "security-tools",
+    "nextjs",
+    "react"
+  ],
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "bin": {
+    "vulscany": "tsx src/cli/scan.ts"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "scan:cli": "tsx src/cli/scan.ts",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage"
@@ -95,6 +127,7 @@
     "msw": "^2.12.10",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.18",
+    "tsx": "^4.23.15",
     "tw-animate-css": "^1.3.3",
     "typescript": "^5",
     "vite": "^7.3.1",

@@ -82,6 +82,7 @@ When the user requests a durable behavior change, record it here or in the relev
 
 - `src/` — all application source: app routes, components, lib core (see `src/AGENTS.md`)
 - `.unlazy/` — active modernization pipeline: PLAN.md, per-branch gates, status log (see `.unlazy/modernize/PLAN.md`)
+- `.github/` — CI workflows, secret scan, Dependabot, issue and PR templates (see `.github/AGENTS.md`)
 - `.planning/` — GSD planning artifacts (phases, roadmap, state); historical, not binding
 - `graphify-out/`, `.planning/graphs/` — prebuilt codebase knowledge graph for agent exploration
 - `env.example`, `package.json`, `next.config.ts`, `vitest.config.ts` — root config

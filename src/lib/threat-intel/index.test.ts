@@ -234,7 +234,10 @@ describe('Orchestrator Functions', () => {
     describe('prewarmThreatCache', () => {
         beforeEach(() => {
             vi.stubGlobal('window', undefined);
-            vi.spyOn(global, 'setTimeout').mockImplementation((fn: () => void) => fn());
+            vi.spyOn(global, 'setTimeout').mockImplementation(((fn: () => void) => {
+                fn();
+                return undefined as unknown as ReturnType<typeof setTimeout>;
+            }) as typeof setTimeout);
         });
 
         afterEach(() => {

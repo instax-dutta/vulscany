@@ -122,6 +122,7 @@ const mockVulnerabilities = [
 const mockFixResult = {
     filePath: 'src/Component.tsx',
     vulnerabilityId: 'vuln-1',
+    originalCode: '<div dangerouslySetInnerHTML={{ __html: userInput }} />',
     fixedCode: 'import React...',
     diff: '- old\n+ new',
     commitMessage: 'fix(security): Unsafe HTML',

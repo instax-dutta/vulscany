@@ -154,8 +154,12 @@ Scanning works without any AI provider. AI only affects fix generation quality a
 npm run test:run       # vitest suite
 npm run test:coverage  # coverage
 npm run lint           # eslint
+npm run typecheck      # tsc --noEmit, includes test files
 npm run build          # production build
+npm run scan:cli -- --in scan-result.json --out findings.sarif --format sarif
 ```
+
+CI runs `lint`, `typecheck`, `test:run`, `build`, and the detection benchmark on every push and pull request, plus a gitleaks secret scan. Dependabot keeps npm and GitHub Actions current.
 
 Tests are colocated with the code they cover (`*.test.ts`, `*.test.tsx`). Fixtures for the detection benchmark live in `benchmarks/`, and its run writes `docs/benchmark-results.md`.
 
@@ -171,7 +175,13 @@ The active modernization roadmap lives in the maintainers' workspace; branch and
 - AI calls, when enabled, send only the specific snippet being analyzed, not the whole repository.
 - Findings are written to `.vulscany/data.json` on your machine and are never transmitted.
 
-Report a vulnerability in the scanner itself via GitHub Security Advisories on the repository, not as a public issue.
+Report a vulnerability in the scanner itself via GitHub Security Advisories on the repository, not as a public issue. See [SECURITY.md](SECURITY.md) for what counts as in scope and how disclosure works.
+
+## Contributing and community
+
+- [CONTRIBUTING.md](CONTRIBUTING.md) — development loop and conventions
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — expectations for participants
+- [SECURITY.md](SECURITY.md) — reporting vulnerabilities privately
 
 ## Brand
 

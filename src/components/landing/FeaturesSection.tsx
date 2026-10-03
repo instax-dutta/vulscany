@@ -1,4 +1,4 @@
-import { Zap, Cpu, Eye, Github, Shield, Archive } from "lucide-react";
+import { Zap, Cpu, Eye, Github, Shield, FileCode2, Ban } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 export function FeaturesSection() {
@@ -6,43 +6,43 @@ export function FeaturesSection() {
         <section id="features" className="py-24 scroll-mt-24">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16 space-y-4">
-                    <h2 className="text-3xl md:text-4xl font-bold">What the team had already built</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold">What vulscany does for you</h2>
                     <p className="text-muted-foreground max-w-2xl mx-auto">
-                        The product was shelved, but the prototype still captures the system design, interface work, and scanning
-                        ideas that were close to launch.
+                        Deterministic detection first, AI second, and a falsification pass in between, so you review findings
+                        instead of raw regex matches.
                     </p>
                 </div>
                 <div className="grid md:grid-cols-3 gap-6">
                     {[
                         {
-                            title: "GitHub-Only Login",
-                            desc: "A GitHub OAuth-based auth flow wired into the app shell and dashboard experience.",
+                            title: "GitHub-Native Scanning",
+                            desc: "Sign in with GitHub and scan any repository you can read. Files are read through the API and analyzed in-process.",
                             icon: Github,
                         },
                         {
-                            title: "AI-Powered Insights",
-                            desc: "AI-assisted analysis and explanation flows for vulnerability findings and remediation ideas.",
+                            title: "AI-Powered Fixes",
+                            desc: "Mistral or local Ollama generate a fix, explain the issue, and open a pull request when a fix is ready.",
                             icon: Zap,
                         },
                         {
-                            title: "Code Explainability",
-                            desc: "UX patterns for making scanner output more interpretable to developers under time pressure.",
+                            title: "Adversarial Revalidation",
+                            desc: "A second pass tries to falsify each finding. Rejected findings are dropped and undecided ones are downgraded.",
                             icon: Cpu,
                         },
                         {
-                            title: "Privacy-First Scanner Thesis",
-                            desc: "A product direction centered on minimizing code retention and keeping security workflows developer-native.",
+                            title: "Secrets and Supply Chain",
+                            desc: "AWS keys, GitHub and OpenAI tokens, Slack tokens, private keys, plus CVE and GitHub Advisory matching.",
                             icon: Eye,
                         },
                         {
-                            title: "Security Automation Surface",
-                            desc: "Prototype flows for auto-fixes, PR generation, validation, and dashboard-driven remediation.",
+                            title: "SARIF and CI Gates",
+                            desc: "Emit SARIF 2.1.0, JUnit, or Markdown, and exit non-zero on high or critical findings to block a merge.",
                             icon: Shield,
                         },
                         {
-                            title: "Archive-Ready Cleanup",
-                            desc: "Credentials and launch messaging were stripped so the repository can be shared safely as a public archive.",
-                            icon: Archive,
+                            title: "Privacy by Architecture",
+                            desc: "No database, no queue, no telemetry. Findings persist to a local JSON file you control.",
+                            icon: Ban,
                         },
                     ].map((feature, i) => (
                         <Card

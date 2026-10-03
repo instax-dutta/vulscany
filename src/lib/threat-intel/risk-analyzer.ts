@@ -1,6 +1,6 @@
 /**
- * Advanced Risk Analysis Engine
- * VulkanorAI-powered threat assessment and scoring
+ * Threat assessment and risk scoring.
+ * Combines CVE and GitHub advisory data into a per-package risk score.
  */
 
 import { CVEData, GitHubAdvisory, ThreatIntelligence, RiskFactors, PackageVulnerability } from './types';

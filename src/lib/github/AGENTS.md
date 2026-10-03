@@ -18,7 +18,8 @@ Owns `src/lib/github/**`: `client.ts` (Octokit wrapper: file contents, directory
 
 ## Verification
 
-- `npx vitest run src/lib/github` (add tests alongside new modules)
+- `npx vitest run src/lib/github`
+- New client behavior needs a colocated test; `client.test.ts` guards token handling and repo filtering (mutation-tested, must stay above 70% statement coverage)
 
 ## Child DOX Index
 

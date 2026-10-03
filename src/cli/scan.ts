@@ -23,3 +23,7 @@ export async function runScanCommand(args: string[]): Promise<number> {
     const blocking = result.vulnerabilities.some(v => v.severity === 'critical' || v.severity === 'high');
     return blocking ? 1 : 0;
 }
+
+if (process.argv[1] && process.argv[1].endsWith('scan.ts')) {
+    runScanCommand(process.argv.slice(2)).then(code => { process.exit(code); });
+}

@@ -2,23 +2,22 @@ import { ChevronRight } from "lucide-react";
 
 export function RoadmapSection() {
     return (
-        <section id="archive" className="py-24 bg-primary/5 border-y border-primary/10 relative overflow-hidden">
+        <section id="roadmap" className="py-24 bg-primary/5 border-y border-primary/10 relative overflow-hidden">
             <div className="container mx-auto px-4 relative z-10">
                 <div className="max-w-3xl mx-auto">
                     <h2 className="text-2xl font-mono font-bold mb-8 flex items-center gap-2">
-                        <span className="text-primary">archive</span> Notes
+                        <span className="text-primary">What&#39;s next</span>
                     </h2>
                     <div className="grid sm:grid-cols-2 gap-4">
                         {[
-                            "Branding changed to vulscany across the codebase",
-                            "Hardcoded live credential defaults removed from the application",
-                            "Static domains, sitemap entries, and manifest packaging removed",
-                            "Launch, pricing, and monetization copy replaced with archive messaging",
-                            "Live-service pages collapsed into simple archival notices",
-                            "Turnkey setup and deployment guides intentionally stripped out",
-                            "Original architectural experiments preserved as product archaeology",
-                            "Operational docs reduced to historical context only",
-                            "Repository prepared for public archival rather than easy relaunch",
+                            "Semgrep bridge so existing rules feed vulscany findings",
+                            "LLM-backed adversarial verifier on top of the heuristic revalidation pass",
+                            "Diff mode that scans only the pull request under review",
+                            "GitHub Action wrapper around the SARIF gate",
+                            "MCP server so coding agents can call vulscany directly",
+                            "Broader IaC and container scanning",
+                            "Token-cost reporting per scan",
+                            "Reproducible benchmark suite against known CVEs",
                         ].map((item, i) => (
                             <div
                                 key={i}

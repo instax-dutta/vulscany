@@ -19,7 +19,10 @@ Owns the `src/` tree: app routes, components, and the `lib/` core (scanner, AI, 
 
 ## Verification
 
+Run all four before considering work done; CI enforces the same four.
+
 - `npm run lint`
+- `npm run typecheck` (must be clean, including test files)
 - `npm run test:run`
 - `npm run build` for route/type breakage
 
@@ -29,4 +32,6 @@ Owns the `src/` tree: app routes, components, and the `lib/` core (scanner, AI, 
 - `app/api/` — HTTP API routes: auth, scan, batch-scan, ai, threat-intel, user, repos (see `app/api/AGENTS.md`)
 - `components/` — React UI: dashboard, landing, ui primitives (see `components/AGENTS.md`)
 - `lib/` — core logic: scanner, AI, threat-intel, github, cache, validators (see `lib/AGENTS.md`)
+- `lib/report/` — SARIF 2.1.0, JUnit, and Markdown exporters from a `ScanResult`
+- `cli/` — `vulscany scan` CLI; writes a report and exits non-zero on high or critical findings (`npm run scan:cli`)
 - `config/`, `constants/`, `proxy.ts` — site config, static text, request proxy/middleware

@@ -1,33 +1,33 @@
 /**
  * vulscany site configuration
  *
- * Centralized configuration for archive-mode branding and links.
+ * Centralized configuration for branding, metadata, and links.
  */
 
 export const SITE_CONFIG = {
     urls: {
         landing: 'http://localhost:3000',
         app: 'http://localhost:3000',
+        repo: 'https://github.com/instax-dutta/vulscany',
     },
 
     branding: {
         name: 'vulscany',
-        tagline: 'Archived AI Security Scanner Prototype',
-        description: 'A public archive of a scrapped security scanning product',
+        tagline: 'Local-first AI code security scanning',
+        description:
+            'vulscany scans GitHub repositories for application-security defects using a pattern prefilter, AI investigation, adversarial revalidation, and verified fixes, then emits SARIF for CI. Source code stays on your machine.',
         internalName: 'vulscany',
     },
 
     navigation: {
         landing: [
             { label: 'Home', href: '/' },
-            { label: 'Why It Was Archived', href: '/#why' },
-            { label: 'What Was Built', href: '/#features' },
-            { label: 'Archive Notes', href: '/#archive' },
+            { label: 'Why vulscany', href: '/#why' },
+            { label: 'Features', href: '/#features' },
+            { label: 'Roadmap', href: '/#roadmap' },
         ],
         app: [
             { label: 'Dashboard', href: '/dashboard' },
-            { label: 'Scan', href: '/dashboard/scan' },
-            { label: 'History', href: '/dashboard/history' },
         ],
     },
 
