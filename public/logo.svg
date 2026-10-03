@@ -1,0 +1,23 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="vulscany">
+  <defs>
+    <linearGradient id="vs-grad" x1="72" y1="72" x2="440" y2="440" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00D4FF"/>
+      <stop offset="1" stop-color="#00FFC8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- scan frame: viewfinder brackets -->
+  <g stroke="url(#vs-grad)" stroke-width="20" stroke-linecap="round" fill="none">
+    <path d="M72 152V92a20 20 0 0 1 20-20h60"/>
+    <path d="M440 152V92a20 20 0 0 0-20-20h-60"/>
+    <path d="M72 360v60a20 20 0 0 0 20 20h60"/>
+    <path d="M440 360v60a20 20 0 0 1-20 20h-60"/>
+  </g>
+
+  <!-- shield outline -->
+  <path d="M256 150c32 28 64 39 88 41v71c0 54-34 96-88 124-54-28-88-70-88-124v-71c24-2 56-13 88-41Z"
+        stroke="url(#vs-grad)" stroke-width="22" stroke-linejoin="round" fill="none"/>
+
+  <!-- verified -->
+  <path d="M204 264l32 34 74-86" stroke="url(#vs-grad)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

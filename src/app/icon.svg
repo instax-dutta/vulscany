@@ -1,25 +1,25 @@
-<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    @media (prefers-color-scheme: light) {
-      .bg { fill: #0a0a0a; }
-      .shield { fill: #ffffff; }
-      .inner { fill: #0a0a0a; }
-    }
-    @media (prefers-color-scheme: dark) {
-      .bg { fill: #ffffff; }
-      .shield { fill: #0a0a0a; }
-      .inner { fill: #ffffff; }
-    }
-    .accent { stroke: #22c55e; fill: none; }
-    .dot { fill: #22c55e; }
-  </style>
-  <rect class="bg" width="180" height="180" rx="37" />
-  <g transform="translate(90, 90)">
-    <path class="shield" d="M-30 -55L30 -55L50 -25L50 18L0 68L-50 18L-50 -25Z" />
-    <path class="inner" d="M-20 -45L20 -45L38 -20L38 15L0 58L-38 15L-38 -20Z" />
-    <path class="accent" d="M-14 30A14 14 0 0 1 0 16" stroke-width="2.5" stroke-linecap="round" />
-    <path class="accent" d="M-20 30A20 20 0 0 1 0 10" stroke-width="2" stroke-linecap="round" opacity="0.45" />
-    <line x1="0" y1="30" x2="-12" y2="18" class="accent" stroke-width="2.5" stroke-linecap="round" />
-    <circle cx="0" cy="30" r="3.5" class="dot" />
+<svg width="180" height="180" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0B1220"/>
+      <stop offset="1" stop-color="#050A12"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="72" y1="72" x2="440" y2="440" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00D4FF"/>
+      <stop offset="1" stop-color="#00FFC8"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#tile)"/>
+  <rect x="6" y="6" width="500" height="500" rx="106" stroke="#00D4FF" stroke-opacity="0.18" stroke-width="12" fill="none"/>
+  <g transform="translate(256 256) scale(0.66) translate(-256 -256)">
+    <g stroke="url(#mark)" stroke-width="22" stroke-linecap="round" fill="none">
+      <path d="M72 152V92a20 20 0 0 1 20-20h60"/>
+      <path d="M440 152V92a20 20 0 0 0-20-20h-60"/>
+      <path d="M72 360v60a20 20 0 0 0 20 20h60"/>
+      <path d="M440 360v60a20 20 0 0 1-20 20h-60"/>
+    </g>
+    <path d="M256 150c32 28 64 39 88 41v71c0 54-34 96-88 124-54-28-88-70-88-124v-71c24-2 56-13 88-41Z"
+          stroke="url(#mark)" stroke-width="24" stroke-linejoin="round" fill="none"/>
+    <path d="M204 264l32 34 74-86" stroke="url(#mark)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
   </g>
 </svg>

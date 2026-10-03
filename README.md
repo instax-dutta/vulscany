@@ -1,163 +1,200 @@
 <p align="center">
-  <img src="src/app/icon.svg" alt="vulscany" width="80" />
+  <img src="public/logo.svg" alt="vulscany logo" width="96" />
 </p>
 
 <h1 align="center">vulscany</h1>
 
 <p align="center">
-  <strong>Your private, self-hostable AI-powered code security agent.</strong>
-  <br>
-  Ship with confidence. Scan like a team of security engineers — without sending your code anywhere.
+  <strong>Local-first AI code security scanning for web applications.</strong><br>
+  Pattern prefilter, AI investigation, adversarial revalidation, verified fixes, SARIF output.<br>
+  Your source code never leaves your machine.
 </p>
 
 <p align="center">
-  <a href="#features">Features</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#why-vulscany">Why vulscany</a> •
-  <a href="#self-hosting">Self-Hosting</a> •
-  <a href="#the-backstory">The Backstory</a>
+  <a href="#what-it-does">What it does</a> •
+  <a href="#quick-start">Quick start</a> •
+  <a href="#cli-and-ci">CLI &amp; CI</a> •
+  <a href="#how-it-works">How it works</a> •
+  <a href="#configuration">Configuration</a> •
+  <a href="#contributing">Contributing</a>
 </p>
 
 ---
 
-vulscany is the production-grade code security scanner that was once built by a venture-backed security startup — before market timing forced an early curtain call. The code is battle-tested, the architecture is sound, and the core mission lives on: **give every developer god-tier security scanning, without the SaaS markup or the data leaving your machine.**
+## What it does
 
-## Features
+vulscany scans a GitHub repository for application-security defects and produces review-ready findings and fixes.
 
-- **AI-Powered Fix Generation** — Not just vulnerability detection. vulscany explains the issue, suggests a fix, and can generate a PR.
-- **Multi-Language Scanning** — React, Next.js, TypeScript, JavaScript, Python, and more. Stack-aware detection that understands your framework.
-- **Threat Intelligence** — Real-time CVE matching and GitHub Advisory correlation. Know if a dependency is compromised before the news breaks.
-- **SARIF / CI-Native Output** - Consume scans in GitHub code scanning, JUnit, or Markdown. `--format sarif|junit|markdown` with CI severity gates.
-- **Validated AI Fixes** - Fixes pass a syntax + rescan ladder before PR creation.
-- **Batch Scanning** — Scan your entire org in one shot. Parallel execution, aggregated summaries, sorted by severity.
-- **Privacy by Architecture** — Your source code never leaves your machine. Every scan runs locally. No telemetry. No data leaks.
-- **GitHub Native** — OAuth login, repo-level scanning, automated PR creation. Feels like a first-party GitHub feature.
-- **Self-Contained** — Zero external services. No database to provision. No Redis, no Convex, no cloud dependencies. Just `npm run dev`.
+| Capability | Details |
+|---|---|
+| **Static detection** | Dangerous HTML rendering (`dangerouslySetInnerHTML`, `v-html`, `[innerHTML]`, `{@html}`), code-execution sinks (`eval`, `new Function`, `child_process`), obfuscation, SSR injection, markdown XSS |
+| **Secret detection** | AWS access keys, GitHub tokens (`ghp_`, `github_pat_`), OpenAI keys, Slack tokens, private-key blocks, generic `secret`/`token`/`password` assignments |
+| **Supply-chain risk** | CVE matching and GitHub Advisory correlation per dependency, with an aggregated risk score |
+| **Adversarial revalidation** | A second pass tries to falsify each finding. Rejected findings are dropped; undecided findings are downgraded to `low` |
+| **Verified fixes** | Generated fixes must pass a validation ladder (code validation, TypeScript syntax diagnostics, rescan) before they are offered or turned into a PR |
+| **SARIF / CI-native output** | SARIF 2.1.0, JUnit XML, Markdown, or raw JSON. Exits non-zero on high or critical findings |
+| **Threat intelligence** | CVE feed and GitHub advisory correlation with in-memory caching and graceful degradation when offline |
 
-## Quick Start
+## Quick start
+
+Requirements: Node.js 18+ and a [GitHub OAuth app](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app).
 
 ```bash
 git clone https://github.com/instax-dutta/vulscany.git
 cd vulscany
-cp env.example .env.local
+cp env.example .env.local   # fill in GitHub OAuth credentials
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000), authenticate with GitHub, and scan your first repo.
+Open [http://localhost:3000](http://localhost:3000), sign in with GitHub, and scan a repository.
 
-> **Zero infrastructure required.** All data is stored in a local JSON file (`.vulscany/data.json`). There's nothing to configure, nothing to deploy, nothing to pay for.
+**No database, no queue, no cloud services.** Scans and user state persist to a local JSON file at `.vulscany/data.json`; caches are in-process.
 
-## Why vulscany
-
-Most code security tools fall into one of two camps:
-
-1. **SaaS platforms** that require you to upload your code to someone else's servers, trust their data handling, and pay per seat.
-2. **Open-source CLI tools** that are powerful but feel like they were designed in 2008 — no dashboard, no AI, no GitHub integration.
-
-vulscany bridges the gap. You get the polish of a production SaaS product with the privacy and autonomy of local-first software. It's the security scanner that a startup raised millions to build — now yours for a `git clone`.
-
-## Tech Stack
-
-| Layer | Choice |
-|-------|--------|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript |
-| AI | Mistral AI / Ollama |
-| Storage | Local JSON file |
-| Cache | In-memory |
-| Styling | Tailwind CSS |
-| Testing | Vitest |
-| Auth | GitHub OAuth |
-
-## Documentation
-
-- **Setup guide** — see [Quick Start](#quick-start)
-- **Environment config** — copy `env.example` to `.env.local` and fill in your GitHub OAuth credentials
-- **AI features** — optional. Set `MISTRAL_API_KEY` for fix generation, or use Ollama locally
-
-### Prerequisites
-
-- Node.js 18+
-- A [GitHub OAuth App](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app) (for authentication)
-- A Mistral API key or local Ollama instance (optional, for AI features)
-
-### Production Build
+### Production build
 
 ```bash
 npm run build
 npm start
 ```
 
-### Deploy to Vercel
+## CLI and CI
 
-Connect your fork to Vercel, set the environment variables from `.env.example`, and deploy. No database, no queue, no infrastructure — it just works.
+`vulscany scan` turns a scan result into a CI artifact and a pass/fail gate.
 
-## Project Structure
-
-```
-src/
-├── app/
-│   ├── api/          # API routes (auth, scan, batch-scan, AI, threat-intel)
-│   ├── dashboard/    # Dashboard page
-│   └── ...           # Landing, features, pricing, legal pages
-├── components/       # React components
-├── lib/
-│   ├── ai/           # Mistral + Ollama integration
-│   ├── cache/        # In-memory caching
-│   ├── github/       # GitHub API client
-│   ├── local-store.ts # Local JSON file storage
-│   ├── scanner/      # Code scanner engine
-│   ├── threat-intel/ # CVE and advisory matching
-│   └── validators/   # Code validators
-├── config/
-├── constants/
-└── middleware.ts
+```bash
+npm run scan:cli -- --in scan-result.json --out findings.sarif --format sarif
 ```
 
-## For AI Coding Agents
+| Flag | Values | Purpose |
+|---|---|---|
+| `--in` | path to a `ScanResult` JSON file | Input scan result |
+| `--out` | output path | Where the report is written |
+| `--format` | `sarif` (default), `junit`, `markdown`, `json` | Report format |
 
-This repo includes a pre-built **knowledge graph** (`graphify`) that AI coding assistants (Claude Code, Cursor, Copilot, etc.) can use to explore the codebase with minimal token overhead.
+Exit codes: `0` no high/critical findings, `1` high or critical findings present, `2` invalid usage.
 
-Instead of dumping every file into context, point your agent to:
+Example CI step:
 
-| Artifact | Purpose |
-|----------|---------|
-| `.planning/graphs/GRAPH_REPORT.md` | High-level summary — communities, god nodes (core abstractions), surprising connections, and import cycles |
-| `.planning/graphs/graph.json` | Full graph data (541 nodes, 884 edges) for structured queries |
-| `.planning/graphs/graph.html` | Interactive visual graph — open in browser to explore dependencies visually |
+```yaml
+- name: vulscany security gate
+  run: npm run scan:cli -- --in scan-result.json --out findings.sarif --format sarif
+```
 
-**How to use it:**
+Upload `findings.sarif` to GitHub code scanning to get findings rendered inline on pull requests.
 
-1. Start a session: *"Read GRAPH_REPORT.md in .planning/graphs to understand the codebase, then help me with..."*
-2. For deep dives into a specific area, reference a community or god node by name.
-3. After code changes, rebuild locally with no API cost: `graphify update .`
+## How it works
 
-The graph extracts relationships from imports, exports, function calls, and type references — no AI API key needed. It saves roughly 60-80% of the tokens you'd otherwise spend re-discovering the architecture.
+```text
+repo ──▶ stack detection ──▶ pattern prefilter ──▶ secrets + Semgrep findings
+                                          │
+                                          ▼
+                                 AI investigation
+                                          │
+                                          ▼
+                              adversarial revalidation
+                                          │
+                                          ▼
+                         fix generation ──▶ validation ladder ──▶ PR
+                                          │
+                                          ▼
+                              SARIF / JUnit / Markdown / JSON
+```
 
-> **Tip:** Include `.planning/graphs/GRAPH_REPORT.md` in your agent's context initialization to give it a map of the codebase before it reads a single source file.
+| Layer | Location | Responsibility |
+|---|---|---|
+| Scanner | `src/lib/scanner/` | Deterministic detectors, stack-aware rules, revalidation |
+| Semgrep bridge | `src/lib/scanner/semgrep/` | Maps Semgrep JSON output into vulscany findings |
+| Secrets | `src/lib/scanner/secrets/` | High-confidence secret prefilter |
+| Revalidation | `src/lib/scanner/revalidate/` | Confirmed / rejected / undecided verdicts |
+| AI | `src/lib/ai/` | Fix generation, validation ladder, provider rotation, response cache |
+| Threat intel | `src/lib/threat-intel/` | CVE fetch, GitHub advisories, risk scoring |
+| Reports | `src/lib/report/` | SARIF 2.1.0, JUnit, Markdown exporters |
+| CLI | `src/cli/` | `scan` command with severity gate |
 
-## The Backstory
+### Adversarial revalidation
 
-vulscany was originally the core product of a venture-backed security startup. We raised money, built a team, and spent months engineering a production-grade code security platform — AI-powered scanning, threat intelligence, automated remediation, the works.
+Most scanners report whatever they matched. vulscany tries to disprove its own findings before reporting them:
 
-Then the market shifted. The timing wasn't right, the round didn't close, and the company wound down.
+- `confirmed` — kept at its original severity
+- `rejected` — dropped from the report
+- `undecided` — kept, but downgraded to `low` severity
 
-But the code was too good to sit in a private repo.
+Enable the pass with `VULSCANY_REVALIDATE=on`. A future release wires an LLM verifier into the same interface (`FindingVerifier`) so a model can attempt the falsification step.
 
-So we cleaned it up, stripped the SaaS infrastructure, swapped the cloud dependencies for local storage, and opened it up. vulscany is what you get when a funded startup's engineering effort meets open-source pragmatism.
+## Configuration
 
-It's the product we wish someone had built for us. Now it's yours.
+| Variable | Required | Purpose |
+|---|---|---|
+| `GITHUB_CLIENT_ID` | Yes | GitHub OAuth app client ID |
+| `GITHUB_CLIENT_SECRET` | Yes | GitHub OAuth app client secret |
+| `SESSION_SECRET` | Yes | Session cookie encryption secret |
+| `MISTRAL_API_KEY` | No | Enables AI fix generation. Without it, pattern-based fixes are used |
+| `MISTRAL_API_KEYS` | No | Comma-separated key pool for rotation |
+| `VULSCANY_REVALIDATE` | No | `on` enables the adversarial revalidation pass |
 
----
+Scanning works without any AI provider. AI only affects fix generation quality and explanation detail.
 
-<p align="center">
-  <strong>vulscany</strong> — private, self-hosted, AI-powered code security.<br>
-  No data leaves your machine. No SaaS tax. No compromises.
-</p>
+## Tech stack
 
-<p align="center">
-  <a href="https://github.com/instax-dutta/vulscany">GitHub</a> •
-  <a href="#features">Features</a> •
-  <a href="#quick-start">Quick Start</a>
-</p>
+| Layer | Choice |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript |
+| AI providers | Mistral AI, Ollama (local) |
+| Storage | Local JSON file |
+| Cache | In-process |
+| Styling | Tailwind CSS v4 |
+| Testing | Vitest + Testing Library + MSW |
+| Auth | GitHub OAuth |
+
+## Development
+
+```bash
+npm run test:run       # vitest suite
+npm run test:coverage  # coverage
+npm run lint           # eslint
+npm run build          # production build
+```
+
+Tests are colocated with the code they cover (`*.test.ts`, `*.test.tsx`). Fixtures for the detection benchmark live in `benchmarks/`, and its run writes `docs/benchmark-results.md`.
+
+## Contributing
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md). The repository is organized as a DOX hierarchy: every subtree has an `AGENTS.md` describing its purpose, contracts, and verification commands. Read the chain for the files you are touching before you edit them.
+
+The active modernization roadmap lives in the maintainers' workspace; branch and gate definitions are described in the project history.
+
+## Security model
+
+- Source code is read through the GitHub API and analyzed in-process. Nothing is uploaded to a third-party analysis service.
+- AI calls, when enabled, send only the specific snippet being analyzed, not the whole repository.
+- Findings are written to `.vulscany/data.json` on your machine and are never transmitted.
+
+Report a vulnerability in the scanner itself via GitHub Security Advisories on the repository, not as a public issue.
+
+## Brand
+
+The mark is a scan frame (viewfinder brackets) around a verified shield: detection first, then proof.
+
+| Asset | File | Use |
+|---|---|---|
+| Primary mark | `public/logo.svg` | Navbar, footer, sidebar, README, docs |
+| App icon | `src/app/icon.svg` | Next.js app icon, favicon source |
+| Favicon | `src/app/favicon.ico` | Browser tab, multi-size (16-64px) |
+| Apple touch icon | `src/app/apple-icon.png` | iOS home screen, 180x180 |
+| Social card | `src/app/opengraph-image.tsx` | Open Graph / Twitter card, generated at 1200x630 |
+
+Palette: `#00D4FF` primary, `#00FFC8` secondary, `#04070C` mark knockout. Keep the mark on dark surfaces; it is transparent and needs no inversion filter.
+
+Regenerate raster renditions after changing the SVG:
+
+```bash
+rsvg-convert -w 512 -h 512 -b none public/logo.svg -o public/logo.png
+rsvg-convert -w 180 -h 180 src/app/icon.svg -o public/apple-touch-icon.png
+magick -background none src/app/icon.svg -define icon:auto-resize=64,48,32,16 src/app/favicon.ico
+```
+
+## License
+
+See [LICENSE](LICENSE).

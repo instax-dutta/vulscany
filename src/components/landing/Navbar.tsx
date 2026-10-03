@@ -16,9 +16,9 @@ export function Navbar() {
                 <Link href="/" className="flex items-center gap-2.5 group cursor-pointer py-1">
                     <div className="relative w-9 h-9 flex items-center justify-center">
                         <img
-                            src="/favicon.png"
+                            src="/logo.svg"
                             alt="vulscany Logo"
-                            className="w-full h-full object-contain relative z-10 group-hover:scale-110 transition-all duration-300 invert brightness-200"
+                            className="w-full h-full object-contain relative z-10 group-hover:scale-110 transition-all duration-300"
                         />
                     </div>
                     <span className="font-mono font-bold tracking-tighter text-xl text-white">
@@ -28,26 +28,26 @@ export function Navbar() {
 
                 <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground mr-auto ml-12">
                     <Link href="/why" className="hover:text-foreground transition-colors">
-                        Why Archived
+                        Why vulscany
                     </Link>
                     <Link href="/features" className="hover:text-foreground transition-colors">
-                        Preserved Work
+                        Features
                     </Link>
                     <Link href="/privacy" className="hover:text-foreground transition-colors">
-                        Cleanup Notes
+                        Privacy
                     </Link>
                 </nav>
 
                 <div className="hidden md:flex items-center gap-4">
-                    <Link href="/terms">
+                    <a href="https://github.com/instax-dutta/vulscany" target="_blank" rel="noopener noreferrer">
                         <Button
                             variant="outline"
                             size="sm"
                             className="font-mono border-primary/20 hover:bg-primary/5 hover:border-primary/40 bg-transparent"
                         >
-                            Archive Note
+                            GitHub
                         </Button>
-                    </Link>
+                    </a>
                 </div>
 
                 <button
@@ -62,21 +62,21 @@ export function Navbar() {
                 <div className="md:hidden absolute top-16 left-0 w-full bg-background/95 backdrop-blur-lg border-b border-border/50 py-6 px-4 space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
                     <nav className="flex flex-col gap-4">
                         <Link href="/why" className="text-lg font-medium text-muted-foreground hover:text-foreground py-2" onClick={toggleMenu}>
-                            Why Archived
+                            Why vulscany
                         </Link>
                         <Link href="/features" className="text-lg font-medium text-muted-foreground hover:text-foreground py-2" onClick={toggleMenu}>
-                            Preserved Work
+                            Features
                         </Link>
                         <Link href="/privacy" className="text-lg font-medium text-muted-foreground hover:text-foreground py-2" onClick={toggleMenu}>
-                            Cleanup Notes
+                            Privacy
                         </Link>
                     </nav>
                     <div className="pt-4 border-t border-border/50">
-                        <Link href="/terms" className="block" onClick={toggleMenu}>
+                        <a href="https://github.com/instax-dutta/vulscany" target="_blank" rel="noopener noreferrer" className="block" onClick={toggleMenu}>
                             <Button className="w-full font-mono py-6">
-                                Archive Note
+                                GitHub
                             </Button>
-                        </Link>
+                        </a>
                     </div>
                 </div>
             )}

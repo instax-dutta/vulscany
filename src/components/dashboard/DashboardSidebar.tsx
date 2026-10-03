@@ -54,9 +54,9 @@ export function DashboardSidebar({
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 flex items-center justify-center rounded-lg overflow-hidden bg-white/5 border border-white/10 p-1">
                         <img
-                            src="/favicon.png"
+                            src="/logo.svg"
                             alt="vulscany"
-                            className="w-full h-full object-contain invert brightness-200"
+                            className="w-full h-full object-contain"
                         />
                     </div>
                     <span className="font-mono font-bold tracking-tighter text-lg text-white">vulscany</span>
