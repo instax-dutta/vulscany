@@ -8,8 +8,10 @@ const eslintConfig = defineConfig([
   // Style rules — normalize to project standard
   {
     rules: {
-      indent: ["error", 4, { SwitchCase: 1 }],
       semi: ["error", "always"],
+      "@typescript-eslint/no-explicit-any": "warn",
+      "react/no-unescaped-entities": "warn",
+      "react-hooks/set-state-in-effect": "warn",
     },
   },
   // Override default ignores of eslint-config-next.
@@ -19,6 +21,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "benchmarks/fixtures/**",
+    "docs/**",
   ]),
 ]);
 

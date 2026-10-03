@@ -2,6 +2,7 @@ import { getFileContent, getDirectoryContents } from '../github/client';
 import type { WebAppProjectInfo } from '../github/stack-detector';
 import { detectHighRiskDependencies } from '../github/stack-detector';
 import { checkSsrInjection, extractSnippet } from './ssr-detector';
+import { revalidateFindings, heuristicVerifier } from './revalidate/revalidate';
 
 export interface Vulnerability {
     id: string;
@@ -65,6 +66,13 @@ export async function scanRepository(
     // 2. Scan source files for dangerous patterns
     const sourceVulns = await scanSourceFiles(accessToken, owner, repo, stackInfo);
     vulnerabilities.push(...sourceVulns);
+
+    // 3. Adversarial revalidation pass (opt-in; heuristic verifier by default)
+    if (process.env.VULSCANY_REVALIDATE === 'on') {
+        const revalidated = await revalidateFindings(vulnerabilities, heuristicVerifier);
+        vulnerabilities.length = 0;
+        vulnerabilities.push(...revalidated);
+    }
 
     // Determine status
     const status = determineStatus(vulnerabilities);
@@ -223,7 +231,7 @@ function scanFileContent(
     ];
 
     for (let i = 0; i < lines.length; i++) {
-        let line = lines[i].trim();
+        const line = lines[i].trim();
         const lineNum = i + 1;
 
         if (!line || line.includes('@vulscany-ignore')) continue;

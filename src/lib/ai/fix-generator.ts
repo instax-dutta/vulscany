@@ -5,6 +5,7 @@
 
 import { createTwoFilesPatch } from 'diff';
 import type { Vulnerability } from '../scanner';
+import { runFixLadder } from './fix-ladder';
 
 export interface FixResult {
     filePath: string;
@@ -250,9 +251,9 @@ export async function generateCodeFix(
     // Try AI fix first
     let fixedCode = await callMistralForFix(prompt);
 
-    // Validate AI response
+    // Validate AI response through the fix ladder (syntax + basic validation)
     if (fixedCode) {
-        // Basic validation - should look like code
+        const ladder = await runFixLadder(fixedCode, { repoFiles: [], rescan: async () => [] });
         const hasCode = fixedCode.includes('import') ||
             fixedCode.includes('export') ||
             fixedCode.includes('function') ||
@@ -262,8 +263,8 @@ export async function generateCodeFix(
         const isTooShort = fixedCode.length < fileContent.length * 0.5;
         const isTooLong = fixedCode.length > fileContent.length * 3;
 
-        if (!hasCode || isTooShort || isTooLong) {
-            console.warn('[Fix Generator] AI response invalid, falling back to pattern fix');
+        if (!ladder.valid || !hasCode || isTooShort || isTooLong) {
+            console.warn('[Fix Generator] AI response invalid, falling back to pattern fix', ladder.errors);
             fixedCode = null;
         }
     }

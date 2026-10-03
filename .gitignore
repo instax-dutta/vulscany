@@ -44,3 +44,7 @@ yarn-error.log*
 next-env.d.ts
 
 .agent
+
+# unlazy local pipeline state
+.unlazy/
+.unlazy-hook-state.json

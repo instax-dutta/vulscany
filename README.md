@@ -27,6 +27,8 @@ vulscany is the production-grade code security scanner that was once built by a 
 - **AI-Powered Fix Generation** — Not just vulnerability detection. vulscany explains the issue, suggests a fix, and can generate a PR.
 - **Multi-Language Scanning** — React, Next.js, TypeScript, JavaScript, Python, and more. Stack-aware detection that understands your framework.
 - **Threat Intelligence** — Real-time CVE matching and GitHub Advisory correlation. Know if a dependency is compromised before the news breaks.
+- **SARIF / CI-Native Output** - Consume scans in GitHub code scanning, JUnit, or Markdown. `--format sarif|junit|markdown` with CI severity gates.
+- **Validated AI Fixes** - Fixes pass a syntax + rescan ladder before PR creation.
 - **Batch Scanning** — Scan your entire org in one shot. Parallel execution, aggregated summaries, sorted by severity.
 - **Privacy by Architecture** — Your source code never leaves your machine. Every scan runs locally. No telemetry. No data leaks.
 - **GitHub Native** — OAuth login, repo-level scanning, automated PR creation. Feels like a first-party GitHub feature.

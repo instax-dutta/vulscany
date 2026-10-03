@@ -110,6 +110,23 @@ export function Component({ userInput }: { userInput: string }) {
         });
     });
 
+    describe('Fix Ladder Gating', () => {
+        it('should refuse a syntactically invalid AI fix and fall back to pattern fix', async () => {
+            server.use(
+                http.post('https://api.mistral.ai/v1/chat/completions', () => {
+                    return HttpResponse.json({
+                        choices: [{ message: { content: 'const x: = ;\nfunction broken( {' } }]
+                    });
+                })
+            );
+
+            const result = await generateCodeFix(mockVulnerability, mockFileContent);
+
+            expect(result.fixedCode).not.toContain('const x: = ;');
+            expect(result.fixedCode.length).toBeGreaterThan(0);
+        });
+    });
+
     describe('Pattern-Based Fixes', () => {
         it('should add DOMPurify import if missing', async () => {
             server.use(
